@@ -1,8 +1,10 @@
 # Spectral Diffusion Playground
 
+![Understanding Images in Fourier Space](figures/understanding_images_in_fourier_space_default_fft_reference_rgb.png)
+
 Spectral Diffusion Playground is a small research repository for understanding diffusion-model behavior through Fourier analysis, controlled perturbations, and clean visualizations.
 
-**Current status:** repository scaffold only. The experiment entrypoints and shared package structure are in place, but the actual experiments are not implemented yet.
+**Current status:** Experiment 1, `Understanding Images in Fourier Space`, is complete. Later experiments remain planned.
 
 ## Scope
 
@@ -42,15 +44,42 @@ A Fourier view does not replace the standard diffusion formulation. It provides 
 - Outputs should be easy to trace back to the script that produced them.
 - The repository should stay readable to someone skimming it for five minutes.
 
+## Featured Experiment
+
+### Understanding Images in Fourier Space
+
+Status: Complete.
+
+This experiment turns one image into a compact story:
+
+- original image in pixel space
+- centered Fourier magnitude
+- log-scaled Fourier magnitude
+- inverse FFT reconstruction
+
+Run it with a curated real image once `assets/examples/` is populated:
+
+```bash
+python experiments/01_fft_visualization.py \
+    --image-path assets/examples/castle.png
+```
+
+Today the script still includes a deterministic synthetic fallback so the repo stays runnable even before the curated example set is added.
+
+Display normalization:
+
+- linear magnitude uses exact max normalization after channel averaging
+- log magnitude uses `log1p(magnitude + 1e-12)` before the same max normalization
+
 ## Planned Experiments
 
-| Script | Question | Planned output | Status |
-| --- | --- | --- | --- |
-| `01_fft_visualization.py` | What becomes obvious when an image is viewed through centered magnitude and phase plots? | Baseline FFT figures for reference images | [ ] |
-| `02_noise_vs_frequency.py` | How do different noise realizations appear in the frequency domain? | Side-by-side spatial and spectral comparisons | [ ] |
-| `03_sigma_progression.py` | How does increasing noise scale change spectral structure? | Multi-panel progression over sigma values | [ ] |
-| `04_low_pass.py` | What survives aggressive removal of high frequencies? | Low-pass reconstructions and spectra | [ ] |
-| `05_high_pass.py` | What is emphasized when low frequencies are suppressed? | High-pass reconstructions and residual views | [ ] |
+| Script | Title | Question | Planned output | Status |
+| --- | --- | --- | --- | --- |
+| `01_fft_visualization.py` | Understanding Images in Fourier Space | What becomes obvious when an image is viewed through centered magnitude and phase plots? | Reversible pixel-space to frequency-space walkthrough | [x] |
+| `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How do different noise realizations appear in the frequency domain? | Side-by-side spatial and spectral comparisons | [ ] |
+| `03_sigma_progression.py` | Noise Scale Progression in Fourier Space | How does increasing noise scale change spectral structure? | Multi-panel progression over sigma values | [ ] |
+| `04_low_pass.py` | What Low-Pass Filtering Preserves | What survives aggressive removal of high frequencies? | Low-pass reconstructions and spectra | [ ] |
+| `05_high_pass.py` | What High-Pass Filtering Emphasizes | What is emphasized when low frequencies are suppressed? | High-pass reconstructions and residual views | [ ] |
 
 ## Installation
 
@@ -70,7 +99,11 @@ Each experiment is an independent script:
 python experiments/01_fft_visualization.py
 ```
 
-At the current stage, the scripts intentionally act as stubs and print the question they will eventually answer.
+To compare RGB and grayscale views in the same artifact:
+
+```bash
+python experiments/01_fft_visualization.py --grayscale
+```
 
 ## Repository Layout
 
@@ -106,6 +139,8 @@ spectral-diffusion-playground/
 ## Future Research Directions
 
 - Compare spectral behavior across datasets or semantic classes.
+- Replace the synthetic fallback with a curated set of real example images in `assets/examples/`.
+- Add animated FFT walkthroughs and GIF exports for recruiting and tutorial use.
 - Study whether different noise schedules induce distinct spectral trajectories.
 - Connect score estimation and denoising behavior to frequency recovery.
 - Examine spectral effects of conditioning, guidance, or architecture choices.

@@ -33,6 +33,7 @@ htmlcov/
 
 # VS Code
 .vscode/
+.mplconfig/
 
 # macOS
 .DS_Store
