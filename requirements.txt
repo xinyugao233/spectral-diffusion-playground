@@ -1,0 +1,13 @@
+# Numerical and visualization stack
+matplotlib
+numpy
+opencv-python
+pillow
+scipy
+
+# Tensor and dataset stack
+torch
+torchvision
+
+# Experiment utilities
+tqdm

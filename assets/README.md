@@ -1,0 +1,11 @@
+# Assets
+
+Tracked static assets belong here.
+
+Examples include:
+
+- small reference images used across experiments
+- schematic diagrams used in documentation
+- presentation-friendly visuals that are not generated at runtime
+
+Large datasets do not belong in this repository.

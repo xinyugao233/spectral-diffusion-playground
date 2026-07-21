@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spectral-diffusion-playground"
+version = "0.1.0"
+description = "Educational diffusion-model experiments built around Fourier intuition and reproducible visualizations."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Gao Xinyu" }]
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "opencv-python",
+    "pillow",
+    "scipy",
+    "torch",
+    "torchvision",
+    "tqdm",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
