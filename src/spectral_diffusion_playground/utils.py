@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
@@ -12,6 +13,7 @@ from PIL import Image
 
 SCAFFOLD_STATUS: Final[str] = "Scaffold only; experiment implementation pending."
 LUMINANCE_WEIGHTS: Final[np.ndarray] = np.asarray([0.2126, 0.7152, 0.0722])
+NON_ALPHANUMERIC_PATTERN: Final[re.Pattern[str]] = re.compile(r"[^a-z0-9]+")
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +53,21 @@ def load_rgb_image(path: Path) -> np.ndarray:
     with Image.open(path) as image:
         rgb_image = image.convert("RGB")
         return np.asarray(rgb_image, dtype=np.float64) / 255.0
+
+
+def load_experiment_image(
+    image_path: Path | None,
+    *,
+    default_path: Path,
+    default_size: int = 384,
+) -> tuple[np.ndarray, Path]:
+    """Load a user image or fall back to the deterministic default reference image."""
+    if image_path is not None:
+        resolved_path = image_path.expanduser().resolve()
+        return load_rgb_image(resolved_path), resolved_path
+
+    reference_path = ensure_default_reference_image(default_path, size=default_size)
+    return load_rgb_image(reference_path), reference_path
 
 
 def save_rgb_image(path: Path, image: np.ndarray) -> Path:
@@ -146,3 +163,9 @@ def ensure_default_reference_image(path: Path, *, size: int = 384) -> Path:
     if not path.exists():
         save_rgb_image(path, create_reference_image(size=size))
     return path
+
+
+def slugify_stem(path: Path) -> str:
+    """Create a filesystem-friendly lowercase stem from a source path."""
+    normalized = NON_ALPHANUMERIC_PATTERN.sub("_", path.stem.lower()).strip("_")
+    return normalized or "image"

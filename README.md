@@ -4,7 +4,7 @@
 
 Spectral Diffusion Playground is a small research repository for understanding diffusion-model behavior through Fourier analysis, controlled perturbations, and clean visualizations.
 
-**Current status:** Experiment 1, `Understanding Images in Fourier Space`, is complete. Later experiments remain planned.
+**Current status:** Experiments 1 and 2 are complete. Later experiments remain planned.
 
 ## Scope
 
@@ -71,12 +71,42 @@ Display normalization:
 - linear magnitude uses exact max normalization after channel averaging
 - log magnitude uses `log1p(magnitude + 1e-12)` before the same max normalization
 
+### How Gaussian Noise Changes Frequency Content
+
+Status: Complete.
+
+Motivation: diffusion models add Gaussian noise in pixel space, but the same perturbation becomes easier to reason about when it is inspected in Fourier space. This experiment fixes one image, varies only `sigma` in `x_sigma = x + sigma * epsilon`, and shows both the noisy observations and their spectral summaries.
+
+![How Gaussian Noise Changes Frequency Content](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_grid.png)
+
+![Normalized Radial Spectral Distribution](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_normalized_radial_distribution.png)
+
+Run it with a curated real image once `assets/examples/` is populated:
+
+```bash
+python experiments/02_noise_vs_frequency.py \
+    --image-path assets/examples/castle.png
+```
+
+Display normalization:
+
+- noisy images are clipped only for visualization; the additive perturbation itself is not clipped
+- log spectra use `log1p(magnitude + 1e-12)` followed by one shared global 99.5th-percentile normalization after channel averaging
+- the raw radial analysis also saves annulus-averaged power `E(r)` on a log-scaled y-axis
+- the normalized radial spectral-distribution figure excludes the centered DC bin, then plots `E(r) / \sum_{r>0} E(r)` with a dashed white-noise reference line
+
+Takeaway:
+
+- larger `sigma` values visibly erase image structure in pixel space
+- the log spectra become more uniformly elevated across the frequency plane as noise dominates the image
+- after DC exclusion and normalization, larger `sigma` values spread relative radial power more uniformly across frequency bands
+
 ## Planned Experiments
 
 | Script | Title | Question | Planned output | Status |
 | --- | --- | --- | --- | --- |
 | `01_fft_visualization.py` | Understanding Images in Fourier Space | What becomes obvious when an image is viewed through centered magnitude and phase plots? | Reversible pixel-space to frequency-space walkthrough | [x] |
-| `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How do different noise realizations appear in the frequency domain? | Side-by-side spatial and spectral comparisons | [ ] |
+| `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How does additive Gaussian noise change both image-space structure and Fourier-space energy? | Spatial/spectral grid plus radial energy curves | [x] |
 | `03_sigma_progression.py` | Noise Scale Progression in Fourier Space | How does increasing noise scale change spectral structure? | Multi-panel progression over sigma values | [ ] |
 | `04_low_pass.py` | What Low-Pass Filtering Preserves | What survives aggressive removal of high frequencies? | Low-pass reconstructions and spectra | [ ] |
 | `05_high_pass.py` | What High-Pass Filtering Emphasizes | What is emphasized when low frequencies are suppressed? | High-pass reconstructions and residual views | [ ] |

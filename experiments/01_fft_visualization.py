@@ -27,9 +27,9 @@ from spectral_diffusion_playground.fft import (
     shift_fft,
 )
 from spectral_diffusion_playground.utils import (
-    ensure_default_reference_image,
-    load_rgb_image,
+    load_experiment_image,
     rgb_to_grayscale,
+    slugify_stem,
 )
 from spectral_diffusion_playground.visualization import (
     ImagePanel,
@@ -77,20 +77,6 @@ def parse_args() -> argparse.Namespace:
         help="Also render a grayscale row to compare RGB and grayscale spectra.",
     )
     return parser.parse_args()
-
-
-def load_experiment_image(image_path: Path | None) -> tuple[np.ndarray, Path]:
-    """Load a user image or fall back to the repository's default reference image."""
-    if image_path is not None:
-        resolved_path = image_path.expanduser().resolve()
-        image = load_rgb_image(resolved_path)
-        return image, resolved_path
-
-    default_path = REPO_ROOT / "assets" / "default_fft_reference.png"
-    reference_path = ensure_default_reference_image(default_path)
-    image = load_rgb_image(reference_path)
-    return image, reference_path
-
 
 def compute_fourier_views(image: np.ndarray, *, name: str) -> FourierViews:
     """Compute the forward and inverse FFT views needed for visualization.
@@ -157,7 +143,7 @@ def build_output_path(image_path: Path, *, grayscale: bool, override: Path | Non
     if override is not None:
         return override.expanduser().resolve()
 
-    safe_stem = image_path.stem.lower().replace(" ", "_")
+    safe_stem = slugify_stem(image_path)
     suffix = "_rgb_and_grayscale" if grayscale else "_rgb"
     filename = f"understanding_images_in_fourier_space_{safe_stem}{suffix}.png"
     return REPO_ROOT / "figures" / filename
@@ -166,7 +152,10 @@ def build_output_path(image_path: Path, *, grayscale: bool, override: Path | Non
 def main() -> int:
     """Run the Fourier-space visualization experiment."""
     args = parse_args()
-    image, source_path = load_experiment_image(args.image_path)
+    image, source_path = load_experiment_image(
+        args.image_path,
+        default_path=REPO_ROOT / "assets" / "default_fft_reference.png",
+    )
 
     rgb_views = compute_fourier_views(image, name="RGB")
     panel_rows: list[list[ImagePanel]] = make_panel_block(rgb_views)

@@ -20,6 +20,7 @@ from spectral_diffusion_playground.fft import (
     compute_ifft,
     log_magnitude,
     magnitude_spectrum,
+    normalize_radial_energy,
     shift_fft,
 )
 from spectral_diffusion_playground.utils import (
@@ -80,6 +81,13 @@ class FFTUtilitiesTest(unittest.TestCase):
         display_image = spectrum_to_display_image(scalar_field, normalization="max")
 
         np.testing.assert_allclose(display_image, scalar_field / 8.0)
+
+    def test_normalized_radial_energy_sums_to_one(self) -> None:
+        radial_energy = np.asarray([2.0, 3.0, 5.0], dtype=np.float64)
+        normalized = normalize_radial_energy(radial_energy)
+
+        self.assertTrue(np.all(normalized >= 0.0))
+        self.assertAlmostEqual(float(normalized.sum()), 1.0)
 
 
 if __name__ == "__main__":

@@ -26,6 +26,19 @@ class ImagePanel:
     cmap: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class LineCurve:
+    """A single labeled curve in a line plot."""
+
+    label: str
+    x: np.ndarray
+    y: np.ndarray
+    color: str | None = None
+    linestyle: str = "-"
+    linewidth: float = 2.3
+    alpha: float = 1.0
+
+
 def prepare_image_for_display(image: np.ndarray) -> np.ndarray:
     """Clip an image-like array into a safe display range of ``[0, 1]``."""
     image_array = np.asarray(image, dtype=np.float64)
@@ -65,6 +78,43 @@ def normalize_scalar_field(field: np.ndarray, *, percentile: float = 99.5) -> np
         scale = max_value if max_value > 0.0 else 1.0
 
     return np.clip(shifted / scale, 0.0, 1.0)
+
+
+def normalize_scalar_fields(
+    fields: Sequence[np.ndarray],
+    *,
+    normalization: str = "global_percentile",
+    percentile: float = 99.5,
+) -> list[np.ndarray]:
+    """Normalize multiple scalar fields with one shared display scale.
+
+    This is useful when several related spectra must be compared side by side
+    without each panel choosing its own independent brightness scale.
+    """
+    if not fields:
+        raise ValueError("fields must contain at least one scalar field.")
+
+    collapsed_fields = [collapse_channels(field).astype(np.float64) for field in fields]
+    flattened = np.concatenate([field.ravel() for field in collapsed_fields])
+    offset = float(flattened.min())
+    shifted_fields = [field - offset for field in collapsed_fields]
+    shifted_flattened = flattened - offset
+
+    if normalization == "global_max":
+        scale = float(shifted_flattened.max())
+    elif normalization == "global_percentile":
+        scale = float(np.percentile(shifted_flattened, percentile))
+    else:
+        raise ValueError(
+            "normalization must be either 'global_max' or 'global_percentile'."
+        )
+
+    if scale <= 0.0:
+        scale = float(shifted_flattened.max())
+        if scale <= 0.0:
+            scale = 1.0
+
+    return [np.clip(field / scale, 0.0, 1.0) for field in shifted_fields]
 
 
 def spectrum_to_display_image(
@@ -116,6 +166,9 @@ def save_panel_grid(
     output_path: Path,
     *,
     figure_title: str,
+    row_labels: Sequence[str] | None = None,
+    figure_title_size: float = 15.0,
+    figure_title_y: float = 0.972,
     dpi: int = 220,
 ) -> Path:
     """Render and save a clean grid of image panels."""
@@ -125,6 +178,8 @@ def save_panel_grid(
     column_count = len(panel_rows[0])
     if any(len(row) != column_count for row in panel_rows):
         raise ValueError("Every panel row must have the same number of columns.")
+    if row_labels is not None and len(row_labels) != len(panel_rows):
+        raise ValueError("row_labels must match the number of panel rows.")
 
     _apply_publication_style()
 
@@ -147,8 +202,72 @@ def save_panel_grid(
             axis.set_title(panel.title, pad=7)
             axis.axis("off")
 
-    fig.suptitle(figure_title, fontsize=15, fontweight="bold", y=0.972)
-    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.962))
+    fig.suptitle(figure_title, fontsize=figure_title_size, fontweight="bold", y=figure_title_y)
+    left_margin = 0.045 if row_labels is not None else 0.0
+    fig.tight_layout(rect=(left_margin, 0.0, 1.0, 0.962))
+    if row_labels is not None:
+        for row_index, row_label in enumerate(row_labels):
+            first_axis = axes_array[row_index, 0]
+            bbox = first_axis.get_position()
+            fig.text(
+                max(bbox.x0 - 0.02, 0.01),
+                0.5 * (bbox.y0 + bbox.y1),
+                row_label,
+                rotation=90,
+                va="center",
+                ha="right",
+                fontsize=12.5,
+                fontweight="bold",
+            )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=dpi)
+    plt.close(fig)
+    return output_path
+
+
+def save_curve_plot(
+    curves: Sequence[LineCurve],
+    output_path: Path,
+    *,
+    figure_title: str,
+    x_label: str,
+    y_label: str,
+    yscale: str = "linear",
+    legend_title: str | None = None,
+    figure_title_size: float = 14.0,
+    dpi: int = 220,
+) -> Path:
+    """Render and save a publication-quality line plot."""
+    if not curves:
+        raise ValueError("curves must contain at least one line.")
+
+    _apply_publication_style()
+
+    fig, axis = plt.subplots(figsize=(8.4, 5.2))
+    for curve in curves:
+        x_values = np.asarray(curve.x, dtype=np.float64)
+        y_values = np.asarray(curve.y, dtype=np.float64)
+        axis.plot(
+            x_values,
+            y_values,
+            label=curve.label,
+            color=curve.color,
+            linewidth=curve.linewidth,
+            linestyle=curve.linestyle,
+            alpha=curve.alpha,
+        )
+
+    axis.set_xlabel(x_label)
+    axis.set_ylabel(y_label)
+    axis.set_title(figure_title, fontsize=figure_title_size, fontweight="bold", pad=12)
+    axis.set_yscale(yscale)
+    axis.grid(True, which="major", alpha=0.25, linewidth=0.85)
+    if yscale == "log":
+        axis.grid(True, which="minor", alpha=0.12, linewidth=0.65)
+    axis.margins(x=0.01)
+    axis.legend(frameon=False, title=legend_title, ncol=min(3, len(curves)))
+
+    fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=dpi)
     plt.close(fig)
