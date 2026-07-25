@@ -7,6 +7,8 @@
 
 set -euo pipefail
 
+export SLURM_TMPDIR="${SLURM_TMPDIR:-/tmp/${USER}/slurm-${SLURM_JOB_ID}}"
+mkdir -p "$SLURM_TMPDIR"
 export TMPDIR="$SLURM_TMPDIR/tmp"
 export XDG_CACHE_HOME="$SLURM_TMPDIR/.cache"
 export TORCH_HOME="$SLURM_TMPDIR/torch_cache"
