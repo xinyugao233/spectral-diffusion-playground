@@ -16,8 +16,13 @@ new to the repository.
 The sequence has two distinct roles:
 
 - Experiments 1–4 define and calibrate the frequency-space measurements.
-- Experiment 5 is a fixed-model inference baseline.
-- Experiment 6 is the checkpoint-aligned memorization study.
+- Experiment 5 calibrates those measurements across natural images.
+- Experiment 6 is a fixed-model inference baseline.
+- Experiment 7 is the checkpoint-aligned memorization study.
+
+Experiment 6 is gated on the provenance, uncertainty, cutoff sweep, and failure
+analysis defined in
+`docs/experiment_05_natural_image_calibration.md`.
 
 Low-frequency recovery is a coarse/global-structure proxy; high-frequency
 recovery is a fine-detail proxy. Do not treat either operational band as a

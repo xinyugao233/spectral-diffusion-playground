@@ -262,12 +262,15 @@ Supplementary outputs:
 | `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How does additive Gaussian noise change both image-space structure and Fourier-space energy? | Spatial/spectral grid plus radial energy curves | [x] |
 | `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
 | `04_structure_detail_metrics.py` | Measuring Low- and High-Frequency Recovery | Can two frequency-band scores distinguish known recovery orderings? | Controlled two-curve validation and raw scores | [x] |
-| Natural-image calibration | Calibrating Across Images | Do cutoff conclusions persist across 5–10 provenance-recorded natural images, and what is the across-image variance? | Per-image and aggregate cutoff-sensitivity curves | Required before Experiment 5 |
-| `05_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across noise levels or sampling steps? | Two inference-time curves; no learning or memorization claim | Planned |
-| `06_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
+| `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | Specification frozen |
+| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across noise levels or sampling steps? | Two inference-time curves; no learning or memorization claim | Blocked on Experiment 5 |
+| `07_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
 
-Experiment 5 is a necessary inference-time baseline, not the primary research
-result. Experiment 6 addresses the repository's north star by aligning the two
+Experiment 5 calibrates the measurement instrument on natural images; its
+[frozen specification](docs/experiment_05_natural_image_calibration.md) defines
+provenance, preprocessing, schemas, uncertainty, and success criteria.
+Experiment 6 is a necessary inference-time baseline, not the primary research
+result. Experiment 7 addresses the repository's north star by aligning the two
 curves across training checkpoints and comparing matched data groups. Even
 there, a high-frequency score is not sufficient evidence of memorization; the
 analysis must identify a training-specific gap and rule out simpler
@@ -322,8 +325,9 @@ spectral-diffusion-playground/
 │   ├── 02_noise_vs_frequency.py
 │   ├── 03_frequency_decomposition.py
 │   ├── 04_structure_detail_metrics.py
-│   ├── 05_denoiser_trajectory.py
-│   └── 06_generalization_vs_memorization.py
+│   ├── 05_natural_image_calibration.py
+│   ├── 06_denoiser_trajectory.py
+│   └── 07_generalization_vs_memorization.py
 ├── assets/
 ├── figures/
 ├── results/

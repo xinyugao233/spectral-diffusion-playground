@@ -5,7 +5,7 @@ from __future__ import annotations
 from _bootstrap import ExperimentStub, run_experiment_stub
 
 SPEC = ExperimentStub(
-    script_name="05_denoiser_trajectory.py",
+    script_name="06_denoiser_trajectory.py",
     title="Fixed-model denoising baseline",
     question=(
         "For a fixed pretrained denoiser, when are low- and high-frequency "

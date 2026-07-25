@@ -1,19 +1,15 @@
 # Curated Example Images
 
-This directory is reserved for real images that tell a stronger story than the
-synthetic fallback.
+This directory is reserved for provenance-recorded real images that tell a
+stronger story than the synthetic fallback.
 
-Suggested additions:
-
-- `castle.png`
-- `forest.png`
-- `portrait.png`
-- `brain_mri.png`
-- `face.png`
+Experiment 5 calibration images belong under `natural/`. Every image must have
+a matching row in `metadata.csv` containing its exact source, creator, license,
+URL, download date, original resolution, and preprocessing.
 
 Only add images that are original, public domain, or distributed under a
-license compatible with this repository. Record the source URL, creator,
-license, and any required attribution in this file when an image is added.
+license compatible with this repository. Do not infer a license from the
+hosting platform; record the exact license attached to the source.
 
 Example usage:
 
@@ -25,4 +21,4 @@ python experiments/04_structure_detail_metrics.py --image-path assets/examples/c
 ```
 
 Until these files are added, Experiments 1–4 fall back to the deterministic
-`assets/default_fft_reference.png`.
+`assets/default_fft_reference.png`. Experiment 5 must remain a stub.
