@@ -17,6 +17,7 @@ if str(SRC_ROOT) not in sys.path:
 from spectral_diffusion_playground.fft import compute_fft, compute_ifft, shift_fft
 from spectral_diffusion_playground.filters import (
     create_frequency_mask,
+    decompose_frequency_bands,
     high_pass_filter,
     low_pass_filter,
 )
@@ -80,6 +81,17 @@ class FrequencyFilterTest(unittest.TestCase):
         np.testing.assert_allclose(
             high_reconstruction,
             image - low_reconstruction,
+            atol=1e-10,
+        )
+
+    def test_frequency_band_decomposition_reconstructs_image(self) -> None:
+        image = create_reference_image(size=64)
+
+        low_frequency, high_frequency = decompose_frequency_bands(image, radius=12)
+
+        np.testing.assert_allclose(
+            low_frequency + high_frequency,
+            image,
             atol=1e-10,
         )
 

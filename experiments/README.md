@@ -7,8 +7,22 @@ Conventions:
 
 - keep experiment-specific logic in the script or a dedicated future submodule
 - move reusable code into `src/spectral_diffusion_playground/`
-- write generated figures to a dedicated subdirectory under `figures/`
+- write generated figures under `figures/` and raw numerical outputs under `results/`
 - avoid hidden cross-experiment state
 
 The numbered filenames are intentional: they define a reading order for people
 new to the repository.
+
+The sequence has two distinct roles:
+
+- Experiments 1–4 define and calibrate the frequency-space measurements.
+- Experiment 5 is a fixed-model inference baseline.
+- Experiment 6 is the checkpoint-aligned memorization study.
+
+Low-frequency recovery is a coarse/global-structure proxy; high-frequency
+recovery is a fine-detail proxy. Do not treat either operational band as a
+semantic category.
+
+Do not interpret high-frequency recovery by itself as memorization. A
+memorization analysis requires matched training and held-out controls across
+checkpoints, with distributional differences treated as potential confounders.

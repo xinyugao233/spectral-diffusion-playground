@@ -5,6 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import NDArray
 
+from spectral_diffusion_playground.fft import compute_fft, compute_ifft, shift_fft
+
 FloatArray = NDArray[np.float64]
 
 
@@ -80,3 +82,26 @@ def high_pass_filter(spectrum: np.ndarray, radius: float) -> np.ndarray:
     height, width = spectrum_array.shape[:2]
     high_pass_mask = 1.0 - create_frequency_mask(height, width, radius)
     return np.asarray(spectrum_array * _broadcast_mask(high_pass_mask, spectrum_array))
+
+
+def decompose_frequency_bands(
+    image: np.ndarray,
+    radius: float,
+) -> tuple[FloatArray, FloatArray]:
+    """Decompose an image into complementary low- and high-frequency images.
+
+    The input is transformed with the repository's orthonormal FFT. The
+    low-frequency component retains centered coefficients at distances
+    ``<= radius``; the high-frequency component contains the exact complement.
+    Their sum reconstructs the input up to floating-point precision.
+    """
+    centered_spectrum = shift_fft(compute_fft(image))
+    low_frequency = compute_ifft(
+        low_pass_filter(centered_spectrum, radius),
+        is_shifted=True,
+    )
+    high_frequency = compute_ifft(
+        high_pass_filter(centered_spectrum, radius),
+        is_shifted=True,
+    )
+    return low_frequency, high_frequency
