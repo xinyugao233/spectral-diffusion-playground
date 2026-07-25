@@ -23,7 +23,7 @@ CHECKPOINT_NAME="256x256_diffusion_uncond.pt"
 CHECKPOINT_URL="https://openaipublic.blob.core.windows.net/diffusion/jul-2021/${CHECKPOINT_NAME}"
 EXPECTED_SIZE="2211383297"
 EXPECTED_MD5="fd9dd2335b8736d521de0aed54bd90ca"
-PERSISTENT_ROOT="${HOME}/data/spectral-diffusion-playground/models"
+PERSISTENT_ROOT="${E006_MODEL_ROOT:-${HOME}/data/spectral-diffusion-playground/models}"
 TEMP_CHECKPOINT="${SLURM_TMPDIR}/${CHECKPOINT_NAME}"
 
 curl --fail --location --retry 4 --output "$TEMP_CHECKPOINT" "$CHECKPOINT_URL"

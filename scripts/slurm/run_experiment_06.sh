@@ -20,12 +20,13 @@ export PIP_CACHE_DIR="$SLURM_TMPDIR/pip-cache"
 
 mkdir -p "$TMPDIR" "$MPLCONFIGDIR"
 
-PROJECT_ROOT="${HOME}/projects/spectral-diffusion-playground"
-UPSTREAM_ROOT="${HOME}/projects/guided-diffusion"
-CHECKPOINT_PATH="${HOME}/data/spectral-diffusion-playground/models/256x256_diffusion_uncond.pt"
+PROJECT_ROOT="${E006_PROJECT_ROOT:-${HOME}/projects/spectral-diffusion-playground}"
+UPSTREAM_ROOT="${E006_UPSTREAM_ROOT:-${HOME}/projects/guided-diffusion}"
+PERSISTENT_ROOT="${E006_PERSISTENT_ROOT:-${HOME}/data/spectral-diffusion-playground}"
+CHECKPOINT_PATH="${PERSISTENT_ROOT}/models/256x256_diffusion_uncond.pt"
 RUN_ID="experiment_06_${SLURM_JOB_ID}"
 TEMP_ROOT="${SLURM_TMPDIR}/${RUN_ID}"
-FINAL_ROOT="${HOME}/data/spectral-diffusion-playground/experiment_06/${RUN_ID}"
+FINAL_ROOT="${PERSISTENT_ROOT}/experiment_06/${RUN_ID}"
 
 test -d "$PROJECT_ROOT/.git"
 test -d "$UPSTREAM_ROOT/.git"
