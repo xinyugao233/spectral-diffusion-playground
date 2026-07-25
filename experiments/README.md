@@ -22,9 +22,9 @@ The sequence has two distinct roles:
 
 Experiment 5 has passed its provenance, uncertainty, cutoff-sweep, and failure
 analysis gate. Experiment 6 has a frozen known-target protocol but remains
-unimplemented; no checkpoint has been downloaded. It must preserve the
-distinction between fixed-model inference dynamics and checkpoint-aligned
-learning dynamics.
+unevaluated; its implementation is complete, but no checkpoint has been
+downloaded. It must preserve the distinction between fixed-model inference
+dynamics and checkpoint-aligned learning dynamics.
 
 Low-frequency recovery is a coarse/global-structure proxy; high-frequency
 recovery is a fine-detail proxy. Do not treat either operational band as a

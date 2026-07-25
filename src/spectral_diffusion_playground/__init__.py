@@ -3,6 +3,7 @@
 __all__ = [
     "calibration",
     "dataset",
+    "denoiser_trajectory",
     "fft",
     "filters",
     "metrics",

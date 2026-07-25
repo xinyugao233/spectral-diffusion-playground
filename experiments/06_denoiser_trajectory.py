@@ -1,23 +1,11 @@
-"""Planned experiment for fixed-model denoising trajectories."""
+"""Run the frozen fixed-model frequency-band recovery baseline."""
 
 from __future__ import annotations
 
-from _bootstrap import ExperimentStub, run_experiment_stub
+# Import the shared bootstrap so this script can be run directly from the repo root.
+import _bootstrap  # noqa: F401
 
-SPEC = ExperimentStub(
-    script_name="06_denoiser_trajectory.py",
-    title="Fixed-model denoising baseline",
-    question=(
-        "For a fixed pretrained denoiser, when are low- and high-frequency "
-        "bands recovered across noise levels or sampling steps? This measures "
-        "inference dynamics, not learning or memorization."
-    ),
-)
-
-
-def main() -> int:
-    """Run the scaffolded fixed-model trajectory experiment."""
-    return run_experiment_stub(SPEC)
+from spectral_diffusion_playground.denoiser_trajectory import main
 
 
 if __name__ == "__main__":

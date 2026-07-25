@@ -1,7 +1,7 @@
 # Experiment 6: Fixed-Model Frequency-Band Recovery
 
-Status: Protocol frozen on 2026-07-25. Implementation, checkpoint acquisition,
-and model evaluation have not started.
+Status: Protocol frozen on 2026-07-25. Implementation is complete. Checkpoint
+acquisition and model evaluation have not started.
 
 ## Objective
 
@@ -329,10 +329,11 @@ The run fails unless:
 - repeated same-hardware runs agree within a predeclared numerical tolerance;
 - Experiment 4 and Experiment 5 tests and canonical outputs remain unchanged.
 
-The implementation commit must declare the repeatability tolerance before the
-first full run. If the selected GPU kernels cannot satisfy deterministic
-execution, preserve repeated-run differences and report that failure rather
-than relaxing the gate after observing results.
+The implementation declares a repeatability tolerance of `1e-6` before the
+first full run and performs two complete inference passes. If the selected GPU
+kernels cannot satisfy deterministic execution, preserve repeated-run
+differences and report that failure rather than relaxing the gate after
+observing results.
 
 ## Interpretation Contract
 

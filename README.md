@@ -11,7 +11,8 @@ to learned models.
 **Current status:** Experiments 1–5 are complete. The frequency-band recovery
 metric has been calibrated on controlled trajectories and a frozen six-image
 natural set. Experiment 6 now has a frozen fixed-model inference protocol, but
-no denoiser code has been implemented and no checkpoint has been downloaded.
+its implementation has not yet been executed and no checkpoint has been
+downloaded.
 
 ## Scope
 
@@ -305,7 +306,8 @@ Machine-readable outputs:
 
 ### Fixed-Model Frequency-Band Recovery
 
-Status: Protocol frozen; implementation and checkpoint acquisition not started.
+Status: Protocol and implementation complete; checkpoint acquisition and model
+evaluation pending.
 
 Experiment 6 will evaluate direct `x_0` predictions from known-target forward
 diffusion observations under one fixed unconditional ImageNet 256 x 256 model.
@@ -321,6 +323,18 @@ reproducibility gates, and interpretation limits. Unconditional sampling is
 excluded because its intermediate states do not have a predetermined clean
 target.
 
+Execution is Slurm-only:
+
+```bash
+sbatch scripts/slurm/acquire_experiment_06_checkpoint.sh
+sbatch scripts/slurm/run_experiment_06.sh
+```
+
+The acquisition job verifies the published byte size and MD5 and records a
+SHA-256 digest. The evaluation performs two identical inference passes under a
+predeclared `1e-6` repeatability tolerance, writes raw errors before plotting,
+and stages only final lightweight results and figures.
+
 ## Experiment Roadmap
 
 | Script | Title | Question | Planned output | Status |
@@ -330,7 +344,7 @@ target.
 | `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
 | `04_structure_detail_metrics.py` | Measuring Low- and High-Frequency Recovery | Can two frequency-band scores distinguish known recovery orderings? | Controlled two-curve validation and raw scores | [x] |
 | `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | [x] |
-| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across known-target noise levels? | Recovery curves, raw-error diagnostics, and hierarchical uncertainty; no learning or memorization claim | Protocol frozen; implementation not started |
+| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across known-target noise levels? | Recovery curves, raw-error diagnostics, and hierarchical uncertainty; no learning or memorization claim | Implemented; Slurm run pending |
 | `07_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
 
 Experiment 5 calibrates the measurement instrument on natural images; its
