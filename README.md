@@ -10,7 +10,8 @@ to learned models.
 
 **Current status:** Experiments 1–5 are complete. The frequency-band recovery
 metric has been calibrated on controlled trajectories and a frozen six-image
-natural set, but it has not yet been applied to a real denoiser.
+natural set. Experiment 6 now has a frozen fixed-model inference protocol, but
+no denoiser code has been implemented and no checkpoint has been downloaded.
 
 ## Scope
 
@@ -302,6 +303,24 @@ Machine-readable outputs:
 - `results/experiment_05_summary.json`
 - `figures/experiment_05_per_image_curves.png`
 
+### Fixed-Model Frequency-Band Recovery
+
+Status: Protocol frozen; implementation and checkpoint acquisition not started.
+
+Experiment 6 will evaluate direct `x_0` predictions from known-target forward
+diffusion observations under one fixed unconditional ImageNet 256 x 256 model.
+The primary axis is the variance-preserving process's effective
+noise-to-signal ratio, not a solver step or training checkpoint. It preserves
+the calibrated cutoffs `r in {20,40,80}`, all five noise seeds, raw relative
+errors, clipped recovery scores, and hierarchical image/seed uncertainty.
+
+The complete [frozen specification](docs/experiment_06_fixed_model_denoising.md)
+pins the upstream source revision, official checkpoint artifact, image
+identities, prediction target, native timestep grid, pairing policy, raw schema,
+reproducibility gates, and interpretation limits. Unconditional sampling is
+excluded because its intermediate states do not have a predetermined clean
+target.
+
 ## Experiment Roadmap
 
 | Script | Title | Question | Planned output | Status |
@@ -311,18 +330,20 @@ Machine-readable outputs:
 | `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
 | `04_structure_detail_metrics.py` | Measuring Low- and High-Frequency Recovery | Can two frequency-band scores distinguish known recovery orderings? | Controlled two-curve validation and raw scores | [x] |
 | `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | [x] |
-| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across noise levels or sampling steps? | Two inference-time curves; no learning or memorization claim | Calibration gate passed; not started |
+| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across known-target noise levels? | Recovery curves, raw-error diagnostics, and hierarchical uncertainty; no learning or memorization claim | Protocol frozen; implementation not started |
 | `07_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
 
 Experiment 5 calibrates the measurement instrument on natural images; its
 [frozen specification](docs/experiment_05_natural_image_calibration.md) defines
 provenance, preprocessing, schemas, uncertainty, and success criteria.
-Experiment 6 is a necessary inference-time baseline, not the primary research
-result. Experiment 7 addresses the repository's north star by aligning the two
-curves across training checkpoints and comparing matched data groups. Even
-there, a high-frequency score is not sufficient evidence of memorization; the
-analysis must identify a training-specific gap and rule out simpler
-distributional explanations.
+Experiment 6's
+[frozen specification](docs/experiment_06_fixed_model_denoising.md) defines a
+known-target inference baseline; it is not the primary research result.
+Experiment 7 addresses the repository's north star by aligning the two curves
+across training checkpoints and comparing matched data groups. Even there, a
+high-frequency score is not sufficient evidence of memorization; the analysis
+must identify a training-specific gap and rule out simpler distributional
+explanations.
 
 ## Installation
 
@@ -386,10 +407,11 @@ spectral-diffusion-playground/
 ## Future Research Directions
 
 - Compare spectral behavior across datasets or semantic classes.
-- Replace the synthetic fallback with a curated set of real example images in `assets/examples/`.
-- Repeat cutoff calibration on provenance-recorded natural images and report across-image uncertainty.
+- Expand natural-image calibration only when a larger set answers a specific
+  robustness question.
 - Express cutoffs in normalized frequency units when comparing image resolutions.
-- Apply the validated scores to fixed-model denoising trajectories.
+- Execute the frozen fixed-model known-target baseline without changing its
+  metric or cutoff definitions.
 - Track the same scores across training checkpoints without conflating training and inference time.
 - Compare training, held-out, and deliberately oversampled examples when studying memorization.
 

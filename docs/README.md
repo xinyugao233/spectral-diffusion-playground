@@ -12,3 +12,4 @@ Use this directory for:
 Current specifications:
 
 - [Experiment 5: Natural Image Calibration of `S_low` and `S_high`](experiment_05_natural_image_calibration.md)
+- [Experiment 6: Fixed-Model Frequency-Band Recovery](experiment_06_fixed_model_denoising.md)

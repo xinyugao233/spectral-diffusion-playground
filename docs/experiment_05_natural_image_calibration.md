@@ -157,7 +157,8 @@ Do not start the fixed-model denoising baseline until:
 - uncertainty is reported
 - failure cases are documented
 
-The gate passed on 2026-07-25. Experiment 6 remains unstarted.
+The gate passed on 2026-07-25. Experiment 6's protocol is frozen, but its
+implementation and checkpoint acquisition remain unstarted.
 
 ## Calibration Result
 
