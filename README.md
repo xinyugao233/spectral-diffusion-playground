@@ -8,9 +8,9 @@ dynamics. Fourier analysis, controlled perturbations, and reproducible
 visualizations establish how those measurements behave before they are applied
 to learned models.
 
-**Current status:** Experiments 1–4 are complete. The frequency-band recovery
-metric is validated on controlled trajectories but has not yet been applied to
-a real denoiser.
+**Current status:** Experiments 1–5 are complete. The frequency-band recovery
+metric has been calibrated on controlled trajectories and a frozen six-image
+natural set, but it has not yet been applied to a real denoiser.
 
 ## Scope
 
@@ -237,9 +237,9 @@ sensitive at `r = 20`: its crossings narrow to `S_low = 0.81` and
 the trajectory's `0.01` progress resolution. This does not establish cutoff
 invariance; it shows where the current operational definition is fragile.
 
-Natural-image and across-image uncertainty remain unmeasured because the
-repository does not yet contain a provenance-recorded example set. That
-calibration should precede claims about a denoiser.
+Natural-image calibration is reported in Experiment 5 below. It quantifies
+across-image variability and cutoff sensitivity before any learned-model
+result is interpreted.
 
 Run the validation:
 
@@ -254,6 +254,54 @@ Supplementary outputs:
 - `results/experiment_04_structure_detail_scores.csv`
 - `results/experiment_04_cutoff_sensitivity.csv`
 
+### Natural Image Calibration of `S_low` and `S_high`
+
+Status: Complete metric calibration; no denoiser evaluated.
+
+Experiment 5 applies the unchanged Experiment 4 controls to six
+provenance-recorded natural images after deterministic RGB conversion, center
+cropping, bicubic resize to 256 × 256, and `float32` scaling to `[0,1]`.
+Trajectories are constructed once at `r=40` and re-evaluated at
+`r ∈ {20,40,80}`. This fixed-construction design intentionally preserves
+cross-cutoff sensitivity rather than tuning each trajectory to its evaluation
+band.
+
+![Natural-Image Mean Recovery Curves](figures/experiment_05_mean_curves.png)
+
+![Natural-Image Cutoff Sensitivity](figures/experiment_05_cutoff_comparison.png)
+
+At threshold `0.8`, strict controlled ordering survives for all six images at
+all three cutoffs. That binary result does not imply robust separation:
+
+- the high-band-first mean crossing gap at `r=20` is `-0.0267 ± 0.0137`
+  progress units, with a descriptive image-bootstrap 95% interval of
+  `[-0.0367,-0.0167]`
+- two of six high-band-first images at `r=20` have only a one-step crossing
+  gap and meet the predeclared collapse criterion
+- low-band-first at `r=80` is more image-sensitive, with mean gap
+  `0.2683 ± 0.1341` and bootstrap interval `[0.1667,0.3600]`
+- matched construction/evaluation at `r=40` reproduces the controlled
+  `±0.40` ordered gaps and zero together gap for every image
+
+The bootstrap resamples images, not trajectory points, using 10,000 resamples
+and seed `20250725`. With only six images, its intervals describe this
+calibration set rather than a natural-image population. No cutoff, trajectory,
+metric definition, or preprocessing step was changed after observing results.
+
+Run the frozen calibration:
+
+```bash
+python scripts/validate_natural_image_dataset.py
+python experiments/05_natural_image_calibration.py
+```
+
+Machine-readable outputs:
+
+- `results/experiment_05_scores.csv`
+- `results/experiment_05_crossings.csv`
+- `results/experiment_05_summary.json`
+- `figures/experiment_05_per_image_curves.png`
+
 ## Experiment Roadmap
 
 | Script | Title | Question | Planned output | Status |
@@ -262,8 +310,8 @@ Supplementary outputs:
 | `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How does additive Gaussian noise change both image-space structure and Fourier-space energy? | Spatial/spectral grid plus radial energy curves | [x] |
 | `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
 | `04_structure_detail_metrics.py` | Measuring Low- and High-Frequency Recovery | Can two frequency-band scores distinguish known recovery orderings? | Controlled two-curve validation and raw scores | [x] |
-| `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | Specification frozen |
-| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across noise levels or sampling steps? | Two inference-time curves; no learning or memorization claim | Blocked on Experiment 5 |
+| `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | [x] |
+| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across noise levels or sampling steps? | Two inference-time curves; no learning or memorization claim | Calibration gate passed; not started |
 | `07_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
 
 Experiment 5 calibrates the measurement instrument on natural images; its

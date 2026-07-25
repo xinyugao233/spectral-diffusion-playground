@@ -1,6 +1,7 @@
 # Experiment 5: Natural Image Calibration of `S_low` and `S_high`
 
-Status: Specification frozen; image curation has not started.
+Status: Complete. Protocol, dataset, validator, computation, uncertainty, and
+failure analysis are recorded without post hoc metric tuning.
 
 ## Objective
 
@@ -155,3 +156,33 @@ Do not start the fixed-model denoising baseline until:
 - all cutoffs have been evaluated
 - uncertainty is reported
 - failure cases are documented
+
+The gate passed on 2026-07-25. Experiment 6 remains unstarted.
+
+## Calibration Result
+
+The frozen run uses six images, 101 progress values, construction radius
+`r=40`, evaluation radii `r ∈ {20,40,80}`, recovery seed `0`, threshold `0.8`,
+and 10,000 image-level bootstrap resamples with seed `20250725`.
+
+Strict expected ordering survives for all six images, all three controls, and
+all three evaluation cutoffs. Separation is nevertheless cutoff-sensitive:
+
+- high-band-first at `r=20` has mean crossing gap `-0.0267 ± 0.0137`
+- two of six high-band-first images at `r=20` collapse to a one-progress-step gap
+- low-band-first at `r=80` has mean gap `0.2683 ± 0.1341`
+- matched construction/evaluation at `r=40` gives the expected ordered gaps
+  `+0.40`, `-0.40`, and `0.00`
+
+These values calibrate an operational measurement on this six-image set. They
+do not establish a semantic interpretation, model recovery order, learning
+time, or memorization.
+
+Exact evidence:
+
+- `results/experiment_05_scores.csv`
+- `results/experiment_05_crossings.csv`
+- `results/experiment_05_summary.json`
+- `figures/experiment_05_per_image_curves.png`
+- `figures/experiment_05_mean_curves.png`
+- `figures/experiment_05_cutoff_comparison.png`

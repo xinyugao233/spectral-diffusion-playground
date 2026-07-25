@@ -20,9 +20,10 @@ The sequence has two distinct roles:
 - Experiment 6 is a fixed-model inference baseline.
 - Experiment 7 is the checkpoint-aligned memorization study.
 
-Experiment 6 is gated on the provenance, uncertainty, cutoff sweep, and failure
-analysis defined in
-`docs/experiment_05_natural_image_calibration.md`.
+Experiment 5 has passed its provenance, uncertainty, cutoff-sweep, and failure
+analysis gate. Experiment 6 remains unstarted and must preserve the distinction
+between fixed-model inference dynamics and checkpoint-aligned learning
+dynamics.
 
 Low-frequency recovery is a coarse/global-structure proxy; high-frequency
 recovery is a fine-detail proxy. Do not treat either operational band as a

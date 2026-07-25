@@ -60,7 +60,7 @@ class DatasetValidationSummary:
     validation_timestamp: str
 
 
-def _read_metadata(metadata_path: Path) -> list[dict[str, str]]:
+def load_natural_image_metadata(metadata_path: Path) -> list[dict[str, str]]:
     """Read metadata and enforce the frozen column schema."""
     if not metadata_path.is_file():
         raise DatasetValidationError(f"Metadata file does not exist: {metadata_path}")
@@ -133,8 +133,8 @@ def _validate_provenance(row: dict[str, str]) -> None:
         )
 
 
-def _preprocess_for_validation(image: Image.Image) -> np.ndarray:
-    """Apply the frozen in-memory preprocessing pipeline without saving a derivative."""
+def preprocess_rgb_image(image: Image.Image) -> np.ndarray:
+    """Apply the frozen in-memory preprocessing pipeline to a decoded image."""
     rgb_image = image.convert("RGB")
     width, height = rgb_image.size
     crop_size = min(width, height)
@@ -143,6 +143,17 @@ def _preprocess_for_validation(image: Image.Image) -> np.ndarray:
     cropped = rgb_image.crop((left, top, left + crop_size, top + crop_size))
     resized = cropped.resize((256, 256), resample=Image.Resampling.BICUBIC)
     return np.asarray(resized, dtype=np.float32) / np.float32(255.0)
+
+
+def load_preprocessed_natural_image(image_path: Path) -> np.ndarray:
+    """Decode one source image and apply the frozen preprocessing pipeline."""
+    try:
+        with Image.open(image_path) as image:
+            return preprocess_rgb_image(image)
+    except (OSError, UnidentifiedImageError) as error:
+        raise DatasetValidationError(
+            f"Image cannot be decoded as a supported image: {image_path}"
+        ) from error
 
 
 def _validate_image(image_path: Path, row: dict[str, str]) -> str:
@@ -164,7 +175,7 @@ def _validate_image(image_path: Path, row: dict[str, str]) -> str:
                     f"{image_id}: decoded resolution {image.size} does not match "
                     f"recorded resolution {recorded_resolution}."
                 )
-            processed = _preprocess_for_validation(image)
+            processed = preprocess_rgb_image(image)
     except (OSError, UnidentifiedImageError) as error:
         raise DatasetValidationError(
             f"{image_id}: image cannot be decoded as a supported image."
@@ -200,7 +211,7 @@ def validate_natural_image_dataset(
     The check is intentionally offline. It validates provenance completeness
     and URL syntax but does not make network requests to external source pages.
     """
-    rows = _read_metadata(metadata_path)
+    rows = load_natural_image_metadata(metadata_path)
     for row in rows:
         _validate_provenance(row)
 
