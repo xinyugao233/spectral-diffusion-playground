@@ -8,7 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
-_DEFAULT_MPLCONFIGDIR = Path(tempfile.gettempdir()) / "spectral_diffusion_playground_mplconfig"
+_DEFAULT_MPLCONFIGDIR = (
+    Path(tempfile.gettempdir()) / "spectral_diffusion_playground_mplconfig"
+)
 _DEFAULT_MPLCONFIGDIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("MPLBACKEND", "Agg")
 os.environ.setdefault("MPLCONFIGDIR", str(_DEFAULT_MPLCONFIGDIR))
@@ -37,6 +39,7 @@ class LineCurve:
     linestyle: str = "-"
     linewidth: float = 2.3
     alpha: float = 1.0
+    marker: str | None = None
 
 
 def prepare_image_for_display(image: np.ndarray) -> np.ndarray:
@@ -63,7 +66,9 @@ def collapse_channels(image: np.ndarray) -> np.ndarray:
     return image_array.mean(axis=2)
 
 
-def normalize_scalar_field(field: np.ndarray, *, percentile: float = 99.5) -> np.ndarray:
+def normalize_scalar_field(
+    field: np.ndarray, *, percentile: float = 99.5
+) -> np.ndarray:
     """Normalize a scalar field into ``[0, 1]`` using a robust percentile scale."""
     field_array = np.asarray(field, dtype=np.float64)
     if field_array.ndim != 2:
@@ -115,6 +120,38 @@ def normalize_scalar_fields(
             scale = 1.0
 
     return [np.clip(field / scale, 0.0, 1.0) for field in shifted_fields]
+
+
+def normalize_signed_fields(
+    fields: Sequence[np.ndarray],
+    *,
+    percentile: float = 99.5,
+) -> list[np.ndarray]:
+    """Map signed fields to display space with one symmetric shared scale.
+
+    Zero maps to neutral gray at ``0.5``. Values at ``-scale`` and ``+scale``
+    map to black and white, respectively, where ``scale`` is the requested
+    percentile of absolute values pooled across every field and channel.
+    Values beyond that range are clipped for display only.
+    """
+    if not fields:
+        raise ValueError("fields must contain at least one signed field.")
+    if not 0.0 < percentile <= 100.0:
+        raise ValueError("percentile must be in the interval (0, 100].")
+
+    field_arrays = [np.asarray(field, dtype=np.float64) for field in fields]
+    if any(field.ndim not in (2, 3) for field in field_arrays):
+        shapes = [field.shape for field in field_arrays]
+        raise ValueError(f"Expected grayscale or RGB fields, but received {shapes}.")
+
+    absolute_values = np.concatenate([np.abs(field).ravel() for field in field_arrays])
+    scale = float(np.percentile(absolute_values, percentile))
+    if scale <= 0.0:
+        scale = float(absolute_values.max())
+        if scale <= 0.0:
+            scale = 1.0
+
+    return [np.clip(0.5 + field / (2.0 * scale), 0.0, 1.0) for field in field_arrays]
 
 
 def spectrum_to_display_image(
@@ -169,6 +206,8 @@ def save_panel_grid(
     row_labels: Sequence[str] | None = None,
     figure_title_size: float = 15.0,
     figure_title_y: float = 0.972,
+    column_width: float = 4.2,
+    row_height: float = 4.0,
     dpi: int = 220,
 ) -> Path:
     """Render and save a clean grid of image panels."""
@@ -184,9 +223,11 @@ def save_panel_grid(
     _apply_publication_style()
 
     row_count = len(panel_rows)
-    figure_width = 4.2 * column_count
-    figure_height = 4.0 * row_count
-    fig, axes = plt.subplots(row_count, column_count, figsize=(figure_width, figure_height))
+    figure_width = column_width * column_count
+    figure_height = row_height * row_count
+    fig, axes = plt.subplots(
+        row_count, column_count, figsize=(figure_width, figure_height)
+    )
 
     axes_array = np.asarray(axes, dtype=object)
     if axes_array.ndim == 0:
@@ -202,7 +243,9 @@ def save_panel_grid(
             axis.set_title(panel.title, pad=7)
             axis.axis("off")
 
-    fig.suptitle(figure_title, fontsize=figure_title_size, fontweight="bold", y=figure_title_y)
+    fig.suptitle(
+        figure_title, fontsize=figure_title_size, fontweight="bold", y=figure_title_y
+    )
     left_margin = 0.045 if row_labels is not None else 0.0
     fig.tight_layout(rect=(left_margin, 0.0, 1.0, 0.962))
     if row_labels is not None:
@@ -255,6 +298,7 @@ def save_curve_plot(
             linewidth=curve.linewidth,
             linestyle=curve.linestyle,
             alpha=curve.alpha,
+            marker=curve.marker,
         )
 
     axis.set_xlabel(x_label)

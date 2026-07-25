@@ -28,8 +28,24 @@ class ExperimentStubFormattingTest(unittest.TestCase):
         message = format_experiment_stub(spec)
 
         self.assertIn("[01_fft_visualization.py] FFT visualization", message)
-        self.assertIn("Question: What becomes obvious in the frequency domain?", message)
-        self.assertIn("Status: Scaffold only; experiment implementation pending.", message)
+        self.assertIn(
+            "Question: What becomes obvious in the frequency domain?", message
+        )
+        self.assertIn(
+            "Status: Scaffold only; experiment implementation pending.", message
+        )
+
+    def test_format_supports_an_explicit_superseded_status(self) -> None:
+        spec = ExperimentStub(
+            script_name="04_low_pass.py",
+            title="Low-pass filtering",
+            question="What remains?",
+            status="Superseded by Experiment 3.",
+        )
+
+        message = format_experiment_stub(spec)
+
+        self.assertIn("Status: Superseded by Experiment 3.", message)
 
 
 if __name__ == "__main__":

@@ -28,7 +28,10 @@ from spectral_diffusion_playground.utils import (
     ensure_default_reference_image,
     rgb_to_grayscale,
 )
-from spectral_diffusion_playground.visualization import spectrum_to_display_image
+from spectral_diffusion_playground.visualization import (
+    normalize_signed_fields,
+    spectrum_to_display_image,
+)
 
 
 class FFTUtilitiesTest(unittest.TestCase):
@@ -88,6 +91,17 @@ class FFTUtilitiesTest(unittest.TestCase):
 
         self.assertTrue(np.all(normalized >= 0.0))
         self.assertAlmostEqual(float(normalized.sum()), 1.0)
+
+    def test_signed_field_normalization_uses_shared_symmetric_scale(self) -> None:
+        fields = [
+            np.asarray([[-2.0, 0.0, 2.0]], dtype=np.float64),
+            np.asarray([[-1.0, 0.0, 1.0]], dtype=np.float64),
+        ]
+
+        normalized = normalize_signed_fields(fields, percentile=100.0)
+
+        np.testing.assert_allclose(normalized[0], [[0.0, 0.5, 1.0]])
+        np.testing.assert_allclose(normalized[1], [[0.25, 0.5, 0.75]])
 
 
 if __name__ == "__main__":

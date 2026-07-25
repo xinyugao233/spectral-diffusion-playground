@@ -4,7 +4,9 @@
 
 Spectral Diffusion Playground is a small research repository for understanding diffusion-model behavior through Fourier analysis, controlled perturbations, and clean visualizations.
 
-**Current status:** Experiments 1 and 2 are complete. Later experiments remain planned.
+**Current status:** Experiments 1–3 are complete. The original Experiments 4
+and 5 were superseded after their scope was absorbed into Experiment 3; the
+next research question has not yet been selected.
 
 ## Scope
 
@@ -30,7 +32,7 @@ Diffusion models are usually discussed in pixel space: add noise, predict noise,
 The frequency domain exposes different questions:
 
 - Which structures disappear first as noise increases?
-- How do low-frequency semantics and high-frequency detail degrade differently?
+- How do coarse structure and fine detail change across frequency bands?
 - When two perturbations look similarly strong in pixel space, do they have the same spectral signature?
 - What does a denoiser implicitly need to recover at different frequency bands?
 
@@ -101,15 +103,69 @@ Takeaway:
 - the log spectra become more uniformly elevated across the frequency plane as noise dominates the image
 - after DC exclusion and normalization, larger `sigma` values spread relative radial power more uniformly across frequency bands
 
-## Planned Experiments
+### Where Does Image Information Live in Frequency Space?
+
+Status: Complete.
+
+Motivation: Experiment 2 shows that Gaussian noise changes spectral content.
+The next question is what an image looks like when only a controlled,
+cumulative region of that spectrum is retained.
+
+Question: How does increasing a circular low-pass cutoff change the reconstructed
+image and its remaining reconstruction error?
+
+![Frequency Decomposition of Image Structure](figures/where_image_information_lives_grid.png)
+
+![High-Frequency Residuals](figures/high_frequency_residuals.png)
+
+![Reconstruction Error vs. Frequency Radius](figures/reconstruction_error_vs_frequency_radius.png)
+
+Run the default radii or provide an image and a custom increasing sequence:
+
+```bash
+python experiments/03_frequency_decomposition.py \
+    --image-path assets/examples/castle.png \
+    --radii 10 20 40 80 120
+```
+
+Measurement:
+
+- masks retain centered Fourier coefficients whose Euclidean radius satisfies `distance <= r`
+- inverse-FFT reconstructions are measured before display clipping
+- reconstruction error is the relative L2 value `||x - x_r||₂ / ||x||₂`
+- each residual is the complementary high-pass reconstruction, numerically equal to `x - x_r`
+- residual panels share one symmetric 99.5th-percentile display scale across all radii and channels; zero maps to neutral gray
+
+Observation on the deterministic reference image:
+
+- small radii recover smooth variation and coarse geometry
+- increasing the retained radius progressively restores finer spatial detail
+- complementary residuals contain everything omitted by each cutoff; at larger radii they concentrate increasingly on fine texture and sharp transitions
+- relative L2 error decreases across the evaluated radii
+
+Because the masks are nested and the FFT uses orthonormal scaling, non-increasing
+L2 error is expected from Parseval's theorem. The image-specific evidence is the
+shape of the recovery curve and which visible structures return at each radius,
+not the decrease alone.
+
+This decomposition introduces frequency radius and cumulative spectral bands as
+precise tools for later denoising experiments. It does not establish that low
+frequencies contain semantic information.
+
+## Experiment Roadmap
 
 | Script | Title | Question | Planned output | Status |
 | --- | --- | --- | --- | --- |
-| `01_fft_visualization.py` | Understanding Images in Fourier Space | What becomes obvious when an image is viewed through centered magnitude and phase plots? | Reversible pixel-space to frequency-space walkthrough | [x] |
+| `01_fft_visualization.py` | Understanding Images in Fourier Space | What becomes visible in linear and log-scaled centered magnitude spectra? | Reversible pixel-space to frequency-space walkthrough | [x] |
 | `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How does additive Gaussian noise change both image-space structure and Fourier-space energy? | Spatial/spectral grid plus radial energy curves | [x] |
-| `03_sigma_progression.py` | Noise Scale Progression in Fourier Space | How does increasing noise scale change spectral structure? | Multi-panel progression over sigma values | [ ] |
-| `04_low_pass.py` | What Low-Pass Filtering Preserves | What survives aggressive removal of high frequencies? | Low-pass reconstructions and spectra | [ ] |
-| `05_high_pass.py` | What High-Pass Filtering Emphasizes | What is emphasized when low frequencies are suppressed? | High-pass reconstructions and residual views | [ ] |
+| `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
+| `04_low_pass.py` | What Low-Pass Filtering Preserves | Scope absorbed into Experiment 3 | Retained only as a traceable stub | Superseded |
+| `05_high_pass.py` | What High-Pass Filtering Emphasizes | Scope absorbed into Experiment 3 residual analysis | Retained only as a traceable stub | Superseded |
+
+The next numbered experiment should introduce a genuinely new question rather
+than repeat cumulative low-pass or high-pass filtering. Before that experiment,
+the showcase figures should be regenerated with a curated, provenance-recorded
+real image.
 
 ## Installation
 
@@ -157,7 +213,7 @@ spectral-diffusion-playground/
 │   ├── README.md
 │   ├── 01_fft_visualization.py
 │   ├── 02_noise_vs_frequency.py
-│   ├── 03_sigma_progression.py
+│   ├── 03_frequency_decomposition.py
 │   ├── 04_low_pass.py
 │   └── 05_high_pass.py
 ├── assets/

@@ -23,6 +23,7 @@ class ExperimentStub:
     script_name: str
     title: str
     question: str
+    status: str = SCAFFOLD_STATUS
 
 
 def format_experiment_stub(spec: ExperimentStub) -> str:
@@ -31,7 +32,7 @@ def format_experiment_stub(spec: ExperimentStub) -> str:
         f"""
         [{spec.script_name}] {spec.title}
         Question: {spec.question}
-        Status: {SCAFFOLD_STATUS}
+        Status: {spec.status}
         """
     ).strip()
 
@@ -124,7 +125,7 @@ def create_reference_image(size: int = 384) -> np.ndarray:
 
     plaid = np.cos(2.0 * np.pi * 8.0 * xx) * np.cos(2.0 * np.pi * 6.0 * yy)
     diagonal_wave = np.sin(2.0 * np.pi * 9.0 * (0.86 * xx + 0.5 * yy))
-    radial_ring = np.exp(-((radius - 0.45) / 0.08) ** 2)
+    radial_ring = np.exp(-(((radius - 0.45) / 0.08) ** 2))
     ripple = np.sin(18.0 * radius - 3.0 * angle)
 
     image[..., 0] += 0.18 * radial_ring + 0.08 * diagonal_wave
@@ -140,14 +141,10 @@ def create_reference_image(size: int = 384) -> np.ndarray:
     )
 
     cool_square = (np.abs(xx - 0.42) < 0.13) & (np.abs(yy + 0.40) < 0.13)
-    image[cool_square] = 0.60 * image[cool_square] + 0.40 * np.array(
-        [0.17, 0.35, 0.92]
-    )
+    image[cool_square] = 0.60 * image[cool_square] + 0.40 * np.array([0.17, 0.35, 0.92])
 
     cyan_circle = (xx + 0.52) ** 2 + (yy - 0.34) ** 2 < 0.12**2
-    image[cyan_circle] = 0.40 * image[cyan_circle] + 0.60 * np.array(
-        [0.16, 0.83, 0.90]
-    )
+    image[cyan_circle] = 0.40 * image[cyan_circle] + 0.60 * np.array([0.16, 0.83, 0.90])
 
     emerald_glow = np.exp(-((xx + 0.48) ** 2 + (yy - 0.38) ** 2) / 0.015)
     image[..., 1] += 0.10 * emerald_glow

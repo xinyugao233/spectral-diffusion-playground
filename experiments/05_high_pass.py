@@ -1,4 +1,4 @@
-"""Experiment stub for high-pass filtering analysis."""
+"""Superseded high-pass experiment stub retained for roadmap traceability."""
 
 from __future__ import annotations
 
@@ -8,6 +8,10 @@ SPEC = ExperimentStub(
     script_name="05_high_pass.py",
     title="High-pass filtering",
     question="Which details are emphasized when low-frequency content is removed?",
+    status=(
+        "Superseded by 03_frequency_decomposition.py, which now includes "
+        "complementary high-frequency residuals."
+    ),
 )
 
 
