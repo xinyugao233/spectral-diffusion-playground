@@ -17,7 +17,8 @@ swaps, and nearest-neighbor memorization evaluator was unavailable. Future work
 will therefore be derived from the paper and documented assumptions. It will
 not be described as code-identical or an exact numerical reproduction.
 
-No Experiment 4–6 results currently exist in this repository.
+Experiment 4 now has a numerical review packet, but no human reviewer scores or
+cutoff decision. No Experiment 5–6 results currently exist in this repository.
 
 ## Motivation
 
@@ -120,7 +121,7 @@ implemented.
 
 | Experiment | Planned question | Current status |
 | --- | --- | --- |
-| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | [Protocol frozen](docs/experiment_04_frequency_cutoff_protocol.md); no results |
+| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Review packet generated; [independent review](docs/experiment_04_reviewer_instructions.md) pending; no `r_star` |
 | E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | Redesign pending; no results |
 | E006: Whole-denoiser transition-window swaps | Do whole-denoiser swaps around the E005 transition windows alter trajectory-level memorization under the clean-room setup? | Redesign pending; no results |
 
@@ -139,6 +140,20 @@ E006 will swap the entire denoiser selected at a sampling step. Frequency
 components of denoiser outputs will not be spliced in the primary experiment.
 The paper's inconsistent swap-boundary descriptions must be handled as an
 explicit clean-room design decision, not silently resolved.
+
+Generate the complete E004 packet from an existing torchvision-compatible
+CIFAR-10 root:
+
+```bash
+python experiments/04_frequency_cutoff.py \
+    --dataset-root /path/to/cifar10
+```
+
+This writes deterministic manifests and measurements, five class-grouped
+montages, and blank independent reviewer templates. It does not score images or
+select a cutoff. See the
+[frozen protocol](docs/experiment_04_frequency_cutoff_protocol.md) and
+[pending decision record](docs/experiment_04_frequency_cutoff_decision.md).
 
 ## Installation
 
@@ -163,12 +178,15 @@ spectral-diffusion-playground/
 ├── experiments/
 │   ├── 01_fft_visualization.py
 │   ├── 02_noise_vs_frequency.py
-│   └── 03_frequency_decomposition.py
+│   ├── 03_frequency_decomposition.py
+│   └── 04_frequency_cutoff.py
 ├── figures/
+├── results/
 ├── src/
 │   └── spectral_diffusion_playground/
 │       ├── fft.py
 │       ├── filters.py
+│       ├── frequency_cutoff.py
 │       ├── noise.py
 │       ├── utils.py
 │       └── visualization.py
@@ -183,9 +201,10 @@ Run the full test suite with:
 python -m unittest discover tests
 ```
 
-The preserved tests cover FFT round trips, centered-mask geometry,
-low/high-frequency complementarity, deterministic noise, and shared image
-utilities.
+The tests cover FFT round trips, centered-mask geometry, low/high-frequency
+complementarity, deterministic noise, shared image utilities, E004 numerical
+identities, output schemas, blank reviewer templates, and synthetic cutoff
+selection cases.
 
 ## Citation
 

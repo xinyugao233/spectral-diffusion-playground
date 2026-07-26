@@ -3,6 +3,7 @@
 __all__ = [
     "fft",
     "filters",
+    "frequency_cutoff",
     "noise",
     "utils",
     "visualization",
