@@ -105,7 +105,7 @@ class E005CleanRoomModelTest(unittest.TestCase):
         subprocess.run(["bash", "-n", str(LAUNCHER_PATH)], check=True)
         launcher = LAUNCHER_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('if [ "${SLURM_JOB_ID:-}" = "" ]', launcher)
+        self.assertIn('if [ -z "${SLURM_JOB_ID:-}" ]', launcher)
         self.assertIn('if [ -z "${E005_REPO_ROOT:-}" ]', launcher)
         self.assertIn('if [ -z "${E005_REPO_COMMIT:-}" ]', launcher)
         self.assertIn('--repo-root "$REPO_ROOT"', launcher)
@@ -113,9 +113,19 @@ class E005CleanRoomModelTest(unittest.TestCase):
         self.assertIn('python "$PREFLIGHT"', launcher)
         self.assertIn('echo "repository_root=${REPO_ROOT}"', launcher)
         self.assertIn('--mode "$MODE"', launcher)
-        self.assertIn("Refusing to train outside Slurm", launcher)
+        self.assertIn("error: SLURM_JOB_ID is unset", launcher)
+        self.assertIn(
+            'FALLBACK_TMP_ROOT="/cluster/pixstor/zwggh-lab/xinyu/slurm_tmp"',
+            launcher,
+        )
+        self.assertIn('TMP_ROOT="${FALLBACK_TMP_ROOT}/e005_${SLURM_JOB_ID}"', launcher)
+        self.assertIn('echo "slurm_tmpdir_source=${SLURM_TMPDIR_SOURCE}"', launcher)
+        self.assertIn('echo "slurm_tmpdir=${SLURM_TMPDIR}"', launcher)
+        self.assertIn('echo "slurm_tmpdir_writable=true"', launcher)
+        self.assertIn("#SBATCH --time=2-00:00:00", launcher)
         self.assertIn("#SBATCH --gres=gpu:L40S:1", launcher)
         self.assertNotIn("BASH_SOURCE", launcher)
+        self.assertNotIn('test -n "${SLURM_TMPDIR:-}"', launcher)
         self.assertNotIn("#SBATCH --gres=gpu:1", launcher)
         self.assertNotIn("#SBATCH --gpus=1", launcher)
         self.assertNotIn("curl ", launcher)
@@ -126,13 +136,15 @@ class E005CleanRoomModelTest(unittest.TestCase):
         *,
         repo_root: str | None,
         repo_commit: str = "0" * 40,
+        slurm_job_id: str | None = "unit-test",
     ) -> subprocess.CompletedProcess[str]:
         """Run only the launcher's pre-output repository checks."""
         environment = {
             "PATH": "/usr/bin:/bin",
-            "SLURM_JOB_ID": "unit-test",
             "E005_REPO_COMMIT": repo_commit,
         }
+        if slurm_job_id is not None:
+            environment["SLURM_JOB_ID"] = slurm_job_id
         if repo_root is not None:
             environment["E005_REPO_ROOT"] = repo_root
         return subprocess.run(
@@ -147,6 +159,15 @@ class E005CleanRoomModelTest(unittest.TestCase):
             env=environment,
             check=False,
         )
+
+    def test_launcher_rejects_missing_job_id_explicitly(self) -> None:
+        result = self.run_launcher_contract_check(
+            repo_root=str(REPO_ROOT),
+            slurm_job_id=None,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("error: SLURM_JOB_ID is unset", result.stderr)
 
     def test_launcher_rejects_absent_repository_root(self) -> None:
         result = self.run_launcher_contract_check(repo_root=None)
@@ -177,6 +198,102 @@ class E005CleanRoomModelTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             PREFLIGHT.validate_repository(REPO_ROOT, f"{current_commit}wrong")
+
+    def run_launcher_tmpdir_dry_run(
+        self,
+        *,
+        slurm_tmpdir: Path | None,
+        fallback_root: Path,
+        preflight_exit: int = 0,
+    ) -> subprocess.CompletedProcess[str]:
+        """Exercise launcher temporary setup without invoking training."""
+        fake_bin = fallback_root.parent / "fake-bin"
+        fake_bin.mkdir()
+        fake_python = fake_bin / "python"
+        fake_python.write_text(
+            f"#!/bin/sh\nexit {preflight_exit}\n",
+            encoding="utf-8",
+        )
+        fake_python.chmod(0o755)
+        environment = {
+            "PATH": f"{fake_bin}:/usr/bin:/bin",
+            "SLURM_JOB_ID": "987654",
+            "E005_REPO_ROOT": str(REPO_ROOT),
+            "E005_REPO_COMMIT": "dry-run-commit",
+            "E005_DRY_RUN_TMP_ROOT": str(fallback_root),
+        }
+        if slurm_tmpdir is not None:
+            environment["SLURM_TMPDIR"] = str(slurm_tmpdir)
+        return subprocess.run(
+            [
+                "bash",
+                str(LAUNCHER_PATH),
+                "configs/e005_edm50k_matched_40000kimg.yaml",
+                "fresh",
+                "--launcher-dry-run",
+            ],
+            capture_output=True,
+            text=True,
+            env=environment,
+            check=False,
+        )
+
+    def test_launcher_preserves_writable_provided_slurm_tmpdir(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            provided = root / "provided"
+            provided.mkdir()
+            result = self.run_launcher_tmpdir_dry_run(
+                slurm_tmpdir=provided,
+                fallback_root=root / "fallback",
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("slurm_tmpdir_source=provided", result.stdout)
+            self.assertIn(f"slurm_tmpdir={provided.resolve()}", result.stdout)
+            self.assertIn("launcher_dry_run=pass", result.stdout)
+
+    def test_launcher_uses_job_specific_fallback_when_tmpdir_is_unset(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            fallback_root = Path(temporary_directory) / "fallback"
+            result = self.run_launcher_tmpdir_dry_run(
+                slurm_tmpdir=None,
+                fallback_root=fallback_root,
+            )
+            expected = fallback_root / "e005_987654"
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(expected.is_dir())
+            self.assertIn("slurm_tmpdir_source=fallback", result.stdout)
+            self.assertIn(f"slurm_tmpdir={expected.resolve()}", result.stdout)
+
+    def test_launcher_rejects_unwritable_provided_tmpdir(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            provided = root / "unwritable"
+            provided.mkdir(mode=0o500)
+            try:
+                result = self.run_launcher_tmpdir_dry_run(
+                    slurm_tmpdir=provided,
+                    fallback_root=root / "fallback",
+                )
+            finally:
+                provided.chmod(0o700)
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("error: SLURM_TMPDIR is not writable", result.stderr)
+
+    def test_failed_preflight_creates_no_tmpdir(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            fallback_root = Path(temporary_directory) / "fallback"
+            result = self.run_launcher_tmpdir_dry_run(
+                slurm_tmpdir=None,
+                fallback_root=fallback_root,
+                preflight_exit=1,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(fallback_root.exists())
 
     def test_fresh_mode_rejects_nonempty_output_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

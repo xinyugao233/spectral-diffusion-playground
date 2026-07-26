@@ -2,7 +2,8 @@
 
 ## Status
 
-**Preparation frozen; EDM-50K training not submitted.**
+**Preparation frozen; the first two EDM-50K launch attempts failed before
+training initialization.**
 
 Experiment 5 is a paper-derived clean-room reimplementation. The original
 executed paper checkpoints and CIFAR-10 1K subset were not recovered. The
@@ -179,6 +180,17 @@ corrected launcher therefore requests exactly one `L40S` using
 form because its configured `select/cons_res` plugin does not support that
 request. The typed request passed `sbatch --test-only` without creating a job.
 
+Hellbender's `gpu` partition has a hard `MaxTime=2-00:00:00`, so the launcher
+retains the 48-hour request. A 60-hour request is not valid on this partition.
+
+Job `15315328` passed the complete provenance preflight and then exited with
+code `1:0` before the training wrapper ran. Its stdout ended at
+`preflight=pass mode=fresh config_only=False`, stderr was empty, and no output
+directory or checkpoint was created. The next launcher command was the silent
+`test -n "${SLURM_TMPDIR:-}"`; Hellbender had not provided `SLURM_TMPDIR`.
+This ordering confirms the missing temporary-directory variable as the
+operational failure.
+
 The launcher:
 
 - refuses execution without `SLURM_JOB_ID`;
@@ -191,7 +203,12 @@ The launcher:
 - refuses `fresh` mode when either persistent output directory is nonempty;
 - permits resume only through explicit `resume` mode and only when a nonempty
   `training-state-*.pt` exists;
-- routes temporary files and caches through `SLURM_TMPDIR`;
+- preserves a provided writable `SLURM_TMPDIR`;
+- otherwise creates the deterministic job-specific fallback
+  `/cluster/pixstor/zwggh-lab/xinyu/slurm_tmp/e005_${SLURM_JOB_ID}`;
+- creates the fallback only after provenance and output-collision preflight
+  passes, and preserves it on failure for diagnosis;
+- routes temporary files and caches through the resolved `SLURM_TMPDIR`;
 - keeps stdout and stderr under `/home/xggh8/data/zw-lab/`;
 - never writes into or overwrites the existing EDM-1K run.
 

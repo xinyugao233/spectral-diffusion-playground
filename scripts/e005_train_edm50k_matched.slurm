@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-if [ "${SLURM_JOB_ID:-}" = "" ]; then
-  echo "Refusing to train outside Slurm" >&2
+if [ -z "${SLURM_JOB_ID:-}" ]; then
+  echo "error: SLURM_JOB_ID is unset" >&2
   exit 1
 fi
 
@@ -32,8 +32,11 @@ if [ -z "${E005_REPO_COMMIT:-}" ]; then
   exit 1
 fi
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: sbatch scripts/e005_train_edm50k_matched.slurm CONFIG {fresh|resume}" >&2
+LAUNCHER_DRY_RUN=false
+if [ "$#" -eq 3 ] && [ "$3" = "--launcher-dry-run" ]; then
+  LAUNCHER_DRY_RUN=true
+elif [ "$#" -ne 2 ]; then
+  echo "Usage: sbatch scripts/e005_train_edm50k_matched.slurm CONFIG {fresh|resume} [--launcher-dry-run]" >&2
   exit 1
 fi
 
@@ -86,17 +89,56 @@ python "$PREFLIGHT" \
   --manifest "$MANIFEST" \
   --mode "$MODE"
 
-test -n "${SLURM_TMPDIR:-}"
-export TMPDIR="${SLURM_TMPDIR}/tmp"
-export XDG_CACHE_HOME="${SLURM_TMPDIR}/.cache"
-export TORCH_HOME="${SLURM_TMPDIR}/torch_cache"
-export MPLCONFIGDIR="${SLURM_TMPDIR}/matplotlib"
-export WANDB_DIR="${SLURM_TMPDIR}/wandb"
-export HF_HOME="${SLURM_TMPDIR}/hf"
-export TRANSFORMERS_CACHE="${SLURM_TMPDIR}/hf/transformers"
-export HF_DATASETS_CACHE="${SLURM_TMPDIR}/hf/datasets"
-export PIP_CACHE_DIR="${SLURM_TMPDIR}/pip-cache"
-export PYTHONPYCACHEPREFIX="${SLURM_TMPDIR}/pycache"
+if [ -n "${SLURM_TMPDIR:-}" ]; then
+  TMP_ROOT="$SLURM_TMPDIR"
+  SLURM_TMPDIR_SOURCE=provided
+  if [ ! -d "$TMP_ROOT" ]; then
+    echo "error: provided SLURM_TMPDIR is not a directory: ${TMP_ROOT}" >&2
+    exit 1
+  fi
+else
+  FALLBACK_TMP_ROOT="/cluster/pixstor/zwggh-lab/xinyu/slurm_tmp"
+  if [ "$LAUNCHER_DRY_RUN" = true ] && [ -n "${E005_DRY_RUN_TMP_ROOT:-}" ]; then
+    FALLBACK_TMP_ROOT="$E005_DRY_RUN_TMP_ROOT"
+  fi
+  case "$FALLBACK_TMP_ROOT" in
+    /*) ;;
+    *)
+      echo "error: fallback temporary root must be absolute: ${FALLBACK_TMP_ROOT}" >&2
+      exit 1
+      ;;
+  esac
+  TMP_ROOT="${FALLBACK_TMP_ROOT}/e005_${SLURM_JOB_ID}"
+  SLURM_TMPDIR_SOURCE=fallback
+  if ! mkdir -p "$TMP_ROOT"; then
+    echo "error: failed to create fallback SLURM_TMPDIR: ${TMP_ROOT}" >&2
+    exit 1
+  fi
+fi
+
+if [ ! -w "$TMP_ROOT" ]; then
+  echo "error: SLURM_TMPDIR is not writable: ${TMP_ROOT}" >&2
+  exit 1
+fi
+TMP_ROOT="$(cd "$TMP_ROOT" && pwd -P)"
+export SLURM_TMPDIR="$TMP_ROOT"
+
+echo "slurm_tmpdir_source=${SLURM_TMPDIR_SOURCE}"
+echo "slurm_tmpdir=${SLURM_TMPDIR}"
+echo "slurm_tmpdir_writable=true"
+echo "output_dir=/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg"
+echo "mode=${MODE}"
+
+export TMPDIR="${TMP_ROOT}/tmp"
+export XDG_CACHE_HOME="${TMP_ROOT}/.cache"
+export TORCH_HOME="${TMP_ROOT}/torch_cache"
+export MPLCONFIGDIR="${TMP_ROOT}/matplotlib"
+export WANDB_DIR="${TMP_ROOT}/wandb"
+export HF_HOME="${TMP_ROOT}/hf"
+export TRANSFORMERS_CACHE="${TMP_ROOT}/hf/transformers"
+export HF_DATASETS_CACHE="${TMP_ROOT}/hf/datasets"
+export PIP_CACHE_DIR="${TMP_ROOT}/pip-cache"
+export PYTHONPYCACHEPREFIX="${TMP_ROOT}/pycache"
 mkdir -p \
   "$TMPDIR" \
   "$XDG_CACHE_HOME" \
@@ -108,6 +150,11 @@ mkdir -p \
   "$HF_DATASETS_CACHE" \
   "$PIP_CACHE_DIR" \
   "$PYTHONPYCACHEPREFIX"
+
+if [ "$LAUNCHER_DRY_RUN" = true ]; then
+  echo "launcher_dry_run=pass"
+  exit 0
+fi
 
 export PYTHONPATH="/home/xggh8/projects/zw-lab/src:/home/xggh8/projects/zw-lab:${PYTHONPATH:-}"
 export MASTER_ADDR=127.0.0.1
