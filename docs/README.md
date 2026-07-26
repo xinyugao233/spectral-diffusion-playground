@@ -9,8 +9,5 @@ Use this directory for:
 - research-oriented background explanations
 - implementation decisions that are too detailed for the main README
 
-Current specifications:
-
-- [Experiment 5: Natural Image Calibration of `S_low` and `S_high`](experiment_05_natural_image_calibration.md)
-- [Experiment 6: Fixed-Model Frequency-Band Recovery](experiment_06_fixed_model_denoising.md)
-- [Experiment 6 execution log](experiment_06_execution_log.md)
+Experiments 4–6 are being redesigned. Their specifications will be added in
+separate, reviewable phases before implementation begins.

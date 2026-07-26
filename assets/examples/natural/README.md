@@ -1,14 +1,8 @@
-# Natural Calibration Images
+# Natural Example Images
 
-This directory contains the six frozen, provenance-recorded Experiment 5
-source images. Do not add, remove, or replace an image without creating a new
-dataset version and updating `../metadata.csv`.
+This directory contains six provenance-recorded natural images retained as
+optional inputs for the completed Fourier experiments.
 
-The frozen preprocessing and calibration protocol are documented in
-`../../../docs/experiment_05_natural_image_calibration.md`.
-
-Validate the dataset contract before running calibration:
-
-```bash
-python scripts/validate_natural_image_dataset.py
-```
+Do not add, remove, or replace an image without updating `../metadata.csv`.
+These files are not an Experiment 4–6 dataset and have no current scientific
+result attached to them.

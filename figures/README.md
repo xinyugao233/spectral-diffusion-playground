@@ -1,6 +1,6 @@
 # Figures
 
-Generated outputs should be written here once experiments are implemented.
+Representative generated outputs from completed experiments live here.
 
 Recommended convention:
 

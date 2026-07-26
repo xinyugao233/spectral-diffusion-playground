@@ -13,23 +13,14 @@ Conventions:
 The numbered filenames are intentional: they define a reading order for people
 new to the repository.
 
-The sequence has two distinct roles:
+Experiments 1–3 are the completed Fourier foundations. Experiments 4–6 are
+being redesigned as a paper-derived clean-room reimplementation:
 
-- Experiments 1–4 define and calibrate the frequency-space measurements.
-- Experiment 5 calibrates those measurements across natural images.
-- Experiment 6 is a fixed-model inference baseline.
-- Experiment 7 is the checkpoint-aligned memorization study.
+- Experiment 4 will freeze an operational CIFAR-10 frequency cutoff.
+- Experiment 5 will decompose fixed-sigma denoising residual energy into
+  orthogonal low- and high-frequency components.
+- Experiment 6 will test whole-denoiser swaps around the resulting transition
+  windows.
 
-Experiment 5 has passed its provenance, uncertainty, cutoff-sweep, and failure
-analysis gate. Experiment 6 has a frozen known-target protocol but remains
-unevaluated; its implementation is complete, but no checkpoint has been
-downloaded. It must preserve the distinction between fixed-model inference
-dynamics and checkpoint-aligned learning dynamics.
-
-Low-frequency recovery is a coarse/global-structure proxy; high-frequency
-recovery is a fine-detail proxy. Do not treat either operational band as a
-semantic category.
-
-Do not interpret high-frequency recovery by itself as memorization. A
-memorization analysis requires matched training and held-out controls across
-checkpoints, with distributional differences treated as potential confounders.
+The original executed paper code was unavailable. No Experiment 4–6 result or
+claim currently exists in this repository.
