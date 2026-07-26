@@ -173,9 +173,19 @@ The anchor used approximately 46.2 hours, peaked at 11.68 GB allocated GPU
 memory during startup and 8.43 GB during steady training, and used less than
 2 GB host memory. Runtime remains hardware-dependent.
 
+The anchor ran on Hellbender node `g039`, configured with L40S GPUs. The
+corrected launcher therefore requests exactly one `L40S` using
+`--gres=gpu:L40S:1`. Hellbender rejected the otherwise portable `--gpus=1`
+form because its configured `select/cons_res` plugin does not support that
+request. The typed request passed `sbatch --test-only` without creating a job.
+
 The launcher:
 
 - refuses execution without `SLURM_JOB_ID`;
+- requires `E005_REPO_ROOT` to name an absolute existing checkout;
+- requires `E005_REPO_COMMIT` to identify the exact expected checkout commit;
+- rejects missing tracked launch files, a non-Git path, a wrong commit, or a
+  dirty worktree before checking or creating training outputs;
 - performs no download;
 - validates source, wrapper, config, and archive hashes before training;
 - refuses `fresh` mode when either persistent output directory is nonempty;
@@ -185,20 +195,25 @@ The launcher:
 - keeps stdout and stderr under `/home/xggh8/data/zw-lab/`;
 - never writes into or overwrites the existing EDM-1K run.
 
-After the repository commit is available in the Hellbender checkout, the
-future fresh-run command from the repository root is:
+The clean execution checkout is:
+
+```text
+/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground
+```
+
+The launcher remains portable: this path is supplied through
+`E005_REPO_ROOT`, not embedded in the script. After the fix commit is staged to
+that checkout, the future fresh-run command is:
 
 ```bash
-sbatch scripts/e005_train_edm50k_matched.slurm \
+E005_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
+E005_REPO_COMMIT=<FIX_COMMIT> \
+sbatch --export=ALL,E005_REPO_ROOT,E005_REPO_COMMIT \
+  scripts/e005_train_edm50k_matched.slurm \
   configs/e005_edm50k_matched_40000kimg.yaml fresh
 ```
 
-An interrupted run may be resumed only with:
-
-```bash
-sbatch scripts/e005_train_edm50k_matched.slurm \
-  configs/e005_edm50k_matched_40000kimg.yaml resume
-```
-
-This document does not authorize either command. Training and E005 evaluation
-remain separate reviewed phases.
+Replace `<FIX_COMMIT>` with the commit reported by this correction phase. An
+interrupted run uses the same command with `resume` replacing `fresh`. This
+document does not authorize either command. Training and E005 evaluation remain
+separate reviewed phases.

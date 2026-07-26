@@ -101,15 +101,82 @@ class E005CleanRoomModelTest(unittest.TestCase):
         )
         PREFLIGHT.validate_manifest(CONFIG_PATH, MANIFEST_PATH)
 
-    def test_launcher_has_valid_shell_syntax_and_safety_guards(self) -> None:
+    def test_launcher_uses_explicit_repository_contract(self) -> None:
         subprocess.run(["bash", "-n", str(LAUNCHER_PATH)], check=True)
         launcher = LAUNCHER_PATH.read_text(encoding="utf-8")
 
         self.assertIn('if [ "${SLURM_JOB_ID:-}" = "" ]', launcher)
+        self.assertIn('if [ -z "${E005_REPO_ROOT:-}" ]', launcher)
+        self.assertIn('if [ -z "${E005_REPO_COMMIT:-}" ]', launcher)
+        self.assertIn('--repo-root "$REPO_ROOT"', launcher)
+        self.assertIn('--expected-repo-commit "$E005_REPO_COMMIT"', launcher)
+        self.assertIn('python "$PREFLIGHT"', launcher)
+        self.assertIn('echo "repository_root=${REPO_ROOT}"', launcher)
         self.assertIn('--mode "$MODE"', launcher)
         self.assertIn("Refusing to train outside Slurm", launcher)
+        self.assertIn("#SBATCH --gres=gpu:L40S:1", launcher)
+        self.assertNotIn("BASH_SOURCE", launcher)
+        self.assertNotIn("#SBATCH --gres=gpu:1", launcher)
+        self.assertNotIn("#SBATCH --gpus=1", launcher)
         self.assertNotIn("curl ", launcher)
         self.assertNotIn("wget ", launcher)
+
+    def run_launcher_contract_check(
+        self,
+        *,
+        repo_root: str | None,
+        repo_commit: str = "0" * 40,
+    ) -> subprocess.CompletedProcess[str]:
+        """Run only the launcher's pre-output repository checks."""
+        environment = {
+            "PATH": "/usr/bin:/bin",
+            "SLURM_JOB_ID": "unit-test",
+            "E005_REPO_COMMIT": repo_commit,
+        }
+        if repo_root is not None:
+            environment["E005_REPO_ROOT"] = repo_root
+        return subprocess.run(
+            [
+                "bash",
+                str(LAUNCHER_PATH),
+                "configs/e005_edm50k_matched_40000kimg.yaml",
+                "fresh",
+            ],
+            capture_output=True,
+            text=True,
+            env=environment,
+            check=False,
+        )
+
+    def test_launcher_rejects_absent_repository_root(self) -> None:
+        result = self.run_launcher_contract_check(repo_root=None)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("E005_REPO_ROOT is required", result.stderr)
+
+    def test_launcher_rejects_relative_repository_root(self) -> None:
+        result = self.run_launcher_contract_check(repo_root="relative/checkout")
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("E005_REPO_ROOT must be absolute", result.stderr)
+
+    def test_launcher_rejects_incorrect_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            result = self.run_launcher_contract_check(repo_root=temporary_directory)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Required repository path is missing", result.stderr)
+
+    def test_repository_validation_rejects_wrong_commit(self) -> None:
+        current_commit = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+        with self.assertRaises(ValueError):
+            PREFLIGHT.validate_repository(REPO_ROOT, f"{current_commit}wrong")
 
     def test_fresh_mode_rejects_nonempty_output_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

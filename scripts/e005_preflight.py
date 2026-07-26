@@ -33,6 +33,11 @@ EXPECTED_SOURCE_HASHES = {
         "9cac3720de1bd122a5fb735a133707fbe708daa454e00232390112311ee77391"
     ),
 }
+REQUIRED_REPOSITORY_PATHS = (
+    "scripts/e005_preflight.py",
+    "configs/e005_edm50k_matched_40000kimg.yaml",
+    "configs/e005_edm50k_matched_40000kimg_manifest.json",
+)
 
 EXPECTED_CONFIG = {
     "experiment": {
@@ -147,6 +152,45 @@ def validate_manifest(config_path: Path, manifest_path: Path) -> None:
         raise ValueError("Manifest EDM source hashes do not match the frozen source")
 
 
+def git_output(repo_root: Path, *arguments: str) -> str:
+    """Run one read-only Git query in the selected repository."""
+    return subprocess.run(
+        ["git", "-C", str(repo_root), *arguments],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def validate_repository(repo_root: Path, expected_commit: str) -> Path:
+    """Require an absolute, clean checkout at the explicitly selected commit."""
+    if not repo_root.is_absolute():
+        raise ValueError(f"Repository root must be absolute: {repo_root}")
+    if not repo_root.is_dir():
+        raise ValueError(f"Repository root does not exist: {repo_root}")
+    resolved_root = repo_root.resolve()
+    for relative_path in REQUIRED_REPOSITORY_PATHS:
+        path = resolved_root / relative_path
+        if not path.is_file():
+            raise ValueError(f"Required repository file is missing: {path}")
+    if not (resolved_root / ".git").exists():
+        raise ValueError(f"Expected Git repository at: {resolved_root}")
+    top_level = Path(git_output(resolved_root, "rev-parse", "--show-toplevel"))
+    if top_level.resolve() != resolved_root:
+        raise ValueError(f"Git top level differs from repository root: {top_level}")
+    actual_commit = git_output(resolved_root, "rev-parse", "HEAD")
+    print(f"repository_root={resolved_root}")
+    print(f"repository_commit={actual_commit}")
+    if actual_commit != expected_commit:
+        raise ValueError(
+            f"Repository commit mismatch: {actual_commit} != {expected_commit}"
+        )
+    status = git_output(resolved_root, "status", "--porcelain=v1")
+    if status:
+        raise ValueError(f"Repository worktree is not clean:\n{status}")
+    return resolved_root
+
+
 def require_hash(path: Path, expected: str, label: str) -> None:
     """Raise when one external artifact differs from its frozen hash."""
     actual = sha256_file(path)
@@ -204,6 +248,8 @@ def validate_external_artifacts(config: dict[str, Any], mode: str) -> None:
 def parse_args() -> argparse.Namespace:
     """Parse preflight arguments."""
     parser = argparse.ArgumentParser()
+    parser.add_argument("--repo-root", type=Path, required=True)
+    parser.add_argument("--expected-repo-commit", required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--mode", choices=("fresh", "resume"), default="fresh")
@@ -218,6 +264,15 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """Run the frozen configuration and provenance checks."""
     args = parse_args()
+    repo_root = validate_repository(args.repo_root, args.expected_repo_commit)
+    expected_config = repo_root / "configs/e005_edm50k_matched_40000kimg.yaml"
+    expected_manifest = (
+        repo_root / "configs/e005_edm50k_matched_40000kimg_manifest.json"
+    )
+    if args.config.resolve() != expected_config:
+        raise ValueError(f"Config is not the frozen repository file: {args.config}")
+    if args.manifest.resolve() != expected_manifest:
+        raise ValueError(f"Manifest is not the frozen repository file: {args.manifest}")
     config = validate_config(args.config)
     validate_manifest(args.config, args.manifest)
     print(f"config_sha256={sha256_file(args.config)}")
