@@ -1,0 +1,40 @@
+{
+  "archive": {
+    "path": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa",
+    "size_bytes": 164500138
+  },
+  "config": {
+    "path": "configs/e005_edm50k_matched_40000kimg.yaml",
+    "sha256": "464576709477f0ff74e12bbd66b8ac8afcb19dfa6f4127add42e3ac0e4efd106"
+  },
+  "expected_output": {
+    "checkpoint": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+    "data_directory": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg",
+    "scratch_directory": "/home/xggh8/scratch/zw-lab/e005_edm50k_matched_40000kimg"
+  },
+  "model": {
+    "checkpoint_sha256": null,
+    "condition": "clean_room_edm_50k",
+    "status": "not_trained"
+  },
+  "reproduction_claim": "paper-derived clean-room reimplementation; not an exact paper reproduction",
+  "source": {
+    "edm_commit": "008a4e5316c8e3bfe61a62f874bddba254295afb",
+    "file_sha256": {
+      "train.py": "e562dacd2f403e4a9dfe8c857078bb506d8d6825cb88478869cc78b7c4587f05",
+      "training/dataset.py": "fd4a37cdcca57563d2c20e7dc22da5b59bc7f15d1f53f87b902bf16c0917c05b",
+      "training/loss.py": "b26f0937bc72b18cc5f9869c86035ca9b872138cdfae7994237e9733951e4415",
+      "training/networks.py": "5db27dcd96674b95c72d5e6491b879cdc35e24039ada3411b4b46a28ed1fe284",
+      "training/training_loop.py": "9cac3720de1bd122a5fb735a133707fbe708daa454e00232390112311ee77391"
+    },
+    "wrapper_path": "/home/xggh8/projects/zw-lab/src/zwlab_edm/train_subset_sigma.py",
+    "wrapper_sha256": "f5ca28db4a167ba5ee6c26bf9ae9cf4bf3215b919a86e7ad8e7f8ae0ad10c142"
+  },
+  "training": {
+    "completed_at": null,
+    "job_id": null,
+    "mode": null,
+    "submitted_at": null
+  }
+}

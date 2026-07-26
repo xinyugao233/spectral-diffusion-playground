@@ -22,8 +22,10 @@ the reference cutoff is `r_star = 4`, the primary E005 sensitivity cutoffs are
 `r = 3` and `r = 5`, and `r = 6` is an optional extended sensitivity check.
 The originally planned two-independent-reviewer scoring procedure was not
 completed, so this is not an inter-rater or blinded review result. Both reviewer
-CSV templates remain blank. No Experiment 5–6 results currently exist in this
-repository.
+CSV templates remain blank. E005 now has a
+[frozen matched clean-room model-pair preparation](docs/experiment_05_clean_room_models.md)
+and awaits one unconditioned EDM-50K training run. No Experiment 5–6 results
+currently exist in this repository.
 
 ## Motivation
 
@@ -128,7 +130,7 @@ reviewed and implemented.
 | Experiment | Planned question | Current status |
 | --- | --- | --- |
 | E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Finalized by [single-reviewer qualitative visual decision](docs/experiment_04_frequency_cutoff_decision.md): `r_star = 4`; primary sensitivity at `r = 3, 5`; optional extended check at `r = 6` |
-| E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | [Clean-room protocol frozen](docs/experiment_05_spectral_residual_protocol.md); execution blocked on checkpoint and 1K-subset provenance; no results |
+| E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | [Clean-room protocol frozen](docs/experiment_05_spectral_residual_protocol.md); [matched model preparation frozen](docs/experiment_05_clean_room_models.md); awaits one EDM-50K training run; no results |
 | E006: Whole-denoiser transition-window swaps | Do whole-denoiser swaps around the E005 transition windows alter trajectory-level memorization under the clean-room setup? | Redesign pending; no results |
 
 For E005, the intended mathematical object is the denoising residual
