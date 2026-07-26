@@ -17,8 +17,13 @@ swaps, and nearest-neighbor memorization evaluator was unavailable. Future work
 will therefore be derived from the paper and documented assumptions. It will
 not be described as code-identical or an exact numerical reproduction.
 
-Experiment 4 now has a numerical review packet, but no human reviewer scores or
-cutoff decision. No Experiment 5–6 results currently exist in this repository.
+Experiment 4 is finalized with a single-reviewer qualitative visual decision:
+the reference cutoff is `r_star = 4`, the primary E005 sensitivity cutoffs are
+`r = 3` and `r = 5`, and `r = 6` is an optional extended sensitivity check.
+The originally planned two-independent-reviewer scoring procedure was not
+completed, so this is not an inter-rater or blinded review result. Both reviewer
+CSV templates remain blank. No Experiment 5–6 results currently exist in this
+repository.
 
 ## Motivation
 
@@ -116,12 +121,13 @@ python experiments/03_frequency_decomposition.py \
 
 ## Redesign Roadmap
 
-The next experiments are specifications only until separately reviewed and
-implemented.
+Experiment 4 is implemented and finalized under the disclosed qualitative
+decision process. Experiments 5–6 remain specifications only until separately
+reviewed and implemented.
 
 | Experiment | Planned question | Current status |
 | --- | --- | --- |
-| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Review packet generated; [independent review](docs/experiment_04_reviewer_instructions.md) pending; no `r_star` |
+| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Finalized by [single-reviewer qualitative visual decision](docs/experiment_04_frequency_cutoff_decision.md): `r_star = 4`; primary sensitivity at `r = 3, 5`; optional extended check at `r = 6` |
 | E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | Redesign pending; no results |
 | E006: Whole-denoiser transition-window swaps | Do whole-denoiser swaps around the E005 transition windows alter trajectory-level memorization under the clean-room setup? | Redesign pending; no results |
 
@@ -151,9 +157,11 @@ python experiments/04_frequency_cutoff.py \
 
 This writes deterministic manifests and measurements, five class-grouped
 montages, and blank independent reviewer templates. It does not score images or
-select a cutoff. See the
+select a cutoff. The cutoff was subsequently frozen through a disclosed
+single-reviewer qualitative visual decision rather than the originally planned
+two-reviewer scoring procedure. See the
 [frozen protocol](docs/experiment_04_frequency_cutoff_protocol.md) and
-[pending decision record](docs/experiment_04_frequency_cutoff_decision.md).
+[final decision record](docs/experiment_04_frequency_cutoff_decision.md).
 
 ## Installation
 
