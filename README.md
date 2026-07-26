@@ -120,7 +120,7 @@ implemented.
 
 | Experiment | Planned question | Current status |
 | --- | --- | --- |
-| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Redesign pending; no results |
+| E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | [Protocol frozen](docs/experiment_04_frequency_cutoff_protocol.md); no results |
 | E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | Redesign pending; no results |
 | E006: Whole-denoiser transition-window swaps | Do whole-denoiser swaps around the E005 transition windows alter trajectory-level memorization under the clean-room setup? | Redesign pending; no results |
 
