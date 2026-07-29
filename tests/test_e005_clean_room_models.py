@@ -101,6 +101,35 @@ class E005CleanRoomModelTest(unittest.TestCase):
         )
         PREFLIGHT.validate_manifest(CONFIG_PATH, MANIFEST_PATH)
 
+    def test_completed_edm50k_identity_is_declared(self) -> None:
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+        self.assertEqual(manifest["model"]["status"], "completed_validated")
+        self.assertEqual(
+            manifest["model"]["checkpoint_path"],
+            "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/"
+            "network-snapshot-040000.pkl",
+        )
+        self.assertEqual(manifest["model"]["checkpoint_size_bytes"], 223159918)
+        self.assertEqual(
+            manifest["model"]["checkpoint_sha256"],
+            "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b",
+        )
+        self.assertEqual(
+            manifest["run_artifacts"]["training_state_sha256"],
+            "4af61f228ea5ca0f25897ba180e3e8c5466628fecffa039e98d3505d0bbfbcf9",
+        )
+        self.assertEqual(
+            manifest["run_artifacts"]["config_used_sha256"],
+            "464576709477f0ff74e12bbd66b8ac8afcb19dfa6f4127add42e3ac0e4efd106",
+        )
+        self.assertEqual(manifest["training"]["job_id"], 15315560)
+        self.assertEqual(manifest["training"]["slurm_state"], "COMPLETED")
+        self.assertEqual(manifest["training"]["exit_code"], "0:0")
+        self.assertEqual(manifest["training"]["final_kimg"], 40000.0)
+        self.assertEqual(manifest["smoke_test"]["result"], "pass")
+        self.assertEqual(manifest["smoke_test"]["job_id"], 15425345)
+
     def test_launcher_uses_explicit_repository_contract(self) -> None:
         subprocess.run(["bash", "-n", str(LAUNCHER_PATH)], check=True)
         launcher = LAUNCHER_PATH.read_text(encoding="utf-8")

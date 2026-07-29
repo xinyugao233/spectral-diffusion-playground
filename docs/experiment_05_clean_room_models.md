@@ -2,8 +2,8 @@
 
 ## Status
 
-**Preparation frozen; the first two EDM-50K launch attempts failed before
-training initialization.**
+**Matched clean-room model pair validated; E005 evaluation not yet
+implemented.**
 
 Experiment 5 is a paper-derived clean-room reimplementation. The original
 executed paper checkpoints and CIFAR-10 1K subset were not recovered. The
@@ -11,9 +11,10 @@ models below must not be described as the paper's checkpoints or as an exact
 numerical reproduction.
 
 This amendment replaces the unavailable paper models with an internally
-matched pair. The EDM-1K member already exists. The EDM-50K member must be
-trained once from the frozen configuration before the residual evaluator can
-be implemented or run.
+matched pair. The EDM-1K member already exists. The EDM-50K member has now
+been trained once from the frozen configuration and validated as the matched
+clean-room counterpart. This document records model provenance only; it
+contains no E005 residual curves or scientific results.
 
 ## Clean-Room EDM-1K Anchor
 
@@ -157,14 +158,26 @@ Expected persistent outputs:
 /home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/
 ```
 
-The selected checkpoint will be:
+The selected checkpoint is:
 
 ```text
 /home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/
 network-snapshot-040000.pkl
 ```
 
-Its SHA-256 remains unset until training completes. The provenance template is
+Identity:
+
+```text
+checkpoint size:          223159918 bytes
+checkpoint SHA-256:       a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b
+training-state path:      /home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/training-state-040000.pt
+training-state SHA-256:   4af61f228ea5ca0f25897ba180e3e8c5466628fecffa039e98d3505d0bbfbcf9
+config_used SHA-256:      464576709477f0ff74e12bbd66b8ac8afcb19dfa6f4127add42e3ac0e4efd106
+run-manifest SHA-256:     777dc54cfa65556d2b68c99363659d19f343c26863b93f8612da56ccaf2b9c84
+training-options SHA-256: a5051275ea83f013ecbd60688b758849d66b6224882a463bc31f7db7278a4541
+```
+
+The complete provenance record is
 `configs/e005_edm50k_matched_40000kimg_manifest.json`.
 
 ## Training Safety and Preflight
@@ -219,18 +232,149 @@ The clean execution checkout is:
 ```
 
 The launcher remains portable: this path is supplied through
-`E005_REPO_ROOT`, not embedded in the script. After the fix commit is staged to
-that checkout, the future fresh-run command is:
+`E005_REPO_ROOT`, not embedded in the script. The successful fresh-run command
+used the corrected checkout commit
+`14a0e1a95c74ee83699d63734a632dbf9b05a0c8`:
 
 ```bash
 E005_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
-E005_REPO_COMMIT=<FIX_COMMIT> \
+E005_REPO_COMMIT=14a0e1a95c74ee83699d63734a632dbf9b05a0c8 \
 sbatch --export=ALL,E005_REPO_ROOT,E005_REPO_COMMIT \
   scripts/e005_train_edm50k_matched.slurm \
   configs/e005_edm50k_matched_40000kimg.yaml fresh
 ```
 
-Replace `<FIX_COMMIT>` with the commit reported by this correction phase. An
-interrupted run uses the same command with `resume` replacing `fresh`. This
-document does not authorize either command. Training and E005 evaluation remain
-separate reviewed phases.
+This command submitted Slurm job `15315560`. An interrupted run would have used
+the same command with `resume` replacing `fresh`, but no resume was needed.
+Training and E005 evaluation remain separate reviewed phases.
+
+## EDM-50K Training Validation
+
+Job `15315560` completed successfully:
+
+```text
+Slurm state:       COMPLETED
+exit code:         0:0
+submitted:         2026-07-26T02:42:10
+started:           2026-07-26T02:42:27
+completed:         2026-07-28T00:45:24
+elapsed:           1-22:02:57
+time limit:        2-00:00:00
+node:              g039
+mode:              fresh
+```
+
+The final `stats.jsonl` row reports:
+
+```text
+tick:                         40
+kimg:                         40000.0
+loss mean:                    0.17222712068216225
+cpu memory:                   1.5840072631835938 GB
+peak GPU memory:              8.430673599243164 GB
+peak GPU memory reserved:     9.0390625 GB
+seconds per kimg:             4.144377708435059
+```
+
+Training reached exactly `40,000 kimg` and exited normally. No traceback,
+CUDA error, out-of-memory error, quota error, I/O error, or NaN was found in
+the Slurm logs.
+
+Nonfatal warnings recorded in stderr:
+
+- PyTorch sampler `data_source` deprecation warning.
+- DDP gradient-stride performance warning.
+- `init_process_group` / `barrier` device-id warning.
+- `destroy_process_group()` not called before process exit warning.
+
+These warnings did not stop training and did not change the completed Slurm
+state.
+
+Complete persistent snapshot list:
+
+```text
+network-snapshot-000000.pkl
+network-snapshot-002000.pkl
+network-snapshot-004000.pkl
+network-snapshot-006000.pkl
+network-snapshot-008000.pkl
+network-snapshot-010000.pkl
+network-snapshot-012000.pkl
+network-snapshot-014000.pkl
+network-snapshot-016000.pkl
+network-snapshot-018000.pkl
+network-snapshot-020000.pkl
+network-snapshot-022000.pkl
+network-snapshot-024000.pkl
+network-snapshot-026000.pkl
+network-snapshot-028000.pkl
+network-snapshot-030000.pkl
+network-snapshot-032000.pkl
+network-snapshot-034000.pkl
+network-snapshot-036000.pkl
+network-snapshot-038000.pkl
+network-snapshot-040000.pkl
+```
+
+The final EMA checkpoint was loaded successfully in the smoke test below,
+which is the readability check for `network-snapshot-040000.pkl`.
+
+## Model-Pair Equivalence Check
+
+The completed EDM-50K run is matched to the EDM-1K anchor in all frozen
+settings except:
+
+| Field | EDM-1K anchor | Matched EDM-50K |
+| --- | --- | --- |
+| `experiment.name` | `exp_004_standard_edm_n1000_40000kimg_20260415` | `e005_edm50k_matched_40000kimg` |
+| `dataset.subset_size` | `1000` | `50000` |
+
+The validated `training_options.json` confirms:
+
+- dataset size `50000`;
+- `use_labels=false`;
+- seed `0`;
+- `EDMPrecond`/`SongUNet` with `model_channels=128` and
+  `channel_mult=[2,2,2]`;
+- `EDMLoss` with `P_mean=-1.2`, `P_std=1.2`, and `sigma_data=0.5`;
+- Adam optimizer with learning rate `0.001`, betas `(0.9,0.999)`, and
+  epsilon `1e-8`;
+- batch size and per-GPU batch size `64`;
+- duration `40000 kimg`;
+- EMA half-life `500 kimg`;
+- dropout `0.13`;
+- `use_fp16=false`;
+- no augmentation and no x-flip.
+
+Resume-mode preflight after completion passed and revalidated the repository
+commit, frozen config hash, EDM source-file hashes, wrapper hash, CIFAR-10
+archive hash, and existing final training state.
+
+## Checkpoint Smoke Test
+
+The final EMA checkpoint was loaded in Slurm job `15425345`, a CPU-only
+validation job on node `c043`. The smoke test used one CIFAR-10 training image,
+`class_labels=None`, and sigma values `0.5` and `5.0`.
+
+Output record:
+
+```text
+/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/e005_checkpoint_smoke_cpu.json
+SHA-256: 29551a7e7387a795e9c76d3854517f00e3ae80851743d298e974ab4b4661ec6a
+```
+
+The smoke test confirmed:
+
+- checkpoint deserialization succeeds;
+- EMA network invocation succeeds with `class_labels=None`;
+- inputs and outputs use NCHW layout;
+- outputs are `torch.float32`;
+- outputs are finite at both sigma values;
+- no clamping or quantization is applied by the smoke script.
+
+The smoke test is not an E005 evaluation. It produces no residual-energy
+curves, no train/test comparison, and no scientific conclusion.
+
+One earlier GPU smoke-test job, `15425299`, remained pending on scheduler
+priority during validation. It was not canceled because cancellation was not
+authorized in this phase.
