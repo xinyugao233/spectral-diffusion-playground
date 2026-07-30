@@ -22,10 +22,19 @@ the reference cutoff is `r_star = 4`, the primary E005 sensitivity cutoffs are
 `r = 3` and `r = 5`, and `r = 6` is an optional extended sensitivity check.
 The originally planned two-independent-reviewer scoring procedure was not
 completed, so this is not an inter-rater or blinded review result. Both reviewer
-CSV templates remain blank. E005 now has a
-[frozen matched clean-room model-pair preparation](docs/experiment_05_clean_room_models.md)
-and awaits one unconditioned EDM-50K training run. No Experiment 5–6 results
-currently exist in this repository.
+CSV templates remain blank.
+
+Experiment 5 is complete as a paper-derived clean-room result. The reference
+`edm_1k/test` windows at `r=4` are:
+
+- low-frequency residual energy — general-structure proxy: indices `5..11`,
+  `sigma=12.9101` to `0.585348`;
+- high-frequency residual energy — fine-detail proxy: indices `11..14`,
+  `sigma=0.585348` to `0.0599473`.
+
+The shared endpoint near `sigma=0.585` is a descriptive coarse-to-fine handoff
+in fixed-sigma residual energy. These windows are not memorization danger
+zones. E006 has not yet tested memorization relevance.
 
 ## Motivation
 
@@ -124,13 +133,17 @@ python experiments/03_frequency_decomposition.py \
 ## Redesign Roadmap
 
 Experiment 4 is implemented and finalized under the disclosed qualitative
-decision process. Experiments 5–6 remain specifications only until separately
-reviewed and implemented.
+decision process. Experiment 5 is complete under the paper-derived clean-room
+protocol. Experiment 6 remains pending.
+
+![EDM-1K spectral residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
+
+![EDM-50K spectral residual curves](figures/experiment_05/experiment_05_edm50k_low_high_residual_curves.png)
 
 | Experiment | Planned question | Current status |
 | --- | --- | --- |
 | E004: Operational CIFAR-10 cutoff | Which centered radial cutoff provides a useful, explicitly operational split on 32 x 32 CIFAR-10 images? | Finalized by [single-reviewer qualitative visual decision](docs/experiment_04_frequency_cutoff_decision.md): `r_star = 4`; primary sensitivity at `r = 3, 5`; optional extended check at `r = 6` |
-| E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | [Clean-room protocol frozen](docs/experiment_05_spectral_residual_protocol.md); [matched model preparation frozen](docs/experiment_05_clean_room_models.md); awaits one EDM-50K training run; no results |
+| E005: Orthogonal residual-energy curves | How does the paper's fixed-sigma Eq. (5) residual energy divide into complementary low- and high-frequency components? | Complete: [results summary](docs/experiment_05_spectral_residual_results.md); low-frequency window `5..11`, high-frequency window `11..14` at `r=4`; no memorization claim |
 | E006: Whole-denoiser transition-window swaps | Do whole-denoiser swaps around the E005 transition windows alter trajectory-level memorization under the clean-room setup? | Redesign pending; no results |
 
 For E005, the intended mathematical object is the denoising residual
