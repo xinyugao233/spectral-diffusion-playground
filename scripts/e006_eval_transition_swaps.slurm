@@ -105,6 +105,7 @@ export HF_HOME="${TMP_ROOT}/hf"
 export TRANSFORMERS_CACHE="${TMP_ROOT}/hf/transformers"
 export HF_DATASETS_CACHE="${TMP_ROOT}/hf/datasets"
 export PIP_CACHE_DIR="${TMP_ROOT}/pip-cache"
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export PYTHONPATH="${REPO_ROOT}/src:/home/xggh8/edm:${PYTHONPATH:-}"
 mkdir -p \
   "$TMPDIR" \
