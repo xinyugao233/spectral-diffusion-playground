@@ -41,21 +41,21 @@ protocol prevents a directional conclusion.
 - EDM-1K base with EDM-50K donor:
   96.48% to
   0.39%
-  (`-96.09%` difference);
+  (`-96.09` percentage-point difference);
   influential: `True`.
 - EDM-50K base with EDM-1K donor:
   0.00% to
   79.30%
-  (`+79.30%` difference);
+  (`+79.30` percentage-point difference);
   influential: `True`.
 
 ### High-frequency transition window
 
 - EDM-1K base with EDM-50K donor:
-  `-39.84%` difference;
+  `-39.84` percentage-point difference;
   influential: `False`.
 - EDM-50K base with EDM-1K donor:
-  `+4.69%` difference;
+  `+4.69` percentage-point difference;
   influential: `False`.
 
 The low-transition window passed the frozen influence rule in both directions.
@@ -67,8 +67,8 @@ The preregistered result remains **INCONCLUSIVE**. Descriptively, the results
 isolate the E005 low-frequency transition window as the tested window most
 strongly associated with changes in the pixel-space memorization criterion.
 
-This does not justify overriding the frozen decision rule or calling any
-sigma range a memorization danger zone.
+This does not justify overriding the frozen decision rule or assigning a
+causal memorization label to any sigma range.
 
 ## Storage
 

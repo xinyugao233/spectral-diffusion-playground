@@ -10,9 +10,10 @@ This result follows the frozen clean-room protocol and matched clean-room model
 pair. It is not a code-identical or numerically exact reproduction of the
 paper.
 
-Experiment 6 has not started. These transition windows are descriptive
-fixed-sigma residual-energy summaries, not memorization danger zones.
-Memorization relevance remains an E006 hypothesis.
+These transition windows are descriptive fixed-sigma residual-energy
+summaries. Their whole-denoiser swap follow-up is reported separately in the
+[E006 results](experiment_06_transition_window_swap_results.md); E006 retained
+the frozen `INCONCLUSIVE` outcome.
 
 ## Run Identity
 
@@ -160,13 +161,13 @@ No transition result is `no_clear_transition`.
 The fixed EDM-1K denoiser shows an ordered residual-energy transition under
 the frozen clean-room protocol: low-frequency residual energy falls through
 its transition window at higher noise, while high-frequency residual energy
-falls later at lower noise. This supports using the E005 windows as candidate
-transition windows for the next whole-denoiser swap experiment.
+falls later at lower noise. This supported using the E005 windows as
+predeclared transition windows for the subsequent whole-denoiser swap
+experiment.
 
-This does not establish when a model learned either band. It also does not
-show memorization. E006 must test whether whole-denoiser swaps around these
-windows affect trajectory-level memorization behavior under the clean-room
-setup.
+This does not establish when a model learned either band, and E005 alone does
+not show memorization. The separate E006 intervention tested trajectory-level
+memorization behavior under the clean-room setup.
 
 ## Limitations
 

@@ -1,12 +1,53 @@
-# Results
+# Results Index
 
-Machine-readable experiment outputs live here.
+This directory contains compact, machine-readable outputs intended for code
+review, plotting, and provenance checks. Large raw arrays, generated samples,
+downloaded datasets, and checkpoints remain outside Git.
 
-Experiment 4 includes deterministic dataset identity, numerical
-frequency-decomposition measurements, and blank reviewer templates. The
-templates are experimental inputs for independent human review, not completed
-scores or scientific conclusions.
+## E004: Operational Frequency Cutoff
 
-Downloaded CIFAR-10 archives must remain outside this directory and must not be
-committed.
+Files stored directly under `results/`:
 
+| File | Purpose |
+| --- | --- |
+| `experiment_04_manifest.json` | Dataset, FFT, mask, and execution identity |
+| `experiment_04_image_manifest.csv` | Frozen CIFAR-10 examples and indices |
+| `experiment_04_cutoff_measurements.csv` | Per-image reconstruction diagnostics |
+| `experiment_04_cutoff_energy.csv` | Retained and complementary energy fractions |
+| `experiment_04_cutoff_review.csv` | Canonical review-row ordering |
+| `experiment_04_reviewer_A.csv` | Blank reviewer template |
+| `experiment_04_reviewer_B.csv` | Blank reviewer template |
+
+The templates remain blank because the planned two-independent-reviewer
+scoring procedure was not completed. The final `r = 4` decision is documented
+as a single-reviewer qualitative result in
+[the decision record](../docs/experiment_04_frequency_cutoff_decision.md).
+
+## E005: Spectral Residual Curves
+
+[`experiment_05/`](experiment_05/) contains aggregated curves, numerical
+identity validation, transition-window extraction, and the compact provenance
+manifest.
+
+The 2,304,000-row per-sample residual table remains external at
+`/home/xggh8/data/zw-lab/e005_spectral_residual_curves`. Its hash and
+reproduction command are recorded in the
+[E005 results document](../docs/experiment_05_spectral_residual_results.md).
+
+## E006: Transition-Window Swaps
+
+[`experiment_06/`](experiment_06/) contains condition summaries, paired
+comparisons, the frozen `INCONCLUSIVE` outcome, validation and failure records,
+qualitative-selection metadata, and the compact provenance manifest.
+
+Generated samples, nearest-neighbor rows, and per-sample rows remain external
+at `/home/xggh8/data/zw-lab/e006_transition_window_swaps`. They are excluded
+from Git intentionally. See the
+[E006 results document](../docs/experiment_06_transition_window_swap_results.md).
+
+## Artifact Policy
+
+Commit an output only when it is small, deterministic, reviewable, and needed
+to verify a reported conclusion. External raw artifacts must be identified by
+storage path, row count or shape, SHA-256, and a reproduction command in the
+corresponding manifest or results document.
