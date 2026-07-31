@@ -273,7 +273,7 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Batch sizes must be positive")
     if args.preflight_only and args.smoke:
         raise ValueError("--preflight-only and --smoke are mutually exclusive")
-    if not args.smoke and args.output_dir.resolve() != DEFAULT_OUTPUT:
+    if not args.smoke and args.output_dir.resolve() != DEFAULT_OUTPUT.resolve():
         raise ValueError(f"Full E006 output is frozen at {DEFAULT_OUTPUT}")
 
 
