@@ -1,0 +1,100 @@
+{
+  "archive": {
+    "path": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa",
+    "size_bytes": 164500138
+  },
+  "config": {
+    "path": "configs/e005_edm50k_matched_40000kimg.yaml",
+    "sha256": "464576709477f0ff74e12bbd66b8ac8afcb19dfa6f4127add42e3ac0e4efd106"
+  },
+  "expected_output": {
+    "checkpoint": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+    "data_directory": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg",
+    "scratch_directory": "/home/xggh8/scratch/zw-lab/e005_edm50k_matched_40000kimg"
+  },
+  "model": {
+    "checkpoint_sha256": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b",
+    "condition": "clean_room_edm_50k",
+    "checkpoint_size_bytes": 223159918,
+    "checkpoint_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+    "status": "completed_validated"
+  },
+  "reproduction_claim": "paper-derived clean-room reimplementation; not an exact paper reproduction",
+  "run_artifacts": {
+    "config_used_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/config_used.yaml",
+    "config_used_sha256": "464576709477f0ff74e12bbd66b8ac8afcb19dfa6f4127add42e3ac0e4efd106",
+    "run_manifest_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/run_manifest.json",
+    "run_manifest_sha256": "777dc54cfa65556d2b68c99363659d19f343c26863b93f8612da56ccaf2b9c84",
+    "slurm_stderr_path": "/home/xggh8/data/zw-lab/slurm-e005-edm50k-15315560.err",
+    "slurm_stderr_sha256": "068ac1e72e003124644fce5e5b1a496ba7672f36ebe341418c4c8f257a146d6a",
+    "slurm_stdout_path": "/home/xggh8/data/zw-lab/slurm-e005-edm50k-15315560.out",
+    "slurm_stdout_sha256": "73cc4b3111949e5ac542ee4fb947395e91e30f07ed759016e6319fec4a74e1d5",
+    "stats_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/stats.jsonl",
+    "stats_size_bytes": 31649,
+    "training_options_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/training_options.json",
+    "training_options_sha256": "a5051275ea83f013ecbd60688b758849d66b6224882a463bc31f7db7278a4541",
+    "training_state_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/training-state-040000.pt",
+    "training_state_sha256": "4af61f228ea5ca0f25897ba180e3e8c5466628fecffa039e98d3505d0bbfbcf9"
+  },
+  "smoke_test": {
+    "job_id": 15425345,
+    "log_stderr": "/home/xggh8/data/zw-lab/slurm-e005-smoke-cpu-15425345.err",
+    "log_stdout": "/home/xggh8/data/zw-lab/slurm-e005-smoke-cpu-15425345.out",
+    "output_json": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/e005_checkpoint_smoke_cpu.json",
+    "output_json_sha256": "29551a7e7387a795e9c76d3854517f00e3ae80851743d298e974ab4b4661ec6a",
+    "result": "pass",
+    "sigmas": [
+      0.5,
+      5.0
+    ],
+    "validated": [
+      "checkpoint loads",
+      "class_labels=None invocation succeeds",
+      "outputs are NCHW float32",
+      "outputs are finite",
+      "no clamping or quantization applied in smoke script"
+    ]
+  },
+  "source": {
+    "edm_commit": "008a4e5316c8e3bfe61a62f874bddba254295afb",
+    "file_sha256": {
+      "train.py": "e562dacd2f403e4a9dfe8c857078bb506d8d6825cb88478869cc78b7c4587f05",
+      "training/dataset.py": "fd4a37cdcca57563d2c20e7dc22da5b59bc7f15d1f53f87b902bf16c0917c05b",
+      "training/loss.py": "b26f0937bc72b18cc5f9869c86035ca9b872138cdfae7994237e9733951e4415",
+      "training/networks.py": "5db27dcd96674b95c72d5e6491b879cdc35e24039ada3411b4b46a28ed1fe284",
+      "training/training_loop.py": "9cac3720de1bd122a5fb735a133707fbe708daa454e00232390112311ee77391"
+    },
+    "wrapper_path": "/home/xggh8/projects/zw-lab/src/zwlab_edm/train_subset_sigma.py",
+    "wrapper_sha256": "f5ca28db4a167ba5ee6c26bf9ae9cf4bf3215b919a86e7ad8e7f8ae0ad10c142"
+  },
+  "training": {
+    "completed_at": "2026-07-28T00:45:24",
+    "elapsed": "1-22:02:57",
+    "exit_code": "0:0",
+    "final_kimg": 40000.0,
+    "final_loss_mean": 0.17222712068216225,
+    "job_id": 15315560,
+    "mode": "fresh",
+    "node": "g039",
+    "peak_gpu_mem_gb": 8.430673599243164,
+    "peak_gpu_mem_reserved_gb": 9.0390625,
+    "slurm_state": "COMPLETED",
+    "started_at": "2026-07-26T02:42:27",
+    "submitted_at": "2026-07-26T02:42:10",
+    "timelimit": "2-00:00:00"
+  },
+  "warnings": {
+    "nonfatal_training_warnings": [
+      "torch.utils.data.sampler data_source deprecation warning",
+      "DDP gradient stride warning",
+      "init_process_group/barrier device-id warning",
+      "destroy_process_group() not called before process exit warning"
+    ],
+    "pending_validation_job": {
+      "job_id": 15425299,
+      "reason": "The first GPU smoke-test submission remained PENDING on priority and was not canceled because cancellation was not authorized.",
+      "state_at_validation": "PENDING"
+    }
+  }
+}

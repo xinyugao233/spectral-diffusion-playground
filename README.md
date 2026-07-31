@@ -1,365 +1,135 @@
 # Spectral Diffusion Playground
 
-![Controlled Frequency-Band Recovery](figures/structure_detail_recovery_curves.png)
-
-Spectral Diffusion Playground develops frequency-band recovery metrics
-`S_low` and `S_high` as diagnostics for studying denoising and memorization
-dynamics. Fourier analysis, controlled perturbations, and reproducible
-visualizations establish how those measurements behave before they are applied
-to learned models.
-
-**Current status:** Experiments 1–5 are complete. The frequency-band recovery
-metric has been calibrated on controlled trajectories and a frozen six-image
-natural set. Experiment 6 now has a frozen fixed-model inference protocol, but
-its implementation has not yet been executed and no checkpoint has been
-downloaded.
-
-## Scope
-
-This repository is designed for readers who want intuition, not another end-to-end diffusion training stack.
-
-It is meant to provide:
-
-- small experiments with one clear question each
-- reproducible scripts rather than notebook-only workflows
-- shared utilities collected in a real Python package
-- figures that are suitable for research notes, talks, and portfolio review
-
-It is not meant to be:
-
-- a benchmark suite
-- a production diffusion library
-- a claim-heavy research release before the evidence exists
-
-## Research North Star
-
-The central question is not merely where frequencies live in an image. It is:
-
-> Across training checkpoints, when does memorization become measurable, and
-> does it appear differently in low- and high-frequency recovery?
-
-The core measurement is a pair of recovery curves:
-
-- `S_low(t)`: recovery in a DC-excluded low-frequency projection
-- `S_high(t)`: recovery in the complementary high-frequency projection
-
-Low-frequency recovery is used as a coarse/global-structure proxy and
-high-frequency recovery as a fine-detail proxy. These are operational
-frequency bands, not semantic categories.
-
-Two axes must remain separate:
-
-- **Inference dynamics:** how the curves change across noise levels or sampling steps for one fixed model. This is a baseline describing when content becomes visible during denoising.
-- **Training dynamics:** how train-versus-held-out recovery gaps change across checkpoints. This is the axis needed to study when memorization manifests.
-
-Experiments 1–3 establish the Fourier representation and projections.
-Experiment 4 validates and stress-tests the metric before any model behavior is
-interpreted. High-frequency recovery alone is not evidence of memorization;
-the relevant signal is a training-specific recovery gap under matched controls.
-
-## Why Fourier Analysis Matters for Diffusion
-
-Diffusion models are usually discussed in pixel space: add noise, predict noise, denoise step by step. That view is useful, but incomplete.
-
-The frequency domain exposes different questions:
-
-- Which structures disappear first as noise increases?
-- How do coarse structure and fine detail change across frequency bands?
-- When two perturbations look similarly strong in pixel space, do they have the same spectral signature?
-- What does a denoiser implicitly need to recover at different frequency bands?
-
-A Fourier view does not replace the standard diffusion formulation. It provides a complementary lens that is often easier to visualize and reason about.
-
-## Design Principles
-
-- One experiment, one question.
-- Every experiment should run independently.
-- Shared code belongs in `src/spectral_diffusion_playground/`.
-- Outputs should be easy to trace back to the script that produced them.
-- The repository should stay readable to someone skimming it for five minutes.
-
-## Completed Experiments
-
-### Understanding Images in Fourier Space
-
-Status: Complete.
-
-This experiment turns one image into a compact story:
-
-- original image in pixel space
-- centered Fourier magnitude
-- log-scaled Fourier magnitude
-- inverse FFT reconstruction
-
-Run it with a curated real image once `assets/examples/` is populated:
-
-```bash
-python experiments/01_fft_visualization.py \
-    --image-path assets/examples/castle.png
-```
-
-Today the script still includes a deterministic synthetic fallback so the repo stays runnable even before the curated example set is added.
-
-Display normalization:
-
-- linear magnitude uses exact max normalization after channel averaging
-- log magnitude uses `log1p(magnitude + 1e-12)` before the same max normalization
-
-### How Gaussian Noise Changes Frequency Content
-
-Status: Complete.
-
-Motivation: diffusion models add Gaussian noise in pixel space, but the same perturbation becomes easier to reason about when it is inspected in Fourier space. This experiment fixes one image, varies only `sigma` in `x_sigma = x + sigma * epsilon`, and shows both the noisy observations and their spectral summaries.
-
-![How Gaussian Noise Changes Frequency Content](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_grid.png)
-
-![Normalized Radial Spectral Distribution](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_normalized_radial_distribution.png)
-
-Run it with a curated real image once `assets/examples/` is populated:
-
-```bash
-python experiments/02_noise_vs_frequency.py \
-    --image-path assets/examples/castle.png
-```
-
-Display normalization:
-
-- noisy images are clipped only for visualization; the additive perturbation itself is not clipped
-- log spectra use `log1p(magnitude + 1e-12)` followed by one shared global 99.5th-percentile normalization after channel averaging
-- the raw radial analysis also saves annulus-averaged power `E(r)` on a log-scaled y-axis
-- the normalized radial spectral-distribution figure excludes the centered DC bin, then plots `E(r) / \sum_{r>0} E(r)` with a dashed white-noise reference line
-
-Takeaway:
-
-- larger `sigma` values visibly erase image structure in pixel space
-- the log spectra become more uniformly elevated across the frequency plane as noise dominates the image
-- after DC exclusion and normalization, larger `sigma` values spread relative radial power more uniformly across frequency bands
-
-### Where Does Image Information Live in Frequency Space?
-
-Status: Complete.
-
-Motivation: Experiment 2 shows that Gaussian noise changes spectral content.
-The next question is what an image looks like when only a controlled,
-cumulative region of that spectrum is retained.
-
-Question: How does increasing a circular low-pass cutoff change the reconstructed
-image and its remaining reconstruction error?
-
-![Frequency Decomposition of Image Structure](figures/where_image_information_lives_grid.png)
-
-![High-Frequency Residuals](figures/high_frequency_residuals.png)
-
-![Reconstruction Error vs. Frequency Radius](figures/reconstruction_error_vs_frequency_radius.png)
-
-Run the default radii or provide an image and a custom increasing sequence:
-
-```bash
-python experiments/03_frequency_decomposition.py \
-    --image-path assets/examples/castle.png \
-    --radii 10 20 40 80 120
-```
-
-Measurement:
-
-- masks retain centered Fourier coefficients whose Euclidean radius satisfies `distance <= r`
-- inverse-FFT reconstructions are measured before display clipping
-- reconstruction error is the relative L2 value `||x - x_r||₂ / ||x||₂`
-- each residual is the complementary high-pass reconstruction, numerically equal to `x - x_r`
-- residual panels share one symmetric 99.5th-percentile display scale across all radii and channels; zero maps to neutral gray
-
-Observation on the deterministic reference image:
-
-- small radii recover smooth variation and coarse geometry
-- increasing the retained radius progressively restores finer spatial detail
-- complementary residuals contain everything omitted by each cutoff; at larger radii they concentrate increasingly on fine texture and sharp transitions
-- relative L2 error decreases across the evaluated radii
-
-Because the masks are nested and the FFT uses orthonormal scaling, non-increasing
-L2 error is expected from Parseval's theorem. The image-specific evidence is the
-shape of the recovery curve and which visible structures return at each radius,
-not the decrease alone.
-
-This decomposition introduces frequency radius and cumulative spectral bands as
-precise tools for later denoising experiments. It does not establish that low
-frequencies contain semantic information.
-
-### Measuring Low- and High-Frequency Recovery
-
-Status: Complete metric validation; no denoiser evaluated.
-
-For a clean target `x_0`, prediction `x_hat`, DC-excluded low-pass projection
-`L*_r`, and complementary high-pass projection `H_r`, Experiment 4 defines:
-
-```text
-relative_error(P) = ||P(x_hat) - P(x_0)||_2 / ||P(x_0)||_2
-recovery_score(P) = max(0, 1 - relative_error(P))
-```
-
-`S_low` uses `P = L*_r`; `S_high` uses `P = H_r`. Here `L*_r` removes the
-per-channel spatial mean from the circular
-low-pass reconstruction so recovering global brightness or mean color cannot
-dominate low-band recovery. This operational definition is
-amplitude-sensitive: exact recovery scores one, a missing band scores zero, and
-worse-than-zero-baseline estimates remain at zero.
-
-![Controlled Frequency-Band Recovery](figures/structure_detail_recovery_curves.png)
-
-The validation constructs three synthetic trajectories using the same image,
-frequency radius `r = 40`, 101 progress values, seed `0`, a fixed target channel
-mean, and an initial band-balanced relative noise level of `0.05`.
-
-At recovery score `0.8`, the first threshold crossings are:
-
-| Controlled trajectory | `S_low` | `S_high` |
-| --- | ---: | ---: |
-| Low band first | `0.41` | `0.81` |
-| High band first | `0.81` | `0.41` |
-| Together | `0.68` | `0.68` |
-
-The measured ordering matches all three known controls. This validates metric
-responsiveness and implementation consistency; it does not show how a real
-denoiser behaves. It is intentionally a self-consistency calibration: trajectory
-construction and evaluation use the same frequency-band definition. The cutoff
-`r = 40` is a design choice, not a universal low/high boundary.
-
-#### Cutoff and Seed Calibration
-
-The same trajectories constructed at `r = 40` are re-evaluated at
-`r in {20, 40, 80}` over five deterministic noise seeds. Holding the trajectory
-fixed while changing only the measurement cutoff tests whether the measured
-ordering depends on the operational frequency-band boundary.
-
-![Cutoff Sensitivity of Recovery Timing](figures/structure_detail_cutoff_sensitivity.png)
-
-At score `0.8`, low-band-first remains separated across all three cutoffs and
-the together control remains coincident. The high-band-first control is
-sensitive at `r = 20`: its crossings narrow to `S_low = 0.81` and
-`S_high = 0.79`, compared with `0.81` and `0.41` at `r = 40`. Seed standard deviations round to `0.00` at
-the trajectory's `0.01` progress resolution. This does not establish cutoff
-invariance; it shows where the current operational definition is fragile.
-
-Natural-image calibration is reported in Experiment 5 below. It quantifies
-across-image variability and cutoff sensitivity before any learned-model
-result is interpreted.
-
-Run the validation:
-
-```bash
-python experiments/04_structure_detail_metrics.py
-```
-
-Supplementary outputs:
-
-- `figures/controlled_recovery_trajectories.png`
-- `figures/structure_detail_cutoff_sensitivity.png`
-- `results/experiment_04_structure_detail_scores.csv`
-- `results/experiment_04_cutoff_sensitivity.csv`
-
-### Natural Image Calibration of `S_low` and `S_high`
-
-Status: Complete metric calibration; no denoiser evaluated.
-
-Experiment 5 applies the unchanged Experiment 4 controls to six
-provenance-recorded natural images after deterministic RGB conversion, center
-cropping, bicubic resize to 256 × 256, and `float32` scaling to `[0,1]`.
-Trajectories are constructed once at `r=40` and re-evaluated at
-`r ∈ {20,40,80}`. This fixed-construction design intentionally preserves
-cross-cutoff sensitivity rather than tuning each trajectory to its evaluation
-band.
-
-![Natural-Image Mean Recovery Curves](figures/experiment_05_mean_curves.png)
-
-![Natural-Image Cutoff Sensitivity](figures/experiment_05_cutoff_comparison.png)
-
-At threshold `0.8`, strict controlled ordering survives for all six images at
-all three cutoffs. That binary result does not imply robust separation:
-
-- the high-band-first mean crossing gap at `r=20` is `-0.0267 ± 0.0137`
-  progress units, with a descriptive image-bootstrap 95% interval of
-  `[-0.0367,-0.0167]`
-- two of six high-band-first images at `r=20` have only a one-step crossing
-  gap and meet the predeclared collapse criterion
-- low-band-first at `r=80` is more image-sensitive, with mean gap
-  `0.2683 ± 0.1341` and bootstrap interval `[0.1667,0.3600]`
-- matched construction/evaluation at `r=40` reproduces the controlled
-  `±0.40` ordered gaps and zero together gap for every image
-
-The bootstrap resamples images, not trajectory points, using 10,000 resamples
-and seed `20250725`. With only six images, its intervals describe this
-calibration set rather than a natural-image population. No cutoff, trajectory,
-metric definition, or preprocessing step was changed after observing results.
-
-Run the frozen calibration:
-
-```bash
-python scripts/validate_natural_image_dataset.py
-python experiments/05_natural_image_calibration.py
-```
-
-Machine-readable outputs:
-
-- `results/experiment_05_scores.csv`
-- `results/experiment_05_crossings.csv`
-- `results/experiment_05_summary.json`
-- `figures/experiment_05_per_image_curves.png`
-
-### Fixed-Model Frequency-Band Recovery
-
-Status: Protocol and implementation complete; checkpoint acquisition and model
-evaluation pending.
-
-Experiment 6 will evaluate direct `x_0` predictions from known-target forward
-diffusion observations under one fixed unconditional ImageNet 256 x 256 model.
-The primary axis is the variance-preserving process's effective
-noise-to-signal ratio, not a solver step or training checkpoint. It preserves
-the calibrated cutoffs `r in {20,40,80}`, all five noise seeds, raw relative
-errors, clipped recovery scores, and hierarchical image/seed uncertainty.
-
-The complete [frozen specification](docs/experiment_06_fixed_model_denoising.md)
-pins the upstream source revision, official checkpoint artifact, image
-identities, prediction target, native timestep grid, pairing policy, raw schema,
-reproducibility gates, and interpretation limits. Unconditional sampling is
-excluded because its intermediate states do not have a predetermined clean
-target.
-
-Execution is Slurm-only:
-
-```bash
-sbatch scripts/slurm/acquire_experiment_06_checkpoint.sh
-sbatch scripts/slurm/run_experiment_06.sh
-```
-
-The acquisition job verifies the published byte size and MD5 and records a
-SHA-256 digest. The evaluation performs two identical inference passes under a
-predeclared `1e-6` repeatability tolerance, writes raw errors before plotting,
-and stages only final lightweight results and figures.
+Frequency-resolved experiments for studying denoising and memorization in
+diffusion models.
+
+![EDM-1K spectral residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
+
+## Research Question
+
+When a diffusion denoiser moves from noisy inputs toward clean images, how do
+low- and high-frequency residual errors change, and are the resulting
+transition windows especially influential for trajectory-level memorization?
+
+This repository develops that question in six auditable steps. Experiments
+E001-E003 establish the Fourier foundations. E004 selects an operational
+CIFAR-10 frequency cutoff. E005 decomposes fixed-sigma denoising residual
+energy into exact complementary bands. E006 intervenes on the resulting
+windows by swapping the entire denoiser between matched EDM-1K and EDM-50K
+models.
+
+Frequency bands are measurement proxies, not semantic definitions. Low
+frequency is not assumed to mean understanding, and high frequency is not
+assumed to mean memorization.
+
+## Connection To The Paper
+
+Experiments E004-E006 are a paper-derived clean-room extension of
+[*Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in
+Diffusion Models*](https://arxiv.org/abs/2602.17846).
+
+The paper motivates fixed-sigma denoising error and whole-denoiser swaps. This
+repository adds an orthogonal Fourier decomposition of the fixed-sigma
+residual, freezes transition windows before swap evaluation, and tests those
+windows with matched clean-room models.
+
+The original executed paper evaluator, swap implementation, checkpoint
+identities, subset ordering, and sampling seeds were unavailable. E004-E006
+therefore do **not** claim code identity or exact numerical reproduction of the
+paper.
+
+## Key Findings
+
+- **E004:** A disclosed single-reviewer visual decision selected the
+  operational CIFAR-10 cutoff `r = 4`, with `r = 3, 5` retained for primary
+  sensitivity analysis and `r = 6` as an optional extended check.
+- **E005:** At `r = 4`, the EDM-1K test residual showed an ordered transition:
+  low-frequency residual energy changed over indices `5..11`
+  (`sigma = 12.9101..0.585348`), followed by high-frequency residual energy
+  over indices `11..14` (`sigma = 0.585348..0.0599473`).
+- **E006:** The formal outcome is **`INCONCLUSIVE`** because the EDM-50K
+  no-swap baseline was degenerate at `0/256` memorized samples under the frozen
+  decision rule.
+- **E006 descriptive finding:** The low-frequency transition window was the
+  tested window most strongly associated with changes in the pixel-space
+  memorization criterion. It passed the frozen influence test in both swap
+  directions; the high-frequency transition window passed in neither.
+
+E006 does not support assigning a causal memorization label to any sigma
+interval.
+
+![E006 transition windows versus controls](figures/experiment_06/experiment_06_transition_vs_controls.png)
 
 ## Experiment Roadmap
 
-| Script | Title | Question | Planned output | Status |
+| ID | Purpose | Main artifact | Status | Result |
 | --- | --- | --- | --- | --- |
-| `01_fft_visualization.py` | Understanding Images in Fourier Space | What becomes visible in linear and log-scaled centered magnitude spectra? | Reversible pixel-space to frequency-space walkthrough | [x] |
-| `02_noise_vs_frequency.py` | How Gaussian Noise Changes Frequency Content | How does additive Gaussian noise change both image-space structure and Fourier-space energy? | Spatial/spectral grid plus radial energy curves | [x] |
-| `03_frequency_decomposition.py` | Where Does Image Information Live in Frequency Space? | How does cumulative frequency radius affect reconstruction? | Low-pass reconstruction grid, masks, and relative L2 error | [x] |
-| `04_structure_detail_metrics.py` | Measuring Low- and High-Frequency Recovery | Can two frequency-band scores distinguish known recovery orderings? | Controlled two-curve validation and raw scores | [x] |
-| `05_natural_image_calibration.py` | Natural Image Calibration of `S_low` and `S_high` | Are the measurements stable across 5–10 provenance-recorded natural images and cutoffs? | Per-image scores, aggregate uncertainty, crossing table, and failure analysis | [x] |
-| `06_denoiser_trajectory.py` | Fixed-Model Denoising Baseline | For one pretrained denoiser, when are the two bands recovered across known-target noise levels? | Recovery curves, raw-error diagnostics, and hierarchical uncertainty; no learning or memorization claim | Implemented; Slurm run pending |
-| `07_generalization_vs_memorization.py` | When Does Memorization Manifest? | Across checkpoints, when do matched training, held-out, and oversampled examples develop different recovery curves? | Checkpoint-aligned train-versus-held-out recovery gaps | Planned |
+| E001 | Explain the reversible image-to-Fourier transformation | [FFT visualization](figures/understanding_images_in_fourier_space_default_fft_reference_rgb.png) | Complete | The inverse FFT reconstructs the input to numerical precision |
+| E002 | Show how Gaussian noise changes spectral content | [Noise/frequency grid](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_grid.png) | Complete | White noise raises energy broadly across spatial frequencies |
+| E003 | Establish exact complementary low/high projections | [Frequency decomposition](figures/where_image_information_lives_grid.png) | Complete | Low- and high-band reconstructions sum to the original image |
+| E004 | Select an operational cutoff on frozen CIFAR-10 examples | [Decision record](docs/experiment_04_frequency_cutoff_decision.md) | Complete | Reference `r = 4`; sensitivity `r = 3, 5`; optional `r = 6` |
+| E005 | Split the paper-derived fixed-sigma residual into orthogonal band energies | [Residual-curve results](docs/experiment_05_spectral_residual_results.md) | Complete | Low-band transition precedes the high-band transition at `r = 4` |
+| E006 | Test whole-denoiser swaps over E005 windows and matched controls | [Swap results](docs/experiment_06_transition_window_swap_results.md) | Complete; `INCONCLUSIVE` | Low-transition influence is descriptively strong, but baseline degeneracy blocks a directional conclusion |
 
-Experiment 5 calibrates the measurement instrument on natural images; its
-[frozen specification](docs/experiment_05_natural_image_calibration.md) defines
-provenance, preprocessing, schemas, uncertainty, and success criteria.
-Experiment 6's
-[frozen specification](docs/experiment_06_fixed_model_denoising.md) defines a
-known-target inference baseline; it is not the primary research result.
-Experiment 7 addresses the repository's north star by aligning the two curves
-across training checkpoints and comparing matched data groups. Even there, a
-high-frequency score is not sufficient evidence of memorization; the analysis
-must identify a training-specific gap and rule out simpler distributional
-explanations.
+## Methods In Brief
 
-## Installation
+E005 applies complementary Fourier projections directly to the denoising
+residual
+
+```text
+e_sigma = m_sigma(X + sigma Z) - X
+```
+
+and measures
+
+```text
+E_full = ||e_sigma||_2^2
+E_low  = ||P_low,r e_sigma||_2^2
+E_high = ||P_high,r e_sigma||_2^2
+```
+
+The channelwise 2D FFT uses `norm="ortho"`; the centered high-frequency mask
+is the exact complement of the low-frequency mask. Consequently,
+`E_full = E_low + E_high` holds within the frozen numerical tolerance.
+
+E006 uses a pure 18-call Euler sampler and swaps the **whole denoiser** during
+predeclared index windows. It does not splice frequency components of model
+outputs. Memorization is evaluated in unquantized `[-1, 1]` RGB pixel space
+using the strict criterion `d1NN < d2NN / 3` against the frozen clean-room
+CIFAR-10 1K subset.
+
+## Documentation And Artifacts
+
+### E004: Operational frequency cutoff
+
+- [Frozen protocol](docs/experiment_04_frequency_cutoff_protocol.md)
+- [Reviewer instructions](docs/experiment_04_reviewer_instructions.md)
+- [Final decision](docs/experiment_04_frequency_cutoff_decision.md)
+- [Machine-readable results](results/README.md#e004-operational-frequency-cutoff)
+- [Canonical montages](figures/README.md#e004-operational-frequency-cutoff)
+
+### E005: Spectral residual curves
+
+- [Frozen protocol](docs/experiment_05_spectral_residual_protocol.md)
+- [Clean-room model provenance](docs/experiment_05_clean_room_models.md)
+- [Validated results](docs/experiment_05_spectral_residual_results.md)
+- [Compact results](results/experiment_05/)
+- [Figures](figures/experiment_05/)
+
+### E006: Transition-window swaps
+
+- [Frozen protocol](docs/experiment_06_transition_swap_protocol.md)
+- [Validated results](docs/experiment_06_transition_window_swap_results.md)
+- [Compact results](results/experiment_06/)
+- [Figures](figures/experiment_06/)
+
+See the [documentation index](docs/README.md),
+[results index](results/README.md), and [figures index](figures/README.md) for
+the complete navigation map.
+
+## Reproduction
+
+Python 3.11 or newer is required for the reusable local experiments.
 
 ```bash
 python3.11 -m venv .venv
@@ -369,70 +139,105 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Running an Experiment
-
-Each experiment is an independent script:
+Run the educational foundations independently from the repository root:
 
 ```bash
 python experiments/01_fft_visualization.py
+python experiments/02_noise_vs_frequency.py
+python experiments/03_frequency_decomposition.py
 ```
 
-To compare RGB and grayscale views in the same artifact:
+Generate the deterministic E004 review packet from an existing
+torchvision-compatible CIFAR-10 root:
 
 ```bash
-python experiments/01_fft_visualization.py --grayscale
+python experiments/04_frequency_cutoff.py --dataset-root /path/to/cifar10
 ```
+
+E005 and E006 require the frozen external CIFAR-10 archive, matched EDM
+checkpoints, and the recorded Hellbender environment. Their exact hashes,
+paths, configurations, and Slurm commands are recorded in the
+[E005 model provenance](docs/experiment_05_clean_room_models.md),
+[E005 results](docs/experiment_05_spectral_residual_results.md), and
+[E006 protocol](docs/experiment_06_transition_swap_protocol.md). No script
+downloads data or checkpoints implicitly.
+
+Run repository validation with:
+
+```bash
+python -m unittest discover tests
+git diff --check
+```
+
+## Reproducibility And Provenance
+
+Scientific choices were frozen before the corresponding evaluations. Important
+commits include:
+
+| Milestone | Commit |
+| --- | --- |
+| E004 cutoff implementation | `a745cf1805deea0691fc3c43a591315b8a63984a` |
+| E004 cutoff decision | `59b558e` |
+| E005 evaluator | `b16c3a9c8224755cc2a5a52b0f1aacff44a63da7` |
+| E005 results | `52d6889` |
+| E006 frozen protocol | `068c7e3a745fb51b1d2416524b7e29f70b0b5f08` |
+| E006 executed implementation | `ae0febb9b983c50c5946d61423fda72358887523` |
+| E006 results | `df06e4fe3d9350988a5882b8d17db45c8ef6645f` |
+
+Frozen model identities:
+
+```text
+EDM-1K SHA-256:
+8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1
+
+EDM-50K SHA-256:
+a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b
+```
+
+Only compact summaries, validation records, manifests, and final figures are
+committed. This keeps review and cloning practical while preserving exact
+provenance. Large per-sample artifacts remain on the research storage system:
+
+```text
+E005: /home/xggh8/data/zw-lab/e005_spectral_residual_curves
+E006: /home/xggh8/data/zw-lab/e006_transition_window_swaps
+```
+
+Their identities and reproduction commands are recorded in the committed run
+manifests and result documents. Raw generated samples and per-sample CSV files
+must not be added to Git.
 
 ## Repository Layout
 
 ```text
 spectral-diffusion-playground/
-├── README.md
-├── requirements.txt
-├── pyproject.toml
-├── LICENSE
-├── .gitignore
-├── src/
-│   └── spectral_diffusion_playground/
-│       ├── __init__.py
-│       ├── fft.py
-│       ├── filters.py
-│       ├── metrics.py
-│       ├── noise.py
-│       ├── visualization.py
-│       └── utils.py
-├── experiments/
-│   ├── _bootstrap.py
-│   ├── README.md
-│   ├── 01_fft_visualization.py
-│   ├── 02_noise_vs_frequency.py
-│   ├── 03_frequency_decomposition.py
-│   ├── 04_structure_detail_metrics.py
-│   ├── 05_natural_image_calibration.py
-│   ├── 06_denoiser_trajectory.py
-│   └── 07_generalization_vs_memorization.py
-├── assets/
-├── figures/
-├── results/
-├── docs/
-└── tests/
+├── assets/       # deterministic examples and documented image provenance
+├── configs/      # frozen E005/E006 execution configurations
+├── data/         # small versioned manifests, never downloaded datasets
+├── docs/         # protocols, provenance records, and result narratives
+├── experiments/  # independently executable E001-E006 entry points
+├── figures/      # curated, reviewable figures
+├── results/      # compact machine-readable outputs
+├── scripts/      # guarded preflight and Slurm launchers
+├── src/          # reusable FFT, filtering, evaluation, and plotting code
+└── tests/        # numerical identities, determinism, schemas, and safeguards
 ```
 
-## Future Research Directions
+## Limitations
 
-- Compare spectral behavior across datasets or semantic classes.
-- Expand natural-image calibration only when a larger set answers a specific
-  robustness question.
-- Express cutoffs in normalized frequency units when comparing image resolutions.
-- Execute the frozen fixed-model known-target baseline without changing its
-  metric or cutoff definitions.
-- Track the same scores across training checkpoints without conflating training and inference time.
-- Compare training, held-out, and deliberately oversampled examples when studying memorization.
+- E004 used one disclosed qualitative reviewer; the planned two-reviewer
+  scoring procedure was not completed.
+- The cutoff is operational and CIFAR-10-specific, not a universal semantic
+  boundary between structure and detail.
+- E005 transition windows come from the clean-room EDM-1K test residual curves
+  and depend on the frozen schedule and cutoff family.
+- E006 uses 256 seeds and a strict pixel-space nearest-neighbor criterion. Its
+  EDM-50K baseline was exactly zero, triggering the frozen degeneracy guard.
+- E004-E006 are paper-derived clean-room experiments, not exact reproductions
+  of the paper's unavailable executed code.
 
-## Citation
+## Citation And License
 
-If this repository is used in research, cite it as software and include the exact commit hash used for the reported results.
-
-## License
-
-Released under the MIT License. See [LICENSE](LICENSE).
+If you use this repository, cite it as software with the exact Git commit and
+cite the grounding paper separately. The code is released under the
+[MIT License](LICENSE).

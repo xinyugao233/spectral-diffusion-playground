@@ -40,16 +40,6 @@ class LineCurve:
     linewidth: float = 2.3
     alpha: float = 1.0
     marker: str | None = None
-    y_lower: np.ndarray | None = None
-    y_upper: np.ndarray | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class CurvePanel:
-    """A titled collection of curves sharing one plotting axis."""
-
-    title: str
-    curves: Sequence[LineCurve]
 
 
 def prepare_image_for_display(image: np.ndarray) -> np.ndarray:
@@ -300,17 +290,6 @@ def save_curve_plot(
     for curve in curves:
         x_values = np.asarray(curve.x, dtype=np.float64)
         y_values = np.asarray(curve.y, dtype=np.float64)
-        if (curve.y_lower is None) != (curve.y_upper is None):
-            raise ValueError("y_lower and y_upper must be provided together.")
-        if curve.y_lower is not None and curve.y_upper is not None:
-            axis.fill_between(
-                x_values,
-                np.asarray(curve.y_lower, dtype=np.float64),
-                np.asarray(curve.y_upper, dtype=np.float64),
-                color=curve.color,
-                alpha=0.16,
-                linewidth=0.0,
-            )
         axis.plot(
             x_values,
             y_values,
@@ -333,76 +312,6 @@ def save_curve_plot(
     axis.legend(frameon=False, title=legend_title, ncol=min(3, len(curves)))
 
     fig.tight_layout()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=dpi)
-    plt.close(fig)
-    return output_path
-
-
-def save_curve_panel_grid(
-    panels: Sequence[CurvePanel],
-    output_path: Path,
-    *,
-    figure_title: str,
-    x_label: str,
-    y_label: str,
-    y_limits: tuple[float, float] | None = None,
-    figure_title_size: float = 14.0,
-    dpi: int = 220,
-) -> Path:
-    """Save a horizontal grid of curve panels with shared axis limits."""
-    if not panels:
-        raise ValueError("panels must contain at least one curve panel.")
-    if any(not panel.curves for panel in panels):
-        raise ValueError("Every curve panel must contain at least one curve.")
-
-    _apply_publication_style()
-    fig, axes = plt.subplots(
-        1,
-        len(panels),
-        figsize=(5.1 * len(panels), 4.8),
-        sharex=True,
-        sharey=True,
-        squeeze=False,
-    )
-
-    for panel_index, panel in enumerate(panels):
-        axis = axes[0, panel_index]
-        for curve in panel.curves:
-            x_values = np.asarray(curve.x, dtype=np.float64)
-            if (curve.y_lower is None) != (curve.y_upper is None):
-                raise ValueError("y_lower and y_upper must be provided together.")
-            if curve.y_lower is not None and curve.y_upper is not None:
-                axis.fill_between(
-                    x_values,
-                    np.asarray(curve.y_lower, dtype=np.float64),
-                    np.asarray(curve.y_upper, dtype=np.float64),
-                    color=curve.color,
-                    alpha=0.16,
-                    linewidth=0.0,
-                )
-            axis.plot(
-                x_values,
-                np.asarray(curve.y, dtype=np.float64),
-                label=curve.label,
-                color=curve.color,
-                linewidth=curve.linewidth,
-                linestyle=curve.linestyle,
-                alpha=curve.alpha,
-                marker=curve.marker,
-            )
-        axis.set_title(panel.title, pad=10)
-        axis.set_xlabel(x_label)
-        axis.grid(True, which="major", alpha=0.25, linewidth=0.85)
-        axis.margins(x=0.01)
-        if y_limits is not None:
-            axis.set_ylim(*y_limits)
-        if panel_index == 0:
-            axis.set_ylabel(y_label)
-        axis.legend(frameon=False, loc="lower right")
-
-    fig.suptitle(figure_title, fontsize=figure_title_size, fontweight="bold", y=0.985)
-    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.95))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=dpi)
     plt.close(fig)

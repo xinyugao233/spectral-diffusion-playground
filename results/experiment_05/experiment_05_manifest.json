@@ -1,0 +1,102 @@
+{
+  "autocast": false,
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20260727,
+  "checkpoint_paths": {
+    "edm_1k": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-040000.pkl",
+    "edm_50k": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl"
+  },
+  "checkpoint_sha256": {
+    "edm_1k": "8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1",
+    "edm_50k": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b"
+  },
+  "completed_at_unix": 1785337070.8947916,
+  "cutoffs": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "dataset_archive_integrity": {
+    "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa",
+    "/home/xggh8/datasets/edm/cifar10-32x32.zip": "d47def5da86196bfa5825dba162b3724a9b02aea2067386fdba4ed47ce122ca5"
+  },
+  "dense_grid_status": "not_run",
+  "dependency_versions": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.4.0",
+    "pillow": "12.1.0",
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:28:48) [GCC 14.3.0]",
+    "torch": "2.7.1+cu118"
+  },
+  "device": "cuda",
+  "experiment_id": "experiment_05",
+  "git_commit": "b16c3a9c8224755cc2a5a52b0f1aacff44a63da7",
+  "host": "g040.mgmt.hellbender",
+  "identity_validation_sha256": "911126ea61ddc02a6440762df9066117b49703c5b3960b8d60032553f4c3a940",
+  "image_domain": "HWC/NCHW RGB float64 in [-1, 1]",
+  "layout_conversion": "scientific HWC residuals projected after NCHW model output conversion",
+  "master_noise_seed": 20260726,
+  "model_call_semantics": {
+    "call": "checkpoint['ema'](x_sigma_nchw_float32, sigma_float32, class_labels=None)",
+    "output": "unquantized unclamped NCHW float32 clean-image prediction"
+  },
+  "model_conditions": [
+    "edm_1k",
+    "edm_50k"
+  ],
+  "model_domain": "NCHW RGB float32 in [-1, 1] plus Gaussian noise",
+  "model_dtype": "float32",
+  "model_source_commits": {
+    "edm": "008a4e5316c8e3bfe61a62f874bddba254295afb"
+  },
+  "model_source_repositories": {
+    "edm": "/home/xggh8/edm"
+  },
+  "noise_generator": "NumPy PCG64DXSM with SeedSequence material",
+  "noise_repeats": 8,
+  "output_clamping": false,
+  "output_dir": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves",
+  "output_quantization": false,
+  "outputs": {
+    "aggregated_curves": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves/experiment_05_aggregated_curves.csv",
+    "figures": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves/figures",
+    "identity_validation": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves/experiment_05_identity_validation.json",
+    "raw_residuals": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves/experiment_05_bandwise_residuals.csv",
+    "transition_windows": "/mnt/pixstor/data/xggh8/zw-lab/e005_spectral_residual_curves/experiment_05_transition_windows.json"
+  },
+  "paper_title": "Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in Diffusion Models",
+  "primary_sigma_formula": "EDM 18-point rho=7 schedule from 80 to 0.002",
+  "primary_sigma_values": [
+    80.0,
+    57.58598472124816,
+    40.78557379650796,
+    28.374584604156844,
+    19.35245298032523,
+    12.91008238075732,
+    8.400935309099816,
+    5.315194521796382,
+    3.256821519765537,
+    1.9233398370400518,
+    1.088170636545279,
+    0.5853481231945422,
+    0.29644228447915727,
+    0.13951646873101678,
+    0.05994731123547159,
+    0.022934518372333384,
+    0.0075280199627840785,
+    0.002000000000000003
+  ],
+  "protocol_commit": "533ec4605cef58186363f93c4ec88edf5ef1d387",
+  "reproduction_claim": "paper-derived clean-room reimplementation; not an exact paper reproduction",
+  "run_id": "e005_spectral_residual_curves",
+  "slurm_job_id": "15425473",
+  "smoke": false,
+  "started_at_unix": 1785335747.8013835,
+  "test_indices": "canonical CIFAR-10 test indices 0..999 from archive indices 50000..50999",
+  "train_index_manifests": {
+    "edm_1k": "data/e005_cifar10_subset_1k_indices.txt",
+    "edm_50k": "canonical CIFAR-10 train indices 0..999"
+  },
+  "transition_windows_sha256": "aa588d071716e81694ea467f282947cc9949834ffdc8011abe847d0344cbd6bf"
+}
