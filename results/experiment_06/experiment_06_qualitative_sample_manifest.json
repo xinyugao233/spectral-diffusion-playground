@@ -1,0 +1,86 @@
+{
+  "experiment_id": "experiment_06",
+  "rule": "first two ascending seeds per frozen category; no replacements",
+  "run_id": "e006_transition_window_swaps",
+  "selections": {
+    "edm_1k_base__edm_50k_donor__high_transition": {
+      "baseline_condition": "edm_1k_no_swap",
+      "categories": {
+        "newly_memorized": [],
+        "no_longer_memorized": [
+          5,
+          7
+        ],
+        "unchanged_memorized": [
+          0,
+          1
+        ],
+        "unchanged_non_memorized": [
+          44,
+          58
+        ]
+      },
+      "missing_categories": [
+        "newly_memorized"
+      ]
+    },
+    "edm_1k_base__edm_50k_donor__low_transition": {
+      "baseline_condition": "edm_1k_no_swap",
+      "categories": {
+        "newly_memorized": [],
+        "no_longer_memorized": [
+          0,
+          1
+        ],
+        "unchanged_memorized": [
+          203
+        ],
+        "unchanged_non_memorized": [
+          44,
+          58
+        ]
+      },
+      "missing_categories": [
+        "newly_memorized"
+      ]
+    },
+    "edm_50k_base__edm_1k_donor__high_transition": {
+      "baseline_condition": "edm_50k_no_swap",
+      "categories": {
+        "newly_memorized": [
+          0,
+          25
+        ],
+        "no_longer_memorized": [],
+        "unchanged_memorized": [],
+        "unchanged_non_memorized": [
+          1,
+          2
+        ]
+      },
+      "missing_categories": [
+        "no_longer_memorized",
+        "unchanged_memorized"
+      ]
+    },
+    "edm_50k_base__edm_1k_donor__low_transition": {
+      "baseline_condition": "edm_50k_no_swap",
+      "categories": {
+        "newly_memorized": [
+          0,
+          1
+        ],
+        "no_longer_memorized": [],
+        "unchanged_memorized": [],
+        "unchanged_non_memorized": [
+          5,
+          9
+        ]
+      },
+      "missing_categories": [
+        "no_longer_memorized",
+        "unchanged_memorized"
+      ]
+    }
+  }
+}

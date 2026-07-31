@@ -1,0 +1,672 @@
+{
+  "batch_size": 16,
+  "checkpoint_paths": {
+    "edm_1k": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-040000.pkl",
+    "edm_50k": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl"
+  },
+  "checkpoint_sha256": {
+    "edm_1k": "8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1",
+    "edm_50k": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b"
+  },
+  "completed_at_unix": 1785501804.405874,
+  "condition_table": [
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_no_swap",
+      "donor_model": null,
+      "window": null
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_no_swap",
+      "donor_model": null,
+      "window": null
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__low_transition",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 11,
+        "end_sigma": 0.5853481231945422,
+        "name": "low_transition",
+        "start_index": 5,
+        "start_sigma": 12.91008238075732
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__high_transition",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 14,
+        "end_sigma": 0.05994731123547159,
+        "name": "high_transition",
+        "start_index": 11,
+        "start_sigma": 0.5853481231945422
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__combined_transition",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 14,
+        "end_sigma": 0.05994731123547159,
+        "name": "combined_transition",
+        "start_index": 5,
+        "start_sigma": 12.91008238075732
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__paper_medium_reference",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 13,
+        "end_sigma": 0.13951646873101678,
+        "name": "paper_medium_reference",
+        "start_index": 6,
+        "start_sigma": 8.400935309099816
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__low_pre_control",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 6,
+        "end_sigma": 8.400935309099816,
+        "name": "low_pre_control",
+        "start_index": 0,
+        "start_sigma": 80.0
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__low_post_control",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 17,
+        "end_sigma": 0.002000000000000003,
+        "name": "low_post_control",
+        "start_index": 11,
+        "start_sigma": 0.5853481231945422
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__high_pre_control",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 10,
+        "end_sigma": 1.088170636545279,
+        "name": "high_pre_control",
+        "start_index": 7,
+        "start_sigma": 5.315194521796382
+      }
+    },
+    {
+      "base_model": "edm_1k",
+      "condition": "edm_1k_base__edm_50k_donor__high_post_control",
+      "donor_model": "edm_50k",
+      "window": {
+        "end_index": 17,
+        "end_sigma": 0.002000000000000003,
+        "name": "high_post_control",
+        "start_index": 14,
+        "start_sigma": 0.05994731123547159
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__low_transition",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 11,
+        "end_sigma": 0.5853481231945422,
+        "name": "low_transition",
+        "start_index": 5,
+        "start_sigma": 12.91008238075732
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__high_transition",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 14,
+        "end_sigma": 0.05994731123547159,
+        "name": "high_transition",
+        "start_index": 11,
+        "start_sigma": 0.5853481231945422
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__combined_transition",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 14,
+        "end_sigma": 0.05994731123547159,
+        "name": "combined_transition",
+        "start_index": 5,
+        "start_sigma": 12.91008238075732
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__paper_medium_reference",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 13,
+        "end_sigma": 0.13951646873101678,
+        "name": "paper_medium_reference",
+        "start_index": 6,
+        "start_sigma": 8.400935309099816
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__low_pre_control",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 6,
+        "end_sigma": 8.400935309099816,
+        "name": "low_pre_control",
+        "start_index": 0,
+        "start_sigma": 80.0
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__low_post_control",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 17,
+        "end_sigma": 0.002000000000000003,
+        "name": "low_post_control",
+        "start_index": 11,
+        "start_sigma": 0.5853481231945422
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__high_pre_control",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 10,
+        "end_sigma": 1.088170636545279,
+        "name": "high_pre_control",
+        "start_index": 7,
+        "start_sigma": 5.315194521796382
+      }
+    },
+    {
+      "base_model": "edm_50k",
+      "condition": "edm_50k_base__edm_1k_donor__high_post_control",
+      "donor_model": "edm_1k",
+      "window": {
+        "end_index": 17,
+        "end_sigma": 0.002000000000000003,
+        "name": "high_post_control",
+        "start_index": 14,
+        "start_sigma": 0.05994731123547159
+      }
+    }
+  ],
+  "config_path": "/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground/configs/e006_transition_window_swaps.json",
+  "config_sha256": "333a4853733d08e2e289a3bbef6f01ef083834e12e31bfd08b797e0fb37ffec2",
+  "corrected_plan_sha256": "0317dc62391cd28bfbd784f270f279f149fe25f844a7f52379ce4c5e769be317",
+  "dataset_archive_identity": {
+    "path": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"
+  },
+  "dependency_versions": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.4.0",
+    "pillow": "12.1.0",
+    "python": "3.13.11",
+    "torch": "2.7.1+cu118"
+  },
+  "device": "cuda",
+  "execution_host": "g039.mgmt.hellbender",
+  "experiment_id": "experiment_06",
+  "figures": {
+    "experiment_06_generated_nn_pairs.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_generated_nn_pairs.png",
+      "sha256": "8db3a5341e13ed7e37f58378af0eec561a3ae060142e36210345037f71893877",
+      "size_bytes": 570630
+    },
+    "experiment_06_memorization_rates.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_memorization_rates.png",
+      "sha256": "227555026a7c801dc077b59e928409685bb8b3351c37a535afbd3388bec29871",
+      "size_bytes": 186796
+    },
+    "experiment_06_paired_changes.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_paired_changes.png",
+      "sha256": "2f4079a3f4f4a336e463909a910bd3cb6a1c62888c3583e14eebc453475bb3d8",
+      "size_bytes": 189957
+    },
+    "experiment_06_paper_medium_reference.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_paper_medium_reference.png",
+      "sha256": "bb216ae24f32469fb601cc439f5406f47c8c62cdb79d418c6fac0206c620de0b",
+      "size_bytes": 127894
+    },
+    "experiment_06_ratio_distributions.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_ratio_distributions.png",
+      "sha256": "2c42c5a1b604a418b654c5bf3c390dcc371eb98940d9720fa5ccb914531b3f29",
+      "size_bytes": 191609
+    },
+    "experiment_06_transition_vs_controls.png": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/figures/experiment_06_transition_vs_controls.png",
+      "sha256": "c36e311ca202f5b3e353e7c502c1d09dcdfa9b4c2d4a14d5fdabfd4be3a8d7c5",
+      "size_bytes": 72148
+    }
+  },
+  "git_commit": "ae0febb9b983c50c5946d61423fda72358887523",
+  "latent_seed_policy": {
+    "generator": "one torch.Generator on the execution device per sample seed",
+    "start": 0,
+    "stop_inclusive": 255
+  },
+  "model_conditions": [
+    "edm_1k_no_swap",
+    "edm_50k_no_swap",
+    "edm_1k_base__edm_50k_donor__low_transition",
+    "edm_1k_base__edm_50k_donor__high_transition",
+    "edm_1k_base__edm_50k_donor__combined_transition",
+    "edm_1k_base__edm_50k_donor__paper_medium_reference",
+    "edm_1k_base__edm_50k_donor__low_pre_control",
+    "edm_1k_base__edm_50k_donor__low_post_control",
+    "edm_1k_base__edm_50k_donor__high_pre_control",
+    "edm_1k_base__edm_50k_donor__high_post_control",
+    "edm_50k_base__edm_1k_donor__low_transition",
+    "edm_50k_base__edm_1k_donor__high_transition",
+    "edm_50k_base__edm_1k_donor__combined_transition",
+    "edm_50k_base__edm_1k_donor__paper_medium_reference",
+    "edm_50k_base__edm_1k_donor__low_pre_control",
+    "edm_50k_base__edm_1k_donor__low_post_control",
+    "edm_50k_base__edm_1k_donor__high_pre_control",
+    "edm_50k_base__edm_1k_donor__high_post_control"
+  ],
+  "model_source_commits": {
+    "edm": "008a4e5316c8e3bfe61a62f874bddba254295afb"
+  },
+  "model_source_repositories": {
+    "edm": "/home/xggh8/edm"
+  },
+  "nearest_neighbor_batch_size": 64,
+  "nearest_neighbor_metric": "Euclidean L2 on unquantized RGB float64 NCHW-flattened vectors",
+  "outcome": "INCONCLUSIVE",
+  "output_clamping": false,
+  "output_dir": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps",
+  "output_quantization": false,
+  "outputs": {
+    "experiment_06_condition_summary.csv": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_condition_summary.csv",
+      "sha256": "4f2bc0744cb169629c0369bcce23c7598d79f55a94969183c50c3055fe1770db",
+      "size_bytes": 4732
+    },
+    "experiment_06_failures.csv": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_failures.csv",
+      "sha256": "e78f3d5343ced34e72dc711006e04b6bcce28884da36a79e788019a65727f8bf",
+      "size_bytes": 57
+    },
+    "experiment_06_generated_samples.npz": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_generated_samples.npz",
+      "sha256": "540ce3c49950774bd2363c0380b3b6c90ceac655ac9da3c92f9746049d40caf3",
+      "size_bytes": 59930539
+    },
+    "experiment_06_nearest_neighbors.csv": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_nearest_neighbors.csv",
+      "sha256": "02f1cab460db584bcb08406880ef187d51b1a3aa400936f127afca6570402ed0",
+      "size_bytes": 1110617
+    },
+    "experiment_06_outcome.json": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_outcome.json",
+      "sha256": "f2467e528d68c8329ecaf41ee22427046bcde7a0372fa6336f9d75025abe01f9",
+      "size_bytes": 10959
+    },
+    "experiment_06_paired_comparisons.csv": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_paired_comparisons.csv",
+      "sha256": "32036a89ed75f4896f5d56a96657522561389faa5951685cc0ffa73b5dbb914d",
+      "size_bytes": 5354
+    },
+    "experiment_06_per_sample.csv": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_per_sample.csv",
+      "sha256": "5e92fdf4cc4ce30fc7b43c65e28167860fbbe86fb35d36ab752ab4dfbcbbfd6e",
+      "size_bytes": 2066922
+    },
+    "experiment_06_qualitative_sample_manifest.json": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_qualitative_sample_manifest.json",
+      "sha256": "36b3784959b28a9ab4ee579d7851f0bf537decd4a6e25380c96df70fcce0ee7a",
+      "size_bytes": 1945
+    },
+    "experiment_06_validation.json": {
+      "path": "/mnt/pixstor/data/xggh8/zw-lab/e006_transition_window_swaps/experiment_06_validation.json",
+      "sha256": "dee057793e6c95d201fcfc3ba4e73da6f335a0b80bc229aeeb138edec8bb5be5",
+      "size_bytes": 449
+    }
+  },
+  "paper_sha256": "1dd6b436878c74327dab0c289e57335a915cdb35845fb75967882ba62375d2d8",
+  "paper_title": "Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in Diffusion Models",
+  "protocol_commit": "068c7e3a745fb51b1d2416524b7e29f70b0b5f08",
+  "provenance_checks": {
+    "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa",
+    "config_sha256": "333a4853733d08e2e289a3bbef6f01ef083834e12e31bfd08b797e0fb37ffec2",
+    "edm_1k_checkpoint_sha256": "8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1",
+    "edm_50k_checkpoint_sha256": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b",
+    "edm_commit": "008a4e5316c8e3bfe61a62f874bddba254295afb",
+    "git_commit": "ae0febb9b983c50c5946d61423fda72358887523",
+    "protocol_sha256": "8906a2a09efb6fbcf8c301ca472624905656992534a1cafbe88c1ba576ef23ae",
+    "subset_int64_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8",
+    "subset_text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29",
+    "transition_windows_sha256": "aa588d071716e81694ea467f282947cc9949834ffdc8011abe847d0344cbd6bf"
+  },
+  "reference_subset_manifest": {
+    "little_endian_int64_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8",
+    "path": "data/e005_cifar10_subset_1k_indices.txt",
+    "text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29"
+  },
+  "reproduction_claim": "paper-derived clean-room reimplementation; not code-identical or an exact numerical reproduction",
+  "run_id": "e006_transition_window_swaps",
+  "runtime_sec": 986.6734144687653,
+  "sample_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255
+  ],
+  "sampler": {
+    "algorithm": "pure_euler",
+    "canonical_per_seed_inference": true,
+    "churn": 0.0,
+    "class_labels": null,
+    "heun_correction": false,
+    "num_denoiser_calls": 18,
+    "rho": 7.0,
+    "sigma_max": 80.0,
+    "sigma_min": 0.002,
+    "terminal_sigma": 0.0
+  },
+  "sampler_inference_batch_size": 1,
+  "sigma_schedule": [
+    80.0,
+    57.58598472124816,
+    40.78557379650796,
+    28.374584604156844,
+    19.35245298032523,
+    12.91008238075732,
+    8.400935309099816,
+    5.315194521796382,
+    3.256821519765537,
+    1.9233398370400518,
+    1.088170636545279,
+    0.5853481231945422,
+    0.29644228447915727,
+    0.13951646873101678,
+    0.05994731123547159,
+    0.022934518372333384,
+    0.0075280199627840785,
+    0.002000000000000003
+  ],
+  "slurm_job_id": "15511459",
+  "smoke": false,
+  "started_at_unix": 1785500817.8529665,
+  "swap_step_semantics": "inclusive denoiser-call indices 0..17",
+  "tensor_domain": "RGB scientific [-1,1] domain; no display transform",
+  "terminal_sigma": 0.0
+}
