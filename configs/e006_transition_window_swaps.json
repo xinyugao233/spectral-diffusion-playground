@@ -1,0 +1,53 @@
+{
+  "experiment_id": "experiment_06",
+  "run_id": "e006_transition_window_swaps",
+  "protocol_commit": "068c7e3a745fb51b1d2416524b7e29f70b0b5f08",
+  "sampler": {
+    "algorithm": "pure_euler",
+    "num_denoiser_calls": 18,
+    "sigma_max": 80.0,
+    "sigma_min": 0.002,
+    "rho": 7.0,
+    "terminal_sigma": 0.0,
+    "churn": 0.0,
+    "heun_correction": false,
+    "class_labels": null,
+    "canonical_per_seed_inference": true
+  },
+  "sample_seeds": {
+    "start": 0,
+    "stop_inclusive": 255,
+    "generator": "one torch.Generator on the execution device per sample seed"
+  },
+  "models": {
+    "edm_1k": {
+      "checkpoint": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-040000.pkl",
+      "sha256": "8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1"
+    },
+    "edm_50k": {
+      "checkpoint": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+      "sha256": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b"
+    }
+  },
+  "reference_subset": {
+    "indices_path": "data/e005_cifar10_subset_1k_indices.txt",
+    "text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29",
+    "int64_le_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8",
+    "archive": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"
+  },
+  "statistics": {
+    "confidence_level": 0.95,
+    "binomial_interval": "exact_clopper_pearson",
+    "paired_bootstrap_seed": 20260730,
+    "paired_bootstrap_resamples": 10000,
+    "effect_threshold": 0.1,
+    "baseline_degenerate_definition": "memorized_count is exactly 0 or n"
+  },
+  "execution": {
+    "full_output_dir": "/home/xggh8/data/zw-lab/e006_transition_window_swaps",
+    "sampler_batch_size": 1,
+    "nearest_neighbor_batch_size": 64,
+    "device": "cuda"
+  }
+}

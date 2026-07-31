@@ -1,0 +1,15 @@
+{
+  "condition_summary_rows": 18,
+  "expected_nearest_neighbor_rows": 9216,
+  "expected_per_sample_rows": 4608,
+  "experiment_id": "experiment_06",
+  "failure_rows": 0,
+  "finite_nearest_neighbor_records": true,
+  "observed_nearest_neighbor_rows": 9216,
+  "observed_per_sample_rows": 4608,
+  "paired_comparison_rows": 16,
+  "run_id": "e006_transition_window_swaps",
+  "stable_row_order": true,
+  "status": "pass",
+  "unique_per_sample_keys": true
+}
