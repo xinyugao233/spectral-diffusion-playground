@@ -1,0 +1,11 @@
+{
+  "all_source_gates_passed": true,
+  "curve_rows_per_metric": 20,
+  "existing_e005_e006_outputs_modified": false,
+  "fullspace_metric_abs_error_max": 1.4210854715202004e-14,
+  "nonfinite_values": 0,
+  "posterior_normalization_error_max": 1.142419492339286e-13,
+  "projected_noise_relative_error_max": 0.002770896511353082,
+  "status": "pass",
+  "values_in_unit_interval": true
+}

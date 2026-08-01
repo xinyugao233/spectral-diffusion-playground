@@ -1,16 +1,16 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 69 passing](https://img.shields.io/badge/tests-69%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 78 passing](https://img.shields.io/badge/tests-78%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
 A research portfolio of frequency-resolved experiments for understanding
 denoising and memorization in diffusion models.
 
-The central question is: **how do low- and high-frequency denoising residuals
-change across noise levels, and are those transition windows especially
-influential for trajectory-level memorization?**
+The central question is: **how do low- and high-frequency residual transitions
+relate to the medium-noise region independently motivated by Gaussian-shell
+coverage and posterior-weight concentration?**
 
 Experiments E001-E003 build the Fourier foundation. E004-E006 form a
 paper-derived clean-room extension of
@@ -19,25 +19,36 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 
 ## Key Visual Highlights
 
-E005 reveals two ordered residual-energy transitions in a fixed denoiser: the
-low-frequency residual changes at higher noise, followed by the high-frequency
-residual at lower noise.
+The paper's original geometric picture uses two full-space quantities:
+Gaussian-shell coverage `C_sigma(p,D)` and maximum empirical-posterior weight
+`W_sigma(D)`. This repository provides a paper-derived clean-room reproduction;
+the original Figure 3 execution artifacts were unavailable.
+
+![Gaussian-shell coverage and maximum posterior weight across noise levels](figures/experiment_04a/coverage_and_max_posterior_weight.png)
+
+E005 adds a separate spectral analysis. It reveals two ordered residual-energy
+transitions in a fixed denoiser: the low-frequency residual changes at higher
+noise, followed by the high-frequency residual at lower noise.
 
 ![EDM-1K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
 
-**Headline result:** under the frozen fixed-denoiser evaluation, low-frequency
-residual recovery transitions at higher noise than high-frequency residual
-recovery, producing an ordered coarse-to-fine residual pattern.
+**Headline result:** the clean-room geometric high-high region at sampled
+`sigma` values `{2,3,4,5}` lies inside E005's low-frequency residual transition,
+while the high-frequency transition occurs later at lower noise. This is a
+descriptive alignment between distinct measurements, not a significance or
+causality result.
 
-E006 then tests those windows with whole-denoiser swaps. Its formal outcome is
-**`INCONCLUSIVE`** because the EDM-50K no-swap baseline is degenerate, while
-the low-transition window remains the strongest descriptive association.
+E006 then tests the spectral windows with whole-denoiser swaps. Its formal
+outcome is **`INCONCLUSIVE`** because the EDM-50K no-swap baseline is
+degenerate, while the low-transition window remains the strongest descriptive
+association.
 
 ![E006 transition windows versus width-matched controls](figures/experiment_06/experiment_06_transition_vs_controls.png)
 
 ## Start Here
 
-- **See the main measurement:** [E005 residual curves and transition windows](#e005-low--and-high-frequency-residual-transitions).
+- **Start with the paper geometry:** [coverage and posterior concentration](#original-paper-geometry-coverage-and-posterior-concentration).
+- **See the spectral extension:** [E005 residual curves and transition windows](#e005-low--and-high-frequency-residual-transitions).
 - **See the intervention and its limits:** [E006 whole-denoiser swaps](#e006-transition-window-whole-denoiser-swaps).
 - **Audit the evidence:** [E005 result record](docs/experiment_05_spectral_residual_results.md)
   and [E006 result record](docs/experiment_06_transition_window_swap_results.md).
@@ -51,6 +62,7 @@ the low-transition window remains the strongest descriptive association.
 | E002 | How does Gaussian noise change spectral content? | [Noise/frequency grid](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_grid.png) | Noise raises energy broadly across frequency | Complete |
 | E003 | Where does image information appear across frequency radii? | [Decomposition grid](figures/where_image_information_lives_grid.png) | Complementary low/high reconstructions exactly recover the image | Complete |
 | E004 | Which cutoff is a useful operational CIFAR-10 split? | [Cutoff montage](figures/experiment_04_cutoff_montage_classes_0_1.png) | Reference `r = 4`; sensitivity `r = 3, 5` | Complete |
+| E004A | What are the paper's original two geometric curves? | [Coverage/concentration curves](figures/experiment_04a/coverage_and_max_posterior_weight.png) | Clean-room three-regime geometry; sampled high-high region at `sigma = 2..5` | Complete |
 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
 | E006 | Do swaps over those windows alter the memorization criterion? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Formal outcome `INCONCLUSIVE`; low-transition result is descriptively strongest | Complete |
 
@@ -138,13 +150,67 @@ cutoff; `r = 3` and `r = 5` remain the primary sensitivity cutoffs.
 The originally planned two-independent-reviewer scoring procedure was not
 completed. No inter-rater or blinded-review claim is made.
 
+## Original Paper Geometry: Coverage And Posterior Concentration
+
+The paper's geometric picture is defined by two quantities that are distinct
+from the repository's Fourier residual energies.
+
+For training set `D = {x_i}`, paper Eq. (3) assigns empirical-posterior weight
+
+```text
+w_i(y,sigma) = exp(-||y-x_i||^2 / (2 sigma^2))
+               / sum_j exp(-||y-x_j||^2 / (2 sigma^2)).
+```
+
+Definition 4.1 averages the largest weight for noisy **training** queries:
+
+```text
+W_sigma(D) = E_{X ~ p_D, Z} max_i w_i(X + sigma Z, sigma).
+```
+
+Definition 4.6 measures whether a noisy **held-out** query lies in the union of
+training-centered Gaussian shells:
+
+```text
+C_sigma(p,D) = P(X + sigma Z in union_i S_sigma(x_i)),  X ~ p.
+```
+
+Here `p` is the data distribution, not a scalar shell-probability parameter.
+The shell radii use the paper's `c = 5` convention and include both annulus
+boundaries. Coverage is an exact binary union-of-annuli event; it is not a
+nearest-neighbor-distance substitute.
+
+![Gaussian-shell coverage and maximum posterior weight across noise levels](figures/experiment_04a/coverage_and_max_posterior_weight.png)
+
+The relationship motivates three qualitative regimes:
+
+- **Small noise:** posterior concentration is high, but held-out shell coverage
+  is limited.
+- **Medium noise:** coverage and posterior concentration are simultaneously
+  high, producing the paper-guided candidate danger region.
+- **Large noise:** coverage is broad, but posterior concentration is weak.
+
+The paper does not provide a universal numerical boundary for these regimes.
+The clean-room protocol froze exploratory thresholds `q_W = q_C = 0.8` before
+execution; sampled full-space point estimates are high-high at
+`sigma in {2,3,4,5}`. Continuous shading from `2` to `5` is visual only, and
+decisions use observed grid points without interpolation.
+
+This is a **paper-derived clean-room reproduction**, not an exact numerical
+reproduction. It uses the first 1,000 canonical CIFAR-10 training and test
+images, seed `0`, and a frozen 20-point sigma grid because the paper's exact
+subset, seeds, grid, and executed Figure 3 code were unavailable. See the
+[source audit](docs/paper_geometry_source_audit.md), [frozen protocol](docs/experiment_04a_paper_geometry_protocol.md),
+and [result record](docs/experiment_04a_paper_geometry_results.md).
+
 ## E005: Low- And High-Frequency Residual Transitions
 
 **Question.** How does the paper-derived fixed-sigma denoising residual divide
 between complementary frequency bands? E005 projects the residual directly,
 uses float64 spectral calculations after float32 inference, and verifies
 `E_full = E_low + E_high` numerically. This is the central two-curve diagnostic
-for the repository.
+for the repository's **spectral extension**, not the paper's original two
+geometric curves.
 
 For a clean image `X`, Gaussian noise `Z`, noise level `sigma`, and fixed
 denoiser `m_sigma`, the residual is
@@ -245,31 +311,37 @@ flowchart LR
   setup. This is a descriptive coarse-to-fine residual pattern, not a learning
   dynamic or memorization result.
 
-### From Transition Windows To A Candidate Danger Zone
+### How The Spectral Curves Relate To The Paper's Danger Zone
 
-E005 identifies candidate trajectory intervals from residual-energy dynamics;
-by itself, it does **not** identify a memorization danger zone. E006 tests the
-low- and high-transition intervals by swapping the whole denoiser between
-EDM-1K and EDM-50K and comparing each interval with width-matched controls.
+The paper's danger-zone motivation comes from Gaussian-shell coverage and
+posterior-weight concentration. E005's low- and high-frequency residual curves
+provide a separate spectral description of denoising error across the noise
+schedule. Their intersection, the space between them, and their 20%-to-80%
+windows do **not** define the original danger zone.
 
-The low-frequency transition window is the strongest candidate danger-zone
-interval in the present experiment. This is a descriptive trajectory-level
-result, not proof that low-frequency features themselves cause memorization.
-The high-transition interval did not pass the frozen influence criterion. The
+![Paper geometry and spectral transitions on a shared sigma axis](figures/experiment_05/geometry_and_spectral_transitions.png)
+
+Both panels use the same small-to-large log-scaled sigma orientation. The
+geometry uses a frozen 20-point grid; E005 uses its frozen 18-point EDM grid.
+No interpolation is used for decisions. Descriptively, the geometry's sampled
+high-high values `{2,3,4,5}` lie inside the E005 low-frequency transition
+`12.9101..0.585348`, while the high-frequency transition
+`0.585348..0.0599473` occurs later and does not overlap those sampled values.
+This comparison is not a statistical test and does not imply that low
+frequencies cause memorization.
+
+E006 tests trajectory intervals aligned with the **spectral** transitions by
+swapping the whole denoiser between EDM-1K and EDM-50K. It does not directly
+intervene on coverage, posterior weights, or isolated Fourier components. The
 formal E006 outcome remains **`INCONCLUSIVE`** because the EDM-50K no-swap
 baseline was degenerate at `0/256`.
 
-E006 swaps the **whole denoiser** during a frequency-aligned time window. It
-does not swap only the low-frequency or high-frequency component of the
-denoiser output. Neither the space between the curves nor their intersection
-defines a candidate interval.
-
 ## E006: Transition-Window Whole-Denoiser Swaps
 
-**Question.** Are the E005 transition windows more influential for final
-trajectory-level memorization than width-matched controls? E006 runs whole-
-denoiser swaps in both EDM-1K/EDM-50K directions with the same 256 latent seeds
-and evaluates the strict pixel-space criterion `d1NN < d2NN / 3`.
+**Question.** Are the E005 **spectral** transition windows more influential for
+final trajectory-level memorization than width-matched controls? E006 runs
+whole-denoiser swaps in both EDM-1K/EDM-50K directions with the same 256 latent
+seeds and evaluates the strict pixel-space criterion `d1NN < d2NN / 3`.
 
 ![E006 transition windows and width-matched controls](figures/experiment_06/experiment_06_transition_vs_controls.png)
 
@@ -294,12 +366,22 @@ The descriptive result does not override the frozen outcome or establish a
 causal memorization interpretation for any sigma interval.
 
 E006 swaps the **whole denoiser** during windows aligned with the E005
-frequency-band transitions; it does not intervene on only the low- or
-high-frequency part of a denoiser output. The justified descriptive statement
-is therefore about the trajectory interval, not a frequency-specific causal
-mechanism.
+frequency-band transitions. It does not intervene on `C_sigma`, `W_sigma`, or
+only the low- or high-frequency part of a denoiser output. The justified
+descriptive statement is therefore about the trajectory interval, not a
+frequency-specific causal mechanism or validation of the paper's geometry.
 
 ## Mathematical Core
+
+The paper geometry first measures full-space coverage and concentration:
+
+```text
+C_sigma(p,D) = P(X + sigma Z in union_i S_sigma(x_i))
+W_sigma(D)   = E max_i w_i(X + sigma Z, sigma)
+```
+
+E005 then asks a different question by applying complementary Fourier
+projections to a fixed denoiser's residual.
 
 E005 applies complementary Fourier projections directly to
 
@@ -324,6 +406,7 @@ to the full residual energy within the frozen tolerance.
 | Experiment | Protocol and result narrative | Compact results | Figures |
 | --- | --- | --- | --- |
 | E004 | [Protocol](docs/experiment_04_frequency_cutoff_protocol.md) · [Reviewer instructions](docs/experiment_04_reviewer_instructions.md) · [Decision](docs/experiment_04_frequency_cutoff_decision.md) | [Results index](results/README.md#e004-operational-frequency-cutoff) | [Montages](figures/README.md#e004-operational-frequency-cutoff) |
+| E004A | [Source audit](docs/paper_geometry_source_audit.md) · [Protocol](docs/experiment_04a_paper_geometry_protocol.md) · [Results](docs/experiment_04a_paper_geometry_results.md) | [`results/experiment_04a/`](results/experiment_04a/) | [`figures/experiment_04a/`](figures/experiment_04a/) |
 | E005 | [Protocol](docs/experiment_05_spectral_residual_protocol.md) · [Model provenance](docs/experiment_05_clean_room_models.md) · [Results](docs/experiment_05_spectral_residual_results.md) | [`results/experiment_05/`](results/experiment_05/) | [`figures/experiment_05/`](figures/experiment_05/) |
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
 
@@ -387,7 +470,7 @@ spectral-diffusion-playground/
 ├── configs/      # frozen E005/E006 execution configurations
 ├── data/         # small versioned manifests, never downloaded datasets
 ├── docs/         # protocols, provenance records, and result narratives
-├── experiments/  # independently executable E001-E006 entry points
+├── experiments/  # independently executable E001-E006 and E004A entry points
 ├── figures/      # curated, reviewable figures
 ├── results/      # compact machine-readable outputs
 ├── scripts/      # guarded preflight and Slurm launchers
@@ -401,6 +484,11 @@ spectral-diffusion-playground/
   scoring procedure was not completed.
 - The cutoff is CIFAR-10-specific and operational, not a universal semantic
   boundary.
+- E004A is a clean-room reproduction using deterministic first-1K subsets,
+  seed `0`, and a new 20-point grid. The paper's exact Figure 3 subset, seeds,
+  grid, and executed code were unavailable.
+- The E004A high-high thresholds are preregistered clean-room diagnostics, not
+  universal boundaries supplied by the paper.
 - E005 transition windows depend on the frozen clean-room model, schedule, and
   cutoff family; they do not identify when a model learned either band.
 - E006 uses 256 seeds and a strict pixel-space criterion. Its degenerate
