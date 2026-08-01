@@ -502,6 +502,7 @@ def compute_and_write(
 ) -> dict[str, Any]:
     """Run the independent numerical evaluation and write fresh artifacts."""
     started = time.perf_counter()
+    worktree_clean_before_run = _git_worktree_clean(repository_root)
     destination = output_dir.expanduser().resolve()
     if destination.exists() and any(destination.iterdir()):
         raise RuntimeError(f"Refusing to overwrite non-empty output: {destination}")
@@ -582,7 +583,7 @@ def compute_and_write(
         "peak_rss_megabytes": _peak_rss_megabytes(),
         "command": list(command),
         "repository_commit": _git_head(repository_root),
-        "repository_worktree_clean": _git_worktree_clean(repository_root),
+        "repository_worktree_clean_before_run": worktree_clean_before_run,
         "implementation_file_sha256": {
             "experiments/04a_paper_geometry_curves.py": sha256_file(
                 repository_root / "experiments" / "04a_paper_geometry_curves.py"
