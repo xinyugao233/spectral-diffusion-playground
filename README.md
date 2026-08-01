@@ -146,21 +146,94 @@ uses float64 spectral calculations after float32 inference, and verifies
 `E_full = E_low + E_high` numerically. This is the central two-curve diagnostic
 for the repository.
 
+For a clean image `X`, Gaussian noise `Z`, noise level `sigma`, and fixed
+denoiser `m_sigma`, the residual is
+
+```text
+e_sigma = m_sigma(X + sigma Z) - X
+```
+
+E005 measures its summed squared magnitude in two exact complementary Fourier
+bands:
+
+```text
+E_low(sigma)  = ||P_low,r e_sigma||_2^2
+E_high(sigma) = ||P_high,r e_sigma||_2^2
+```
+
+Here, **residual energy** is the summed squared error remaining after denoising,
+projected into either the low- or high-frequency band. The curves are not
+image-quality scores or memorization rates; they measure how much denoising
+error remains in each band at each fixed noise level.
+
 ![EDM-1K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
 
 ![EDM-50K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm50k_low_high_residual_curves.png)
 
-The frozen 20%-to-80% crossing rule extracts the candidate windows shown
-below; the boundaries were not selected after inspecting E006 outcomes.
+### How The Transition Windows Are Extracted
 
-![E005 transition windows extracted from the residual curves](figures/experiment_05/experiment_05_transition_windows.png)
+The rule is applied **independently** to each aggregated low- and
+high-frequency residual-energy curve on the frozen 18-point sigma grid. It
+does not use the intersection of the two curves. The grid is traversed from
+large sigma (high noise) to small sigma (low noise), without smoothing or
+interpolation.
 
-At the reference cutoff `r = 4`, the EDM-1K test curve gives:
+For one band, let `E_i` be its aggregated residual energy at grid index `i`.
+The **high-noise endpoint** is the median of indices `0, 1, 2`; the
+**low-noise endpoint** is the median of indices `15, 16, 17`. These endpoints
+convert energy into a normalized recovery quantity:
 
-- low-frequency residual transition: indices `5..11`,
-  `sigma = 12.9101..0.585348`;
-- high-frequency residual transition: indices `11..14`,
-  `sigma = 0.585348..0.0599473`.
+```text
+E_high-noise = median(E_0, E_1, E_2)
+E_low-noise  = median(E_15, E_16, E_17)
+
+R_i = (E_high-noise - E_i)
+      / (E_high-noise - E_low-noise)
+
+entry = first two consecutive points with R_i >= 0.20
+exit  = first two consecutive points with R_i >= 0.80
+```
+
+Approximately, `R = 0` represents the high-noise residual level and `R = 1`
+the low-noise residual level. Values are not clipped, so endpoint overshoot
+remains visible. The **transition entry** is the first index beginning a pair
+of consecutive values at or above `0.20`. Starting from that entry, the
+**transition exit** is the first index beginning a pair at or above `0.80`.
+The inclusive entry-to-exit interval is the extracted window.
+
+The implementation returns `no_clear_transition` for a nonfinite curve, a
+nonpositive or nonfinite endpoint difference, a missing crossing, an exit
+before entry, a zero-width window, or a later two-point recrossing below either
+threshold. It never widens or manually moves a failed window. At the reference
+cutoff `r = 4`, entry and exit must each be within one grid index of the
+corresponding `r = 3` and `r = 5` boundaries to be marked
+`adjacent_cutoff_stable=true`.
+
+![Low- and high-frequency transition windows extracted with the frozen 20%-to-80% rule](figures/experiment_05/experiment_05_transition_windows.png)
+
+The trajectory proceeds from large sigma to small sigma. At the reference
+cutoff `r = 4`, the frozen EDM-1K test result is:
+
+| Band | Transition indices | Sigma window | Adjacent-cutoff stable |
+| --- | --- | --- | --- |
+| Low-frequency residual | `5..11` | `12.9101..0.585348` | `true` |
+| High-frequency residual | `11..14` | `0.585348..0.0599473` | `true` |
+
+The low-frequency transition therefore occurs first, at higher sigma; the
+high-frequency transition follows later, at lower sigma. Their shared boundary
+near `sigma = 0.585348` is a descriptive coarse-to-fine handoff under this
+fixed-denoiser measurement. These are fixed-sigma denoising residual
+transitions, not training-time learning transitions.
+
+```mermaid
+flowchart LR
+    A[Fixed-sigma denoising residual] --> B[Low/high Fourier projection]
+    B --> C[Two residual-energy curves]
+    C --> D[Independent 20%-80% transition extraction]
+    D --> E[Low and high candidate windows]
+    E --> F[Whole-denoiser swap experiment]
+    F --> G[Final memorization criterion]
+```
 
 - **Purpose:** Turn the structure/detail intuition into exact, complementary
   residual-energy measurements.
@@ -171,6 +244,25 @@ At the reference cutoff `r = 4`, the EDM-1K test curve gives:
   high-frequency residual recovery transitions later under this fixed-denoiser
   setup. This is a descriptive coarse-to-fine residual pattern, not a learning
   dynamic or memorization result.
+
+### From Transition Windows To A Candidate Danger Zone
+
+E005 identifies candidate trajectory intervals from residual-energy dynamics;
+by itself, it does **not** identify a memorization danger zone. E006 tests the
+low- and high-transition intervals by swapping the whole denoiser between
+EDM-1K and EDM-50K and comparing each interval with width-matched controls.
+
+The low-frequency transition window is the strongest candidate danger-zone
+interval in the present experiment. This is a descriptive trajectory-level
+result, not proof that low-frequency features themselves cause memorization.
+The high-transition interval did not pass the frozen influence criterion. The
+formal E006 outcome remains **`INCONCLUSIVE`** because the EDM-50K no-swap
+baseline was degenerate at `0/256`.
+
+E006 swaps the **whole denoiser** during a frequency-aligned time window. It
+does not swap only the low-frequency or high-frequency component of the
+denoiser output. Neither the space between the curves nor their intersection
+defines a candidate interval.
 
 ## E006: Transition-Window Whole-Denoiser Swaps
 
