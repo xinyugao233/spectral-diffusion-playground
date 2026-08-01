@@ -226,8 +226,10 @@ class FrequencyRestrictedMetricTests(unittest.TestCase):
             synthetic_targets, primary_cutoff=4, q_coverage=0.8, q_weight=0.8
         )
         self.assertEqual(summary["low_lower_bound_indices"], [0, 2])
+        self.assertEqual(summary["low_band_geometry_target_indices"], [0, 2])
         self.assertEqual(summary["connected_components"]["low_lower_bound"], [[0], [2]])
         self.assertEqual(summary["high_lower_bound_indices"], [])
+        self.assertEqual(summary["high_band_geometry_target_indices"], [])
 
 
 class FrequencyRestrictedRepositoryTests(unittest.TestCase):

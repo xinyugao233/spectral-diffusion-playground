@@ -552,8 +552,10 @@ def summarize_targets(
         "high_band_dimension": primary["high"]["band_dimension"],
         "low_point_estimate_indices": primary["low"]["point_estimate_indices"],
         "low_lower_bound_indices": primary["low"]["lower_bound_indices"],
+        "low_band_geometry_target_indices": primary["low"]["lower_bound_indices"],
         "high_point_estimate_indices": primary["high"]["point_estimate_indices"],
         "high_lower_bound_indices": primary["high"]["lower_bound_indices"],
+        "high_band_geometry_target_indices": primary["high"]["lower_bound_indices"],
         "connected_components": {
             "low_point_estimate": primary["low"]["point_estimate_components"],
             "low_lower_bound": primary["low"]["lower_bound_components"],
