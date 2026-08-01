@@ -63,7 +63,7 @@ The cross-analysis figure
 places the geometric and spectral measurements on a shared sigma orientation
 without interpolating either grid for decisions.
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 [`experiment_06/`](experiment_06/) contains six final figures covering
 memorization rates, paired changes, transition/control comparisons,

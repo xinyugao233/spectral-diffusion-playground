@@ -4,6 +4,10 @@ This directory contains compact, machine-readable outputs intended for code
 review, plotting, and provenance checks. Large raw arrays, generated samples,
 downloaded datasets, and checkpoints remain outside Git.
 
+The [canonical pipeline registry](canonical_experiment_pipeline.json) records
+the ordered E004-E007 roles, the geometry-selected target, the distinction
+between selection and spectral interpretation, and the current E007 blocker.
+
 ## E004: Operational Frequency Cutoff
 
 Files stored directly under `results/`:
@@ -60,7 +64,7 @@ The 2,304,000-row per-sample residual table remains external at
 reproduction command are recorded in the
 [E005 results document](../docs/experiment_05_spectral_residual_results.md).
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 [`experiment_06/`](experiment_06/) contains condition summaries, paired
 comparisons, the frozen `INCONCLUSIVE` outcome, validation and failure records,

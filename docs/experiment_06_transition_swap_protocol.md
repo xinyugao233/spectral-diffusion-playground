@@ -1,4 +1,4 @@
-# Experiment 6: Transition-Window Whole-Denoiser Swap Protocol
+# Experiment 6: Historical Spectral-Window Whole-Denoiser Swap Protocol
 
 ## Status
 

@@ -6,6 +6,8 @@ This audit separates every noise interval used by E004A, E005, and E006. The
 objects have different sources and must not silently replace one another.
 Machine-readable definitions are in
 [`results/region_definition_registry.json`](../results/region_definition_registry.json).
+Their canonical experimental order is frozen in
+[`canonical_experiment_pipeline.md`](canonical_experiment_pipeline.md).
 
 ## Canonical Definitions
 
@@ -62,3 +64,9 @@ machine-readable E006 keys remain unchanged for provenance.
 The phrase **candidate danger region** is reserved for the E004A geometric
 high-high set and must appear with `q_C=q_W=0.8` plus the clean-room limitation.
 No interval in this repository is a universal or exact paper-defined boundary.
+
+E004A alone selects the clean-room geometry-defined candidate target. E005
+interprets where that target falls relative to low/high residual transitions;
+it does not define the target. Historical E006 tested spectral and literature
+reference windows, not the E004A-selected `8..9` interval. E007 is the blocked
+final geometry-aligned intervention.

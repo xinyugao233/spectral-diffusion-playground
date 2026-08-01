@@ -4,6 +4,10 @@ Protocols freeze decisions before execution. Result documents report the
 validated run without changing those decisions. Provenance documents connect
 external data and checkpoints to exact hashes and commits.
 
+Start with the [canonical experimental pipeline](canonical_experiment_pipeline.md).
+It freezes the order E004 cutoff -> E004A geometry selection -> E005 spectral
+interpretation -> historical E006 exploration -> final E007 intervention.
+
 ## E004: Operational CIFAR-10 Cutoff
 
 1. [Frozen cutoff-selection protocol](experiment_04_frequency_cutoff_protocol.md)
@@ -34,7 +38,7 @@ both the point-estimate and 95% lower-bound rules at `q_C=q_W=0.8`.
 Result: an ordered low-frequency then high-frequency residual transition under
 the frozen clean-room setup.
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 1. [Frozen whole-denoiser swap protocol](experiment_06_transition_swap_protocol.md)
 2. [Validated swap results](experiment_06_transition_window_swap_results.md)
@@ -56,10 +60,16 @@ historical E006. The target remains indices `8..9`, but the historical E006
 pair cannot support an informative bidirectional decision because its EDM-50K
 baseline is already `0/256`.
 
+The main scientific chain remains incomplete until E007 or an equivalent
+preregistered geometry-aligned swap is executed with a nondegenerate model
+pair. E004A selects the candidate region; E005 interprets its spectral
+location; historical E006 does not substitute for that final test.
+
 ## Reading Order
 
-New readers should start with the [root README](../README.md), then read the
-E004 decision, E004A source audit and results, E005 results, and E006 results.
+New readers should start with the [root README](../README.md), then the
+canonical pipeline, E004 decision, E004A source audit and results, E005
+results, historical E006 results, and blocked E007 protocol.
 Reviewers auditing a specific experiment should read its protocol before its
 result document and then inspect the linked compact [`results/`](../results/)
 and [`figures/`](../figures/) directories.
