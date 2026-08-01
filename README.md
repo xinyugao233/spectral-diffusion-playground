@@ -203,6 +203,22 @@ subset, seeds, grid, and executed Figure 3 code were unavailable. See the
 [source audit](docs/paper_geometry_source_audit.md), [frozen protocol](docs/experiment_04a_paper_geometry_protocol.md),
 and [result record](docs/experiment_04a_paper_geometry_results.md).
 
+The committed estimates can also be regenerated end to end from a local
+CIFAR-10 archive using the frozen configuration:
+
+```bash
+python experiments/04a_paper_geometry_curves.py \
+  --compute \
+  --dataset-root /path/to/cifar10 \
+  --output-dir results/experiment_04a_reproduction \
+  --device auto
+```
+
+This mode computes both curves from images and deterministic Gaussian draws;
+it does not use committed estimates as numerical inputs. `--plot-only` retains
+the lightweight figure-regeneration path, and `--validate-only` checks an
+existing result directory without recomputation.
+
 ## E005: Low- And High-Frequency Residual Transitions
 
 **Question.** How does the paper-derived fixed-sigma denoising residual divide

@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""Inspect the committed clean-room paper-geometry baseline.
-
-The validated 1K/1K evaluation is committed as compact CSV/JSON artifacts.
-This entry point verifies those artifacts and regenerates the primary figure;
-it does not claim access to the paper's unavailable executed code or subset.
-"""
+"""Compute, validate, or plot the E004A clean-room paper geometry baseline."""
 
 from __future__ import annotations
 
 import argparse
-import csv
 import json
+import os
+import sys
 from pathlib import Path
+
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/spectral-diffusion-e004a-matplotlib")
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,67 +17,115 @@ import numpy as np
 import _bootstrap  # noqa: F401
 
 from spectral_diffusion_playground.paper_geometry import SIGMA_GRID
+from spectral_diffusion_playground.paper_geometry_evaluation import (
+    compute_and_write,
+    compare_reproduction,
+    finalize_manifest,
+    load_config,
+    read_curve_csv,
+    write_comparison,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_DIR = REPO_ROOT / "results" / "experiment_04a"
+COMMITTED_RESULTS_DIR = REPO_ROOT / "results" / "experiment_04a"
+DEFAULT_REPRODUCTION_DIR = REPO_ROOT / "results" / "experiment_04a_reproduction"
+CONFIG_PATH = REPO_ROOT / "configs" / "e004a_local_geometry.json"
 FIGURES_DIR = REPO_ROOT / "figures" / "experiment_04a"
+
+E005_SIGMA_GRID = np.asarray(
+    [
+        80.0,
+        57.58598472124816,
+        40.78557379650796,
+        28.374584604156844,
+        19.35245298032523,
+        12.91008238075732,
+        8.400935309099817,
+        5.315194521796382,
+        3.256821519765537,
+        1.9233398370400518,
+        1.088170636545279,
+        0.5853481231945422,
+        0.29644228447915727,
+        0.13951646873101678,
+        0.05994731123547159,
+        0.022934518372333384,
+        0.0075280199627840785,
+        0.002000000000000003,
+    ]
+)
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse output-only reproduction arguments."""
+    """Parse mutually exclusive compute, plot, and validation modes."""
     parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--compute", action="store_true")
+    modes.add_argument("--plot-only", action="store_true")
+    modes.add_argument("--validate-only", action="store_true")
+    parser.add_argument("--dataset-root", type=Path)
+    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--config", type=Path, default=CONFIG_PATH)
+    parser.add_argument("--device", default="auto")
     parser.add_argument(
-        "--output-path",
+        "--geometry-figure",
         type=Path,
-        default=FIGURES_DIR / "coverage_and_max_posterior_weight.png",
+        help="Override the primary figure path in plot-only mode.",
     )
     parser.add_argument(
-        "--comparison-output-path",
+        "--comparison-figure",
         type=Path,
-        default=REPO_ROOT
-        / "figures"
-        / "experiment_05"
-        / "geometry_and_spectral_transitions.png",
+        help="Override the comparison figure path in plot-only mode.",
     )
     return parser.parse_args()
 
 
-def read_curve(path: Path) -> list[dict[str, str]]:
-    """Read one committed geometry curve and require the stable schema."""
-    with path.open(newline="") as handle:
-        rows = list(csv.DictReader(handle))
-    expected = {
-        "sigma_index",
-        "sigma",
-        "metric",
-        "estimate",
-        "ci95_low",
-        "ci95_high",
-        "training_examples",
-        "query_examples",
-        "shell_c",
-        "subset_sha256",
-        "seed",
-        "status",
+def validate_results(results_dir: Path) -> dict[str, object]:
+    """Validate curve schemas, values, and the frozen sigma grid."""
+    coverage = read_curve_csv(results_dir / "coverage_curve.csv")
+    posterior = read_curve_csv(results_dir / "max_posterior_weight_curve.csv")
+    if tuple(float(row["sigma"]) for row in coverage) != SIGMA_GRID:
+        raise ValueError("Coverage sigma grid does not match the protocol")
+    if tuple(float(row["sigma"]) for row in posterior) != SIGMA_GRID:
+        raise ValueError("Posterior sigma grid does not match the protocol")
+    values = np.asarray(
+        [
+            [float(row[key]) for key in ("estimate", "ci95_low", "ci95_high")]
+            for row in [*coverage, *posterior]
+        ]
+    )
+    if not np.all(np.isfinite(values)):
+        raise ValueError("Curve files contain nonfinite values")
+    if not np.all((values >= 0.0) & (values <= 1.0)):
+        raise ValueError("Curve files contain values outside [0,1]")
+    thresholds = load_config(CONFIG_PATH)["thresholds"]
+    high_high = [
+        float(coverage_row["sigma"])
+        for coverage_row, posterior_row in zip(coverage, posterior)
+        if float(coverage_row["estimate"]) >= thresholds["coverage"]
+        and float(posterior_row["estimate"]) >= thresholds["maximum_posterior_weight"]
+    ]
+    return {
+        "status": "pass",
+        "results_dir": str(results_dir.resolve()),
+        "rows_per_metric": len(coverage),
+        "sampled_high_high_sigmas": high_high,
     }
-    if not rows or set(rows[0]) != expected:
-        raise ValueError(f"Unexpected curve schema: {path}")
-    return rows
 
 
-def main() -> None:
-    """Validate compact results and regenerate the clean-room geometry figure."""
-    args = parse_args()
-    coverage = read_curve(RESULTS_DIR / "coverage_curve.csv")
-    posterior = read_curve(RESULTS_DIR / "max_posterior_weight_curve.csv")
-    manifest = json.loads((RESULTS_DIR / "geometry_manifest.json").read_text())
-    if manifest["reproduction_claim"] != "paper-derived clean-room reproduction":
-        raise ValueError("Unexpected reproduction claim")
-
+def _curve_arrays(
+    results_dir: Path,
+) -> tuple[np.ndarray, list[dict[str, str]], list[dict[str, str]]]:
+    """Read geometry curves from one explicit result directory."""
+    coverage = read_curve_csv(results_dir / "coverage_curve.csv")
+    posterior = read_curve_csv(results_dir / "max_posterior_weight_curve.csv")
     sigma = np.asarray([float(row["sigma"]) for row in coverage])
-    if tuple(sigma) != SIGMA_GRID:
-        raise ValueError("Committed sigma grid does not match package constant")
+    return sigma, coverage, posterior
 
+
+def plot_geometry(results_dir: Path, output_path: Path) -> None:
+    """Plot coverage and posterior concentration from one result directory."""
+    sigma, coverage, posterior = _curve_arrays(results_dir)
     fig, ax = plt.subplots(figsize=(8.6, 5.2), constrained_layout=True)
     for rows, label, color, marker in (
         (coverage, r"Coverage $C_\sigma(p, D)$", "#d97706", "s"),
@@ -91,14 +137,12 @@ def main() -> None:
         ax.plot(sigma, estimate, color=color, marker=marker, label=label)
         ax.fill_between(sigma, low, high, color=color, alpha=0.16)
     ax.axvspan(
-        2.0, 5.0, color="#b91c1c", alpha=0.10, label="paper-guided high-high region"
+        2.0,
+        5.0,
+        color="#b91c1c",
+        alpha=0.10,
+        label=r"clean-room high-high region ($q_C = q_W = 0.8$)",
     )
-    ax.set_xscale("log")
-    ax.set_xlim(sigma.min(), sigma.max())
-    ax.set_ylim(-0.03, 1.03)
-    ax.set_xlabel(r"Noise scale $\sigma$ (small to large)")
-    ax.set_ylabel("Probability / concentration")
-    ax.set_title("Clean-room reproduction of the paper's full-space geometry")
     for x_position, regime in (
         (0.12, "small noise"),
         (2.9, "medium noise"),
@@ -112,13 +156,22 @@ def main() -> None:
             fontsize=9,
             ha="center",
         )
+    ax.set_xscale("log")
+    ax.set_xlim(sigma.min(), sigma.max())
+    ax.set_ylim(-0.03, 1.03)
+    ax.set_xlabel(r"Noise scale $\sigma$ (small to large)")
+    ax.set_ylabel("Probability / concentration")
+    ax.set_title("Clean-room reproduction of the paper's full-space geometry")
     ax.grid(alpha=0.22, which="both")
     ax.legend(loc="center right")
-    args.output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(args.output_path, dpi=220)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=220)
     plt.close(fig)
-    print(f"Saved: {args.output_path}")
 
+
+def plot_comparison(results_dir: Path, output_path: Path) -> None:
+    """Plot paper geometry and the separate E005 transitions on one sigma axis."""
+    sigma, coverage, posterior = _curve_arrays(results_dir)
     transitions = json.loads(
         (
             REPO_ROOT
@@ -129,29 +182,7 @@ def main() -> None:
     )
     low = transitions["transitions"]["low_frequency_residual"]["4"]
     high = transitions["transitions"]["high_frequency_residual"]["4"]
-    e005_sigma = np.asarray(
-        [
-            80.0,
-            57.58598472124816,
-            40.78557379650796,
-            28.374584604156844,
-            19.35245298032523,
-            12.91008238075732,
-            8.400935309099817,
-            5.315194521796382,
-            3.256821519765537,
-            1.9233398370400518,
-            1.088170636545279,
-            0.5853481231945422,
-            0.29644228447915727,
-            0.13951646873101678,
-            0.05994731123547159,
-            0.022934518372333384,
-            0.0075280199627840785,
-            0.002000000000000003,
-        ]
-    )
-    comparison, axes = plt.subplots(
+    figure, axes = plt.subplots(
         2,
         1,
         figsize=(9.2, 8.2),
@@ -168,14 +199,14 @@ def main() -> None:
     axes[0].set_title("A. Paper geometry (clean-room full-space reproduction)")
 
     axes[1].plot(
-        e005_sigma,
+        E005_SIGMA_GRID,
         low["normalized_recovery"],
         color="#2563eb",
         marker="o",
         label="Low-frequency residual recovery",
     )
     axes[1].plot(
-        e005_sigma,
+        E005_SIGMA_GRID,
         high["normalized_recovery"],
         color="#be123c",
         marker="s",
@@ -204,20 +235,82 @@ def main() -> None:
             5.0,
             color="#b91c1c",
             alpha=0.10,
-            label="paper-guided high-high region",
+            label=r"clean-room high-high region ($q_C = q_W = 0.8$)",
         )
         axis.set_xscale("log")
-        axis.set_xlim(min(e005_sigma), max(sigma))
+        axis.set_xlim(min(E005_SIGMA_GRID), max(sigma))
         axis.grid(alpha=0.22, which="both")
     axes[0].legend(loc="center right")
     axes[1].legend(loc="center right", fontsize=9)
-    comparison.suptitle(
+    figure.suptitle(
         "Paper geometry and spectral residual transitions on a shared sigma axis"
     )
-    args.comparison_output_path.parent.mkdir(parents=True, exist_ok=True)
-    comparison.savefig(args.comparison_output_path, dpi=220)
-    plt.close(comparison)
-    print(f"Saved: {args.comparison_output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=220)
+    plt.close(figure)
+
+
+def run_plot_only(
+    results_dir: Path, geometry_figure: Path, comparison_figure: Path
+) -> None:
+    """Validate one result directory and regenerate both review figures."""
+    validate_results(results_dir)
+    plot_geometry(results_dir, geometry_figure)
+    plot_comparison(results_dir, comparison_figure)
+    print(f"Saved: {geometry_figure}")
+    print(f"Saved: {comparison_figure}")
+
+
+def main() -> None:
+    """Execute the requested E004A mode without changing scientific choices."""
+    args = parse_args()
+    mode = "compute" if args.compute else "validate" if args.validate_only else "plot"
+    if mode == "compute":
+        if args.dataset_root is None:
+            raise ValueError("--dataset-root is required with --compute")
+        output_dir = (args.output_dir or DEFAULT_REPRODUCTION_DIR).resolve()
+        manifest = compute_and_write(
+            config_path=args.config,
+            dataset_root=args.dataset_root,
+            output_dir=output_dir,
+            device=args.device,
+            repository_root=REPO_ROOT,
+            command=sys.argv,
+        )
+        config = load_config(args.config)
+        comparison_rows, comparison_summary = compare_reproduction(
+            fresh_dir=output_dir,
+            committed_dir=COMMITTED_RESULTS_DIR,
+            config=config,
+        )
+        write_comparison(output_dir, comparison_rows, comparison_summary)
+        figure_dir = output_dir / "figures"
+        run_plot_only(
+            output_dir,
+            figure_dir / "coverage_and_max_posterior_weight.png",
+            figure_dir / "geometry_and_spectral_transitions.png",
+        )
+        manifest = finalize_manifest(output_dir, comparison_summary)
+        print(
+            json.dumps(
+                {"manifest": manifest, "comparison": comparison_summary}, indent=2
+            )
+        )
+        return
+
+    results_dir = (args.output_dir or COMMITTED_RESULTS_DIR).resolve()
+    if mode == "validate":
+        print(json.dumps(validate_results(results_dir), indent=2))
+        return
+    run_plot_only(
+        results_dir,
+        args.geometry_figure or FIGURES_DIR / "coverage_and_max_posterior_weight.png",
+        args.comparison_figure
+        or REPO_ROOT
+        / "figures"
+        / "experiment_05"
+        / "geometry_and_spectral_transitions.png",
+    )
 
 
 if __name__ == "__main__":

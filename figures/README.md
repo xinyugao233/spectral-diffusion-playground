@@ -40,8 +40,8 @@ visible; the montages were not filtered after review.
 ## E004A: Paper Coverage-Concentration Geometry
 
 [`experiment_04a/`](experiment_04a/) contains the paper-derived clean-room
-coverage and maximum-posterior-weight figure. The red interval is a
-paper-guided clean-room high-high region based on frozen point-estimate
+coverage and maximum-posterior-weight figure. The red interval is the
+`clean-room high-high region (q_C = q_W = 0.8)` based on frozen point-estimate
 thresholds, not a boundary inferred from the E005 spectral curves.
 
 ## E005: Spectral Residual Curves

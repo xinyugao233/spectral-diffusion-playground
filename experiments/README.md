@@ -11,7 +11,7 @@ write explicit outputs.
 | `02_noise_vs_frequency.py` | Gaussian noise and radial spectral energy | Complete |
 | `03_frequency_decomposition.py` | Complementary low/high reconstruction | Complete |
 | `04_frequency_cutoff.py` | Deterministic CIFAR-10 cutoff review packet | Complete |
-| `04a_paper_geometry_curves.py` | Validate and plot the paper-derived clean-room coverage/concentration baseline | Complete |
+| `04a_paper_geometry_curves.py` | Compute, validate, or plot the paper-derived clean-room coverage/concentration baseline | Complete |
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
 | `06_transition_window_swaps.py` | Whole-denoiser transition-window swaps | Complete; formal outcome `INCONCLUSIVE` |
 
@@ -23,6 +23,11 @@ python experiments/02_noise_vs_frequency.py
 python experiments/03_frequency_decomposition.py
 python experiments/04_frequency_cutoff.py --dataset-root /path/to/cifar10
 python experiments/04a_paper_geometry_curves.py
+python experiments/04a_paper_geometry_curves.py --validate-only
+python experiments/04a_paper_geometry_curves.py --compute \
+  --dataset-root /path/to/cifar10 \
+  --output-dir results/experiment_04a_reproduction \
+  --device auto
 ```
 
 ## Model Experiments

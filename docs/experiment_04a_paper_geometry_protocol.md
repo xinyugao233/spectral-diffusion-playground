@@ -58,6 +58,65 @@ intervals resample corruption draws and examples. All computations are
 float64 except the originally generated standard-normal arrays, which used
 NumPy float32 before float64 distance evaluation.
 
+The executable configuration, including all ordered subset indices and their
+hashes, is [`configs/e004a_local_geometry.json`](../configs/e004a_local_geometry.json).
+The local evaluator verifies the six canonical CIFAR-10 batch hashes before
+computation and refuses to overwrite a nonempty output directory.
+
+## Independent Local Evaluation
+
+The committed curves can be regenerated numerically rather than treated as
+plotting inputs:
+
+```bash
+python experiments/04a_paper_geometry_curves.py \
+  --compute \
+  --dataset-root /path/to/cifar10 \
+  --output-dir results/experiment_04a_reproduction \
+  --device auto
+```
+
+The reference backend is NumPy/SciPy float64 on CPU. `--device auto` resolves
+to that oracle; an accelerator backend must not be substituted until it agrees
+with the oracle on the numerical tests. Pairwise clean distances and scalar
+noise cross-terms are batched along query and reference axes. No
+`queries x references x 3072` tensor is constructed.
+
+The modes are deliberately separate:
+
+- `--compute` regenerates numerical curves, uncertainty, validation,
+  comparison, manifests, and figures from CIFAR-10 and fresh deterministic
+  Gaussian corruptions;
+- `--plot-only` reads one explicit result directory and regenerates figures;
+- `--validate-only` checks schemas, ranges, finiteness, sigma identity, and the
+  sampled high-high set without computing or plotting.
+
+## Reproduction Agreement Rule
+
+The tolerance was frozen before the independent local run. For each metric and
+sigma, define the committed standard-error proxy as
+
+```text
+SE_committed = (CI_high - CI_low) / (2 * 1.96)
+```
+
+and accept agreement when
+
+```text
+|fresh - committed| <= max(
+    metric_absolute_floor,
+    3 * sqrt(SE_fresh^2 + SE_committed^2)
+)
+```
+
+The absolute floor is `0.01` for both coverage and maximum posterior weight.
+`SE_fresh` is the standard error across independent corruption-draw means.
+This rule allows expected Monte Carlo variation but remains strict enough to
+expose implementation, subset, normalization, or RNG discrepancies. Agreement
+is reported separately by metric and sigma. The sampled high-high set and the
+qualitative three-regime pattern are validated independently and are never
+forced to match.
+
 ## Paper-Guided Danger Region
 
 The paper defines the qualitative mechanism as simultaneous high coverage and
@@ -83,5 +142,6 @@ The spectral E005 transition windows never define or revise this region.
 - sigma/config/subset identities are recorded;
 - curve values and intervals are finite;
 - imported metrics match the validated hub source hash;
+- fresh local estimates satisfy the frozen reproduction rule or discrepancies
+  remain explicitly reported;
 - paper geometry and spectral curves remain visually and conceptually distinct.
-
