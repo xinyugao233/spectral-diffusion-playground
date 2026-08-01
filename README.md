@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 93 passing](https://img.shields.io/badge/tests-93%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 97 passing](https://img.shields.io/badge/tests-97%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -65,7 +65,7 @@ strongest descriptive association.
 | E004A | What are the paper's original two geometric curves? | [Coverage/concentration curves](figures/experiment_04a/coverage_and_max_posterior_weight.png) | Clean-room three-regime geometry; sampled high-high region at `sigma = 2..5` | Complete |
 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
 | E006 | Do swaps over those windows alter the memorization criterion? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Formal outcome `INCONCLUSIVE`; E005 low-frequency spectral transition is descriptively strongest | Complete |
-| E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; not executed |
+| E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -417,6 +417,11 @@ swap effect, but E006 remained formally `INCONCLUSIVE` and did not identify a
 memorization danger zone. A geometry-aligned whole-denoiser swap is specified
 separately as proposed E007 and has not been executed.
 
+E007 freezes a geometry-aligned target at indices `8..9`, but execution with
+the historical E006 model pair is blocked because the EDM-50K no-swap baseline
+is already known to be degenerate. A new nondegenerate model pair must be
+preregistered before an informative bidirectional swap experiment can be run.
+
 E006 swaps the **whole denoiser** during windows aligned with the E005
 frequency-band transitions. It does not intervene on `C_sigma`, `W_sigma`, or
 only the low- or high-frequency part of a denoiser output. The justified
@@ -466,7 +471,7 @@ to the full residual energy within the frozen tolerance.
 | E004A | [Source audit](docs/paper_geometry_source_audit.md) · [Protocol](docs/experiment_04a_paper_geometry_protocol.md) · [Results](docs/experiment_04a_paper_geometry_results.md) | [`results/experiment_04a/`](results/experiment_04a/) | [`figures/experiment_04a/`](figures/experiment_04a/) |
 | E005 | [Protocol](docs/experiment_05_spectral_residual_protocol.md) · [Model provenance](docs/experiment_05_clean_room_models.md) · [Results](docs/experiment_05_spectral_residual_results.md) | [`results/experiment_05/`](results/experiment_05/) | [`figures/experiment_05/`](figures/experiment_05/) |
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
-| E007 | [Proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Not executed | Not generated |
+| E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.

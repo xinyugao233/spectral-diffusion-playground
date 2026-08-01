@@ -79,6 +79,16 @@
     ],
     "source": "E005 low-frequency residual-energy curve at r=4"
   },
+  "e007_geometry_aligned_swap_target": {
+    "blocker": "historical EDM-50K no-swap baseline is 0/256",
+    "execution_status": "blocked",
+    "historical_e006_reinterpreted": false,
+    "indices": [
+      8,
+      9
+    ],
+    "role": "proposed geometry-aligned swap target"
+  },
   "paper_reported_medium_reference": {
     "defines_original_danger_zone": false,
     "historical_internal_key": "paper_medium_reference",

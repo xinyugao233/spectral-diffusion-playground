@@ -14,7 +14,7 @@ write explicit outputs.
 | `04a_paper_geometry_curves.py` | Compute, validate, or plot the paper-derived clean-room coverage/concentration baseline | Complete |
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
 | `06_transition_window_swaps.py` | Whole-denoiser transition-window swaps | Complete; formal outcome `INCONCLUSIVE` |
-| E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; not executed |
+| E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
 
 ## Local Foundations
 
@@ -49,8 +49,9 @@ Exact commands and identities are in the
 [E005 results](../docs/experiment_05_spectral_residual_results.md) and
 [E006 protocol](../docs/experiment_06_transition_swap_protocol.md).
 
-E007 is protocol-only and has not been executed. Its proposed geometry-aligned
-window is documented in
+E007 is protocol-only and has not been executed. Its geometry-aligned target
+is frozen, but the historical E006 model pair is blocked by the known EDM-50K
+`0/256` baseline. A baseline-only nondegenerate-model preflight is required by
 [`docs/experiment_07_geometry_aligned_swap_protocol.md`](../docs/experiment_07_geometry_aligned_swap_protocol.md).
 
 ## Output Discipline

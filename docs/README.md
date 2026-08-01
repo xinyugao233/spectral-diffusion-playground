@@ -47,11 +47,14 @@ high-frequency spectral transition did not.
 ## Region Definitions And Proposed E007
 
 1. [Canonical region-definition audit](danger_zone_definition_audit.md)
-2. [Proposed geometry-aligned E007 protocol](experiment_07_geometry_aligned_swap_protocol.md)
+2. [Blocked geometry-aligned E007 protocol](experiment_07_geometry_aligned_swap_protocol.md)
 
 The audit distinguishes the literature-derived paper medium reference, E005
 spectral transitions, and E004A clean-room geometric high-high set. E007 is
-`PROPOSED — NOT EXECUTED` and does not alter historical E006.
+`PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY` and does not alter
+historical E006. The target remains indices `8..9`, but the historical E006
+pair cannot support an informative bidirectional decision because its EDM-50K
+baseline is already `0/256`.
 
 ## Reading Order
 

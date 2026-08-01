@@ -33,6 +33,12 @@ swap effect, but E006 remained formally `INCONCLUSIVE` and did not identify a
 memorization danger zone. The newly computed E004A set cannot be retroactively
 substituted for an E006 condition or used to revise that outcome.
 
+The geometry-derived set remains a valid proposed E007 target, but the
+historical E006 model pair cannot support the proposed bidirectional decision:
+its EDM-50K no-swap baseline is already known to be `0/256`. E007 is blocked
+until a prospectively selected model pair passes a baseline-only
+nondegeneracy preflight.
+
 ## Overlap On The Frozen E006 Grid
 
 The E004A point-estimate and lower-bound high-high indices are both `{8,9}`.

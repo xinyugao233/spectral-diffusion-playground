@@ -118,6 +118,16 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         self.assertIn("q_C=q_W=0.8", geometry["source"])
         self.assertFalse(geometry["defines_universal_paper_boundary"])
 
+    def test_registry_records_blocked_e007_target(self) -> None:
+        target = self.registry["e007_geometry_aligned_swap_target"]
+        self.assertEqual(target["indices"], [8, 9])
+        self.assertEqual(target["execution_status"], "blocked")
+        self.assertEqual(
+            target["blocker"],
+            "historical EDM-50K no-swap baseline is 0/256",
+        )
+        self.assertFalse(target["historical_e006_reinterpreted"])
+
     def test_readme_preserves_inconclusive_historical_account(self) -> None:
         self.assertIn("formally `INCONCLUSIVE`", self.readme)
         self.assertIn("did not identify a\nmemorization danger zone", self.readme)
@@ -141,10 +151,42 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         )
         self.assertEqual(outcome["outcome"], "INCONCLUSIVE")
 
-    def test_e007_is_proposed_and_unexecuted(self) -> None:
-        self.assertIn("PROPOSED — NOT EXECUTED", self.e007_protocol)
+    def test_e007_is_blocked_and_unexecuted(self) -> None:
+        self.assertIn(
+            "PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY",
+            self.e007_protocol,
+        )
         self.assertIn("has not been executed", self.e007_protocol)
         self.assertNotIn("Status: completed", self.e007_protocol)
+
+    def test_e007_records_known_degenerate_baseline(self) -> None:
+        self.assertIn("EDM-50K no-swap baseline", self.e007_protocol)
+        self.assertIn("`0/256`", self.e007_protocol)
+        self.assertIn(
+            "must not be permitted to produce a non-`INCONCLUSIVE` classification",
+            self.e007_protocol,
+        )
+        self.assertNotIn("Hellbender", self.e007_protocol)
+        self.assertNotIn("compute access", self.e007_protocol.lower())
+
+    def test_e007_preserves_geometry_target_and_preflight_separation(self) -> None:
+        self.assertIn("exactly indices `8..9`", self.e007_protocol)
+        self.assertIn(
+            "`3.256821519765537` and `1.9233398370400518`",
+            self.e007_protocol,
+        )
+        self.assertIn("C_sigma lower 95% bound >= 0.8", self.e007_protocol)
+        self.assertIn("W_sigma lower 95% bound >= 0.8", self.e007_protocol)
+        self.assertIn("pilot seeds `10000..10127`", self.e007_protocol)
+        self.assertIn("confirmatory seeds `0..255`", self.e007_protocol)
+        self.assertIn("Do not generate or inspect geometry-target", self.e007_protocol)
+
+    def test_e007_optional_direction_has_no_primary_classification(self) -> None:
+        self.assertIn("Optional One-Direction Descriptive Analysis", self.e007_protocol)
+        self.assertIn(
+            "must not receive a\n`YES/PARTIAL/MIXED/NO` classification",
+            self.e007_protocol,
+        )
 
     def test_alignment_figure_exists(self) -> None:
         path = (
