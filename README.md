@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 84 passing](https://img.shields.io/badge/tests-84%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 93 passing](https://img.shields.io/badge/tests-93%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -32,16 +32,16 @@ noise, followed by the high-frequency residual at lower noise.
 
 ![EDM-1K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
 
-**Headline result:** the clean-room geometric high-high region at sampled
-`sigma` values `{2,3,4,5}` lies inside E005's low-frequency residual transition,
-while the high-frequency transition occurs later at lower noise. This is a
-descriptive alignment between distinct measurements, not a significance or
-causality result.
+**Headline result:** on the exact E006 schedule, the clean-room geometric
+high-high indices `{8,9}` at `q_C=q_W=0.8` lie inside E005's low-frequency
+spectral transition, while the high-frequency transition occurs later at lower
+noise. This is descriptive alignment between distinct measurements, not a
+significance or causality result.
 
 E006 then tests the spectral windows with whole-denoiser swaps. Its formal
 outcome is **`INCONCLUSIVE`** because the EDM-50K no-swap baseline is
-degenerate, while the low-transition window remains the strongest descriptive
-association.
+degenerate, while the E005 low-frequency spectral transition remains the
+strongest descriptive association.
 
 ![E006 transition windows versus width-matched controls](figures/experiment_06/experiment_06_transition_vs_controls.png)
 
@@ -64,7 +64,8 @@ association.
 | E004 | Which cutoff is a useful operational CIFAR-10 split? | [Cutoff montage](figures/experiment_04_cutoff_montage_classes_0_1.png) | Reference `r = 4`; sensitivity `r = 3, 5` | Complete |
 | E004A | What are the paper's original two geometric curves? | [Coverage/concentration curves](figures/experiment_04a/coverage_and_max_posterior_weight.png) | Clean-room three-regime geometry; sampled high-high region at `sigma = 2..5` | Complete |
 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
-| E006 | Do swaps over those windows alter the memorization criterion? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Formal outcome `INCONCLUSIVE`; low-transition result is descriptively strongest | Complete |
+| E006 | Do swaps over those windows alter the memorization criterion? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Formal outcome `INCONCLUSIVE`; E005 low-frequency spectral transition is descriptively strongest | Complete |
+| E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; not executed |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -186,8 +187,9 @@ The relationship motivates three qualitative regimes:
 
 - **Small noise:** posterior concentration is high, but held-out shell coverage
   is limited.
-- **Medium noise:** coverage and posterior concentration are simultaneously
-  high, producing the paper-guided candidate danger region.
+- **Medium noise:** coverage and posterior concentration can be simultaneously
+  high, producing a clean-room candidate geometric region under the explicit
+  thresholds `q_C = q_W = 0.8`.
 - **Large noise:** coverage is broad, but posterior concentration is weak.
 
 The paper does not provide a universal numerical boundary for these regimes.
@@ -195,6 +197,13 @@ The clean-room protocol froze exploratory thresholds `q_W = q_C = 0.8` before
 execution; sampled full-space point estimates are high-high at
 `sigma in {2,3,4,5}`. Continuous shading from `2` to `5` is visual only, and
 decisions use observed grid points without interpolation.
+
+Evaluating the same definitions directly on the exact 18-point E006 sampler
+grid selects indices `{8,9}`, at `sigma in {3.2568215, 1.9233398}`, under both
+the point-estimate and 95% lower-bound rules. This is the **E004A clean-room
+geometric high-high region** at `q_C=q_W=0.8`, not a universal paper boundary.
+
+![E004A geometry evaluated on the exact E006 schedule](figures/experiment_04a/e006_grid_geometry_alignment.png)
 
 This is a **paper-derived clean-room reproduction**, not an exact numerical
 reproduction. It uses the first 1,000 canonical CIFAR-10 training and test
@@ -340,30 +349,39 @@ flowchart LR
   setup. This is a descriptive coarse-to-fine residual pattern, not a learning
   dynamic or memorization result.
 
-### How The Spectral Curves Relate To The Paper's Danger Zone
+### Distinguishing Geometry, Spectral Transitions, And Literature Context
 
-The paper's danger-zone motivation comes from Gaussian-shell coverage and
+The paper's geometric motivation comes from Gaussian-shell coverage and
 posterior-weight concentration. E005's low- and high-frequency residual curves
 provide a separate spectral description of denoising error across the noise
 schedule. Their intersection, the space between them, and their 20%-to-80%
-windows do **not** define the original danger zone.
+windows do **not** define a geometric high-high region or an original paper
+boundary.
 
 ![Paper geometry and spectral transitions on a shared sigma axis](figures/experiment_05/geometry_and_spectral_transitions.png)
 
 Both panels use the same small-to-large log-scaled sigma orientation. The
 geometry uses a frozen 20-point grid; E005 uses its frozen 18-point EDM grid.
-No interpolation is used for decisions. Descriptively, the geometry's sampled
-high-high values `{2,3,4,5}` lie inside the E005 low-frequency transition
-`12.9101..0.585348`, while the high-frequency transition
-`0.585348..0.0599473` occurs later and does not overlap those sampled values.
-This comparison is not a statistical test and does not imply that low
-frequencies cause memorization.
+No interpolation is used for decisions. On the exact shared 18-point schedule,
+the E004A high-high indices `{8,9}` at `q_C=q_W=0.8` lie inside the E005
+low-frequency spectral transition `5..11` and the literature-derived
+paper-reported medium reference `6..13`. They do not overlap the E005
+high-frequency spectral transition `11..14`. This is descriptive set overlap,
+not a statistical or causal result.
 
 E006 tests trajectory intervals aligned with the **spectral** transitions by
 swapping the whole denoiser between EDM-1K and EDM-50K. It does not directly
 intervene on coverage, posterior weights, or isolated Fourier components. The
 formal E006 outcome remains **`INCONCLUSIVE`** because the EDM-50K no-swap
 baseline was degenerate at `0/256`.
+
+Before E004A, E006 used spectral transition windows and a paper-reported
+medium-window reference. These were useful intervention windows, but they were
+not derived from locally reconstructed coverage and posterior-weight curves.
+E004A now supplies that missing geometric baseline. E006 tested
+spectral-aligned windows and a literature-derived paper medium reference. It
+did not preregister a window from locally computed coverage and
+posterior-weight curves, because E004A did not yet exist.
 
 ## E006: Transition-Window Whole-Denoiser Swaps
 
@@ -380,25 +398,35 @@ evaluation, not a substitute for the aggregate decision rule.
 
 ![Representative E006 generated samples and nearest training neighbors](figures/experiment_06/experiment_06_generated_nn_pairs.png)
 
-- **Purpose:** Test whether the E005 windows matter under a causal model-swap
-  intervention.
+- **Purpose:** Test whether the E005 windows matter under a controlled
+  whole-denoiser swap intervention.
 - **Main artifact:** [Transition/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png),
   [memorization-rate chart](figures/experiment_06/experiment_06_memorization_rates.png),
   [paired-change chart](figures/experiment_06/experiment_06_paired_changes.png),
   and [validated results](docs/experiment_06_transition_window_swap_results.md).
 - **Takeaway:** The formal outcome is **`INCONCLUSIVE`** because the EDM-50K
-  baseline is degenerate at `0/256`. Descriptively, the low-transition window
-  passes the frozen influence criterion in both swap directions; the
-  high-transition window passes in neither.
+  baseline is degenerate at `0/256`. Descriptively, the E005 low-frequency
+  spectral transition passes the frozen influence criterion in both swap
+  directions; the E005 high-frequency spectral transition passes in neither.
 
 The descriptive result does not override the frozen outcome or establish a
 causal memorization interpretation for any sigma interval.
+
+The low-frequency spectral transition produced the strongest descriptive E006
+swap effect, but E006 remained formally `INCONCLUSIVE` and did not identify a
+memorization danger zone. A geometry-aligned whole-denoiser swap is specified
+separately as proposed E007 and has not been executed.
 
 E006 swaps the **whole denoiser** during windows aligned with the E005
 frequency-band transitions. It does not intervene on `C_sigma`, `W_sigma`, or
 only the low- or high-frequency part of a denoiser output. The justified
 descriptive statement is therefore about the trajectory interval, not a
 frequency-specific causal mechanism or validation of the paper's geometry.
+
+See the [region-definition audit](docs/danger_zone_definition_audit.md),
+[machine-readable registry](results/region_definition_registry.json), and
+[proposed E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md)
+for the exact historical distinctions.
 
 ## Mathematical Core
 
@@ -438,6 +466,7 @@ to the full residual energy within the frozen tolerance.
 | E004A | [Source audit](docs/paper_geometry_source_audit.md) · [Protocol](docs/experiment_04a_paper_geometry_protocol.md) · [Results](docs/experiment_04a_paper_geometry_results.md) | [`results/experiment_04a/`](results/experiment_04a/) | [`figures/experiment_04a/`](figures/experiment_04a/) |
 | E005 | [Protocol](docs/experiment_05_spectral_residual_protocol.md) · [Model provenance](docs/experiment_05_clean_room_models.md) · [Results](docs/experiment_05_spectral_residual_results.md) | [`results/experiment_05/`](results/experiment_05/) | [`figures/experiment_05/`](figures/experiment_05/) |
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
+| E007 | [Proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Not executed | Not generated |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.

@@ -4,9 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
+import platform
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/spectral-diffusion-e004a-matplotlib")
@@ -20,10 +24,19 @@ from spectral_diffusion_playground.paper_geometry import SIGMA_GRID
 from spectral_diffusion_playground.paper_geometry_evaluation import (
     compute_and_write,
     compare_reproduction,
+    evaluate_geometry,
     finalize_manifest,
     load_config,
+    load_cifar10_subsets,
     read_curve_csv,
+    resolve_device,
+    sha256_file,
+    subset_manifest_sha256,
     write_comparison,
+)
+from spectral_diffusion_playground.region_definitions import (
+    contiguous_components,
+    high_high_indices,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +44,10 @@ COMMITTED_RESULTS_DIR = REPO_ROOT / "results" / "experiment_04a"
 DEFAULT_REPRODUCTION_DIR = REPO_ROOT / "results" / "experiment_04a_reproduction"
 CONFIG_PATH = REPO_ROOT / "configs" / "e004a_local_geometry.json"
 FIGURES_DIR = REPO_ROOT / "figures" / "experiment_04a"
+E006_GRID_RESULTS = COMMITTED_RESULTS_DIR / "e006_grid_geometry.csv"
+E006_GRID_MANIFEST = COMMITTED_RESULTS_DIR / "e006_grid_geometry_manifest.json"
+E006_GRID_VALIDATION = COMMITTED_RESULTS_DIR / "e006_grid_geometry_validation.json"
+E006_GRID_FIGURE = FIGURES_DIR / "e006_grid_geometry_alignment.png"
 
 E005_SIGMA_GRID = np.asarray(
     [
@@ -61,6 +78,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--compute", action="store_true")
+    modes.add_argument("--compute-e006-grid", action="store_true")
     modes.add_argument("--plot-only", action="store_true")
     modes.add_argument("--validate-only", action="store_true")
     parser.add_argument("--dataset-root", type=Path)
@@ -78,6 +96,307 @@ def parse_args() -> argparse.Namespace:
         help="Override the comparison figure path in plot-only mode.",
     )
     return parser.parse_args()
+
+
+def _git_head() -> str:
+    """Return the repository commit recorded for a generated artifact."""
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _write_e006_grid_csv(path: Path, rows: list[dict[str, object]]) -> None:
+    """Write the frozen E006-grid geometry schema."""
+    fields = [
+        "sigma_index",
+        "sigma",
+        "coverage_estimate",
+        "coverage_ci95_low",
+        "coverage_ci95_high",
+        "posterior_weight_estimate",
+        "posterior_weight_ci95_low",
+        "posterior_weight_ci95_high",
+        "coverage_ge_q_c",
+        "posterior_weight_ge_q_w",
+        "high_high_point_estimate",
+        "high_high_lower_bound",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def plot_e006_grid_alignment(rows: list[dict[str, object]], output_path: Path) -> None:
+    """Plot evaluated geometry and historically distinct E005/E006 regions."""
+    sigma = np.asarray([float(row["sigma"]) for row in rows])
+    coverage = np.asarray([float(row["coverage_estimate"]) for row in rows])
+    coverage_low = np.asarray([float(row["coverage_ci95_low"]) for row in rows])
+    coverage_high = np.asarray([float(row["coverage_ci95_high"]) for row in rows])
+    posterior = np.asarray([float(row["posterior_weight_estimate"]) for row in rows])
+    posterior_low = np.asarray(
+        [float(row["posterior_weight_ci95_low"]) for row in rows]
+    )
+    posterior_high = np.asarray(
+        [float(row["posterior_weight_ci95_high"]) for row in rows]
+    )
+    point_mask = np.asarray([bool(row["high_high_point_estimate"]) for row in rows])
+
+    figure, axis = plt.subplots(figsize=(10.8, 6.4), constrained_layout=True)
+    axis.axvspan(
+        E005_SIGMA_GRID[13],
+        E005_SIGMA_GRID[6],
+        facecolor="#64748b",
+        alpha=0.10,
+        hatch="////",
+        edgecolor="#475569",
+        label="Table 1 / Figure 10 medium-window reference (indices 6..13)",
+    )
+    axis.axvspan(
+        E005_SIGMA_GRID[11],
+        E005_SIGMA_GRID[5],
+        color="#2563eb",
+        alpha=0.08,
+        label="E005 low-frequency spectral transition (indices 5..11)",
+    )
+    axis.axvspan(
+        E005_SIGMA_GRID[14],
+        E005_SIGMA_GRID[11],
+        color="#be123c",
+        alpha=0.08,
+        label="E005 high-frequency spectral transition (indices 11..14)",
+    )
+    for values, low, high, label, color, marker in (
+        (
+            coverage,
+            coverage_low,
+            coverage_high,
+            r"Coverage $C_\sigma(p,D)$",
+            "#d97706",
+            "s",
+        ),
+        (
+            posterior,
+            posterior_low,
+            posterior_high,
+            r"Max posterior weight $W_\sigma(D)$",
+            "#0f766e",
+            "o",
+        ),
+    ):
+        axis.plot(sigma, values, color=color, marker=marker, linewidth=2, label=label)
+        axis.fill_between(sigma, low, high, color=color, alpha=0.15)
+    axis.scatter(
+        sigma[point_mask],
+        np.full(np.count_nonzero(point_mask), 0.8),
+        marker="*",
+        s=180,
+        color="#111827",
+        edgecolor="white",
+        linewidth=0.8,
+        zorder=6,
+        label=r"E004A high-high evaluated points ($q_C=q_W=0.8$)",
+    )
+    axis.axhline(0.8, color="#111827", linestyle="--", linewidth=1, alpha=0.6)
+    axis.set_xscale("log")
+    axis.set_xlim(float(sigma.min()), float(sigma.max()))
+    axis.set_ylim(-0.03, 1.05)
+    axis.set_xlabel(r"Noise scale $\sigma$ (small to large)")
+    axis.set_ylabel("Probability / concentration")
+    axis.set_title("Geometry evaluated on the exact E006 schedule")
+    axis.grid(alpha=0.2, which="both")
+    axis.legend(loc="lower right", fontsize=8.5, framealpha=0.95)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=220)
+    plt.close(figure)
+
+
+def compute_e006_grid_geometry(dataset_root: Path, device: str) -> dict[str, object]:
+    """Evaluate E004A definitions directly at every frozen E006 sigma point."""
+    started = time.perf_counter()
+    config = load_config(CONFIG_PATH)
+    resolve_device(device)
+    dataset = config["dataset"]
+    training, test, dataset_hashes = load_cifar10_subsets(
+        dataset_root,
+        dataset["training_subset_indices"],
+        dataset["test_subset_indices"],
+        dataset["dataset_file_sha256"],
+    )
+    curves, numerical_validation = evaluate_geometry(
+        training,
+        test,
+        # The geometry oracle validates ascending grids; E006 records sampler
+        # calls in descending sigma order. Reverse only the returned sigma axis.
+        sigmas=E005_SIGMA_GRID[::-1],
+        shell_c=float(config["shell_c"]),
+        posterior_draws=int(config["posterior_corruption_draws"]),
+        coverage_draws=int(config["coverage_corruption_draws"]),
+        bootstrap_replicates=int(config["bootstrap_replicates"]),
+        seed=int(config["random_seed"]),
+        query_batch_size=int(config["query_batch_size"]),
+        reference_batch_size=int(config["reference_batch_size"]),
+    )
+    curves = {name: values[::-1] for name, values in curves.items()}
+    q_c = float(config["thresholds"]["coverage"])
+    q_w = float(config["thresholds"]["maximum_posterior_weight"])
+    rows: list[dict[str, object]] = []
+    for index, sigma in enumerate(E005_SIGMA_GRID):
+        coverage = float(curves["gaussian_shell_coverage"][index])
+        coverage_low = float(curves["gaussian_shell_coverage_ci95_low"][index])
+        posterior = float(curves["maximum_posterior_weight"][index])
+        posterior_low = float(curves["maximum_posterior_weight_ci95_low"][index])
+        rows.append(
+            {
+                "sigma_index": index,
+                "sigma": float(sigma),
+                "coverage_estimate": coverage,
+                "coverage_ci95_low": coverage_low,
+                "coverage_ci95_high": float(
+                    curves["gaussian_shell_coverage_ci95_high"][index]
+                ),
+                "posterior_weight_estimate": posterior,
+                "posterior_weight_ci95_low": posterior_low,
+                "posterior_weight_ci95_high": float(
+                    curves["maximum_posterior_weight_ci95_high"][index]
+                ),
+                "coverage_ge_q_c": coverage >= q_c,
+                "posterior_weight_ge_q_w": posterior >= q_w,
+                "high_high_point_estimate": coverage >= q_c and posterior >= q_w,
+                "high_high_lower_bound": coverage_low >= q_c and posterior_low >= q_w,
+            }
+        )
+
+    point_indices = high_high_indices(
+        [float(row["coverage_estimate"]) for row in rows],
+        [float(row["posterior_weight_estimate"]) for row in rows],
+        q_coverage=q_c,
+        q_posterior_weight=q_w,
+    )
+    lower_indices = high_high_indices(
+        [float(row["coverage_ci95_low"]) for row in rows],
+        [float(row["posterior_weight_ci95_low"]) for row in rows],
+        q_coverage=q_c,
+        q_posterior_weight=q_w,
+    )
+    validation = {
+        **numerical_validation,
+        "status": numerical_validation["status"],
+        "rows": len(rows),
+        "expected_rows": len(E005_SIGMA_GRID),
+        "all_numeric_values_finite": bool(
+            np.all(
+                np.isfinite(
+                    [
+                        float(value)
+                        for row in rows
+                        for key, value in row.items()
+                        if key
+                        not in {
+                            "coverage_ge_q_c",
+                            "posterior_weight_ge_q_w",
+                            "high_high_point_estimate",
+                            "high_high_lower_bound",
+                        }
+                    ]
+                )
+            )
+        ),
+        "classification_uses_evaluated_points_only": True,
+        "interpolation_used": False,
+        "gap_filling_used": False,
+    }
+    if (
+        validation["rows"] != validation["expected_rows"]
+        or not validation["all_numeric_values_finite"]
+    ):
+        validation["status"] = "fail"
+
+    COMMITTED_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    _write_e006_grid_csv(E006_GRID_RESULTS, rows)
+    E006_GRID_VALIDATION.write_text(
+        json.dumps(validation, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    plot_e006_grid_alignment(rows, E006_GRID_FIGURE)
+    manifest: dict[str, object] = {
+        "experiment_id": "E004A",
+        "artifact": "e006_grid_geometry",
+        "status": "completed" if validation["status"] == "pass" else "failed",
+        "reproduction_claim": "paper-derived clean-room evaluation",
+        "repository_commit_at_execution": _git_head(),
+        "runtime_seconds": time.perf_counter() - started,
+        "command": list(sys.argv),
+        "device_requested": device,
+        "device_resolved": "cpu",
+        "platform": platform.platform(),
+        "python": sys.version,
+        "numpy": np.__version__,
+        "source_config": str(CONFIG_PATH.relative_to(REPO_ROOT)),
+        "source_config_sha256": sha256_file(CONFIG_PATH),
+        "implementation_file_sha256": {
+            "experiments/04a_paper_geometry_curves.py": sha256_file(Path(__file__)),
+            "src/spectral_diffusion_playground/paper_geometry.py": sha256_file(
+                REPO_ROOT
+                / "src"
+                / "spectral_diffusion_playground"
+                / "paper_geometry.py"
+            ),
+            "src/spectral_diffusion_playground/paper_geometry_evaluation.py": sha256_file(
+                REPO_ROOT
+                / "src"
+                / "spectral_diffusion_playground"
+                / "paper_geometry_evaluation.py"
+            ),
+            "src/spectral_diffusion_playground/region_definitions.py": sha256_file(
+                REPO_ROOT
+                / "src"
+                / "spectral_diffusion_playground"
+                / "region_definitions.py"
+            ),
+        },
+        "dataset_root": str(dataset_root.expanduser().resolve()),
+        "dataset_file_sha256": dataset_hashes,
+        "normalization": dataset["normalization"],
+        "flattened_dimension": 3072,
+        "training_examples": len(training),
+        "test_examples": len(test),
+        "subset_sha256": subset_manifest_sha256(
+            dataset["training_subset_indices"], dataset["test_subset_indices"]
+        ),
+        "seed": config["random_seed"],
+        "shell_c": config["shell_c"],
+        "posterior_corruption_draws": config["posterior_corruption_draws"],
+        "coverage_corruption_draws": config["coverage_corruption_draws"],
+        "bootstrap_replicates": config["bootstrap_replicates"],
+        "query_batch_size": config["query_batch_size"],
+        "reference_batch_size": config["reference_batch_size"],
+        "thresholds": {"q_C": q_c, "q_W": q_w},
+        "sigma_grid": [float(value) for value in E005_SIGMA_GRID],
+        "classification_rule": (
+            "qualify evaluated points independently; no interpolation or gap filling"
+        ),
+        "clean_room_geometry_high_high_indices": point_indices,
+        "clean_room_geometry_high_high_components": contiguous_components(
+            point_indices
+        ),
+        "clean_room_geometry_high_high_lower_bound_indices": lower_indices,
+        "clean_room_geometry_high_high_lower_bound_components": contiguous_components(
+            lower_indices
+        ),
+        "outputs": {
+            "csv": str(E006_GRID_RESULTS.relative_to(REPO_ROOT)),
+            "validation": str(E006_GRID_VALIDATION.relative_to(REPO_ROOT)),
+            "figure": str(E006_GRID_FIGURE.relative_to(REPO_ROOT)),
+        },
+    }
+    E006_GRID_MANIFEST.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return manifest
 
 
 def validate_results(results_dir: Path) -> dict[str, object]:
@@ -264,6 +583,12 @@ def run_plot_only(
 def main() -> None:
     """Execute the requested E004A mode without changing scientific choices."""
     args = parse_args()
+    if args.compute_e006_grid:
+        if args.dataset_root is None:
+            raise ValueError("--dataset-root is required with --compute-e006-grid")
+        manifest = compute_e006_grid_geometry(args.dataset_root, args.device)
+        print(json.dumps(manifest, indent=2))
+        return
     mode = "compute" if args.compute else "validate" if args.validate_only else "plot"
     if mode == "compute":
         if args.dataset_root is None:

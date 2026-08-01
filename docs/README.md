@@ -22,6 +22,8 @@ optional extended sensitivity `r = 6`.
 Result: the paper's qualitative small-, medium-, and large-noise geometry is
 recovered in a deterministic clean-room setup. The sampled primary-threshold
 high-high region is `sigma in {2,3,4,5}`; it is not defined by E005.
+Direct evaluation on the exact E006 schedule selects indices `{8,9}` under
+both the point-estimate and 95% lower-bound rules at `q_C=q_W=0.8`.
 
 ## E005: Spectral Residual Curves
 
@@ -38,8 +40,18 @@ the frozen clean-room setup.
 2. [Validated swap results](experiment_06_transition_window_swap_results.md)
 
 Formal outcome: `INCONCLUSIVE` because the EDM-50K no-swap baseline was
-degenerate at `0/256`. Descriptively, the low-transition window passed the
-frozen influence test in both directions; the high-transition window did not.
+degenerate at `0/256`. Descriptively, the E005 low-frequency spectral
+transition passed the frozen influence test in both directions; the E005
+high-frequency spectral transition did not.
+
+## Region Definitions And Proposed E007
+
+1. [Canonical region-definition audit](danger_zone_definition_audit.md)
+2. [Proposed geometry-aligned E007 protocol](experiment_07_geometry_aligned_swap_protocol.md)
+
+The audit distinguishes the literature-derived paper medium reference, E005
+spectral transitions, and E004A clean-room geometric high-high set. E007 is
+`PROPOSED — NOT EXECUTED` and does not alter historical E006.
 
 ## Reading Order
 

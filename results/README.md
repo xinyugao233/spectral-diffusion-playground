@@ -42,6 +42,13 @@ It adds Monte Carlo standard errors, a per-sigma committed-versus-fresh
 comparison, complete execution provenance, and regenerated figures. Both
 metrics agree at every sigma under the tolerance frozen before execution.
 
+The three `e006_grid_geometry.*` files in
+[`experiment_04a/`](experiment_04a/) evaluate both E004A quantities directly
+on the exact 18-point E006 schedule. The point-estimate and lower-bound
+high-high sets are both indices `{8,9}` at `q_C=q_W=0.8`; no interpolation or
+gap filling is used. Canonical distinctions among all historical regions are
+stored in [`region_definition_registry.json`](region_definition_registry.json).
+
 ## E005: Spectral Residual Curves
 
 [`experiment_05/`](experiment_05/) contains aggregated curves, numerical
@@ -63,6 +70,10 @@ Generated samples, nearest-neighbor rows, and per-sample rows remain external
 at `/home/xggh8/data/zw-lab/e006_transition_window_swaps`. They are excluded
 from Git intentionally. See the
 [E006 results document](../docs/experiment_06_transition_window_swap_results.md).
+
+E006's internal `paper_medium_reference` key is retained for provenance. It is
+a literature-derived Table 1 / Figure 10 compatibility condition, not an
+E004A-derived geometry window.
 
 ## Artifact Policy
 

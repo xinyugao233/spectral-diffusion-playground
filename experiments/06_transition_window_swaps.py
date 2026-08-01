@@ -1305,7 +1305,7 @@ def plot_qualitative_pairs(
 
 
 def plot_paper_medium(paired: list[dict[str, object]], path: Path) -> None:
-    """Compare the paper-style medium reference with E005 windows."""
+    """Compare the paper-reported medium reference with E005 windows."""
     selected = [
         row
         for row in paired
@@ -1331,7 +1331,7 @@ def plot_paper_medium(paired: list[dict[str, object]], path: Path) -> None:
     ax.axhline(0.0, color="black", linewidth=1)
     ax.set_xticks(np.arange(len(selected)), names, rotation=50, ha="right")
     ax.set_ylabel("Paired memorization-rate change")
-    ax.set_title("E005 transitions and paper-style medium clean-room reference")
+    ax.set_title("E005 transitions and paper-reported medium reference")
     ax.grid(axis="y", alpha=0.25)
     fig.tight_layout()
     fig.savefig(path, dpi=180)
@@ -1354,6 +1354,9 @@ def short_condition(name: str) -> str:
         .replace("edm_50k_base__edm_1k_donor__", "50K→1K ")
         .replace("edm_1k_no_swap", "1K baseline")
         .replace("edm_50k_no_swap", "50K baseline")
+        .replace("paper_medium_reference", "paper-reported medium reference")
+        .replace("low_transition", "E005 low-frequency spectral transition")
+        .replace("high_transition", "E005 high-frequency spectral transition")
         .replace("_transition", " transition")
         .replace("_control", " control")
         .replace("_reference", " reference")
