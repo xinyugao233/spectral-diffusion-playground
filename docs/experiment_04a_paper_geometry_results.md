@@ -50,3 +50,35 @@ Durable identities and clean-room deviations are recorded in
 [`geometry_manifest.json`](../results/experiment_04a/geometry_manifest.json)
 and the [source audit](paper_geometry_source_audit.md).
 
+## Independent Local Reproduction
+
+The committed curves were independently regenerated from the hash-verified
+CIFAR-10 Python batches using implementation commit `432c371489961be3b55dea187bf8ea6951ffb9be`.
+This run loaded and normalized the frozen first 1,000 training and first 1,000
+test examples, generated fresh deterministic corruption arrays from seed `0`,
+and recomputed both metrics rather than reading committed estimates.
+
+```text
+device: CPU, NumPy/SciPy float64 oracle
+runtime: 3.3108 seconds
+peak resident memory: 441.8 MiB
+config SHA-256: cd1ab1afbde72d66465e3208c7c3627b69e93b87b614e2b7a613e4d08ec4be4a
+posterior normalization error max: 1.141309269314661e-13
+```
+
+Every sigma passes the frozen uncertainty-aware reproduction tolerance.
+Maximum absolute differences are:
+
+```text
+Gaussian-shell coverage:    1.1102230246251565e-16
+maximum posterior weight:   4.718447854656915e-16
+```
+
+The fresh sampled high-high set remains `{2,3,4,5}`, and the qualitative
+small-/medium-/large-noise picture is unchanged. This numerical agreement is
+specific to the frozen clean-room configuration and does not convert the
+result into an exact reproduction of the paper's unavailable execution.
+
+The fresh curves, per-sigma comparison, validation, manifest, and regenerated
+figures are committed under
+[`results/experiment_04a_reproduction/`](../results/experiment_04a_reproduction/).

@@ -36,6 +36,12 @@ Curve rows use the stable schema `sigma_index`, `sigma`, `metric`, `estimate`,
 `ci95_low`, `ci95_high`, `training_examples`, `query_examples`, `shell_c`,
 `subset_sha256`, `seed`, and `status`. All source values are finite.
 
+[`experiment_04a_reproduction/`](experiment_04a_reproduction/) contains a
+fresh end-to-end local computation from the hash-verified CIFAR-10 archive.
+It adds Monte Carlo standard errors, a per-sigma committed-versus-fresh
+comparison, complete execution provenance, and regenerated figures. Both
+metrics agree at every sigma under the tolerance frozen before execution.
+
 ## E005: Spectral Residual Curves
 
 [`experiment_05/`](experiment_05/) contains aggregated curves, numerical

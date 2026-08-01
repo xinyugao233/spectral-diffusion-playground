@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 78 passing](https://img.shields.io/badge/tests-78%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 84 passing](https://img.shields.io/badge/tests-84%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -218,6 +218,13 @@ This mode computes both curves from images and deterministic Gaussian draws;
 it does not use committed estimates as numerical inputs. `--plot-only` retains
 the lightweight figure-regeneration path, and `--validate-only` checks an
 existing result directory without recomputation.
+
+The recorded independent CPU run completed in 3.31 seconds with 441.8 MiB peak
+resident memory. Every sigma passed the tolerance frozen before execution;
+maximum absolute differences were `1.11e-16` for coverage and `4.72e-16` for
+maximum posterior weight. The sampled high-high set remained `{2,3,4,5}`.
+See the [fresh reproduction artifacts](results/experiment_04a_reproduction/)
+and [comparison record](results/experiment_04a_reproduction/reproduction_comparison.csv).
 
 ## E005: Low- And High-Frequency Residual Transitions
 
