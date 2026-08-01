@@ -1,0 +1,69 @@
+{
+  "experiment_id": "E004B",
+  "title": "Frequency-Restricted Gaussian-Shell Geometry",
+  "base_e004a_config": "configs/e004a_local_geometry.json",
+  "base_e004a_config_sha256": "cd1ab1afbde72d66465e3208c7c3627b69e93b87b614e2b7a613e4d08ec4be4a",
+  "dataset": {
+    "name": "CIFAR-10 Python batches",
+    "training_selection": "first 1000 canonical training images",
+    "test_selection": "first 1000 canonical test images",
+    "training_index_text_sha256": "8db91b2ee25d579493dbc2ca66417cc945e215b5424349884013834d43df7ac4",
+    "test_index_text_sha256": "8db91b2ee25d579493dbc2ca66417cc945e215b5424349884013834d43df7ac4",
+    "normalization": "x / 127.5 - 1.0",
+    "flattened_dimension": 3072,
+    "dataset_file_sha256": {
+      "data_batch_1": "54636561a3ce25bd3e19253c6b0d8538147b0ae398331ac4a2d86c6d987368cd",
+      "data_batch_2": "766b2cef9fbc745cf056b3152224f7cf77163b330ea9a15f9392beb8b89bc5a8",
+      "data_batch_3": "0f00d98ebfb30b3ec0ad19f9756dc2630b89003e10525f5e148445e82aa6a1f9",
+      "data_batch_4": "3f7bb240661948b8f4d53e36ec720d8306f5668bd0071dcb4e6c947f78e9682b",
+      "data_batch_5": "d91802434d8376bbaeeadf58a737e3a1b12ac839077e931237e0dcd43adcb154",
+      "test_batch": "f53d8d457504f7cff4ea9e021afcf0e0ad8e24a91f3fc42091b8adef61157831"
+    }
+  },
+  "fourier": {
+    "image_shape": [32, 32],
+    "channels": 3,
+    "fft_norm": "ortho",
+    "centered_radial_coordinates": true,
+    "inclusive_low_boundary": true,
+    "low_includes_dc": true,
+    "high_is_exact_complement": true,
+    "primary_cutoff": 4,
+    "sensitivity_cutoffs": [3, 5]
+  },
+  "sigma_grid": [
+    80.0,
+    57.58598472124816,
+    40.78557379650796,
+    28.374584604156844,
+    19.35245298032523,
+    12.91008238075732,
+    8.400935309099816,
+    5.315194521796382,
+    3.256821519765537,
+    1.9233398370400518,
+    1.088170636545279,
+    0.5853481231945422,
+    0.29644228447915727,
+    0.13951646873101678,
+    0.05994731123547159,
+    0.022934518372333384,
+    0.0075280199627840785,
+    0.002000000000000003
+  ],
+  "shell_c": 5,
+  "posterior_corruption_draws": 4,
+  "coverage_corruption_draws": 8,
+  "bootstrap_replicates": 500,
+  "random_seed": 0,
+  "query_batch_size": 100,
+  "reference_batch_size": 250,
+  "thresholds": {
+    "coverage": 0.8,
+    "maximum_posterior_weight": 0.8,
+    "primary_classification": "95% lower confidence bounds"
+  },
+  "noise_policy": "same full-dimensional Gaussian draws projected into every band and cutoff",
+  "distance_policy": "unscaled projected Euclidean distance",
+  "sigma_policy": "unchanged full-space sigma"
+}
