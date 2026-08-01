@@ -1,0 +1,10 @@
+{
+  "config_sha256": "cd1ab1afbde72d66465e3208c7c3627b69e93b87b614e2b7a613e4d08ec4be4a",
+  "coverage_values_in_unit_interval": true,
+  "curve_rows_per_metric": 20,
+  "nonfinite_values": 0,
+  "posterior_normalization_error_max": 1.141309269314661e-13,
+  "posterior_values_in_unit_interval": true,
+  "status": "pass",
+  "subset_sha256": "39cdd611c46acdedfeb2a9eff47187276afd83750dfdbeedcad04066e127893a"
+}

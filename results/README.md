@@ -23,6 +23,25 @@ scoring procedure was not completed. The final `r = 4` decision is documented
 as a single-reviewer qualitative result in
 [the decision record](../docs/experiment_04_frequency_cutoff_decision.md).
 
+## E004A: Paper Coverage-Concentration Geometry
+
+[`experiment_04a/`](experiment_04a/) contains the clean-room coverage curve,
+maximum-posterior-weight curve, validation record, and provenance manifest.
+The result is imported from the validated full-space gate in the shared
+research-context hub; the source hashes and deviations from the unavailable
+paper execution are recorded in the manifest and
+[source audit](../docs/paper_geometry_source_audit.md).
+
+Curve rows use the stable schema `sigma_index`, `sigma`, `metric`, `estimate`,
+`ci95_low`, `ci95_high`, `training_examples`, `query_examples`, `shell_c`,
+`subset_sha256`, `seed`, and `status`. All source values are finite.
+
+[`experiment_04a_reproduction/`](experiment_04a_reproduction/) contains a
+fresh end-to-end local computation from the hash-verified CIFAR-10 archive.
+It adds Monte Carlo standard errors, a per-sigma committed-versus-fresh
+comparison, complete execution provenance, and regenerated figures. Both
+metrics agree at every sigma under the tolerance frozen before execution.
+
 ## E005: Spectral Residual Curves
 
 [`experiment_05/`](experiment_05/) contains aggregated curves, numerical

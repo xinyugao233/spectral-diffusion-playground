@@ -1,0 +1,36 @@
+{
+  "expected_sampled_high_high_sigmas": [
+    2.0,
+    3.0,
+    4.0,
+    5.0
+  ],
+  "fresh_sampled_high_high_sigmas": [
+    2.0,
+    3.0,
+    4.0,
+    5.0
+  ],
+  "high_high_set_unchanged": true,
+  "metrics": {
+    "gaussian_shell_coverage": {
+      "all_within_tolerance": true,
+      "maximum_absolute_difference": 1.1102230246251565e-16
+    },
+    "maximum_posterior_weight": {
+      "all_within_tolerance": true,
+      "maximum_absolute_difference": 4.718447854656915e-16
+    }
+  },
+  "qualitative_three_regime_picture_unchanged": true,
+  "status": "pass",
+  "tolerance_policy": {
+    "absolute_floor": {
+      "gaussian_shell_coverage": 0.01,
+      "maximum_posterior_weight": 0.01
+    },
+    "committed_se_proxy": "(ci95_high - ci95_low) / (2 * 1.96)",
+    "policy": "max(absolute_floor, z_score * sqrt(fresh_mc_se^2 + committed_se_proxy^2))",
+    "z_score": 3
+  }
+}

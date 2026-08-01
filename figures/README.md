@@ -13,8 +13,9 @@ available plot:
 - E002 noise/frequency grid and normalized radial distribution;
 - E003 reconstruction grid and complementary residuals;
 - one representative E004 class-grouped cutoff montage;
+- the E004A coverage/posterior-concentration geometry;
 - both E005 low/high residual-curve figures and the frozen transition-window
-  extraction;
+  extraction, plus their comparison with the paper geometry;
 - E006 transition/control and generated/nearest-neighbor figures.
 
 Secondary figures remain linked from the corresponding experiment section and
@@ -36,14 +37,26 @@ The five `experiment_04_cutoff_montage_classes_*.png` files preserve all 20
 frozen CIFAR-10 examples and every candidate cutoff. Difficult examples remain
 visible; the montages were not filtered after review.
 
+## E004A: Paper Coverage-Concentration Geometry
+
+[`experiment_04a/`](experiment_04a/) contains the paper-derived clean-room
+coverage and maximum-posterior-weight figure. The red interval is the
+`clean-room high-high region (q_C = q_W = 0.8)` based on frozen point-estimate
+thresholds, not a boundary inferred from the E005 spectral curves.
+
 ## E005: Spectral Residual Curves
 
-[`experiment_05/`](experiment_05/) contains six final figures covering the
+[`experiment_05/`](experiment_05/) contains the six frozen E005 figures plus a
+new cross-analysis figure covering the
 EDM-1K and EDM-50K curves, train/test comparison, cutoff sensitivity,
 transition windows, and additivity diagnostics.
 
 The primary portfolio figure is
 [`experiment_05_edm1k_low_high_residual_curves.png`](experiment_05/experiment_05_edm1k_low_high_residual_curves.png).
+The cross-analysis figure
+[`geometry_and_spectral_transitions.png`](experiment_05/geometry_and_spectral_transitions.png)
+places the geometric and spectral measurements on a shared sigma orientation
+without interpolating either grid for decisions.
 
 ## E006: Transition-Window Swaps
 

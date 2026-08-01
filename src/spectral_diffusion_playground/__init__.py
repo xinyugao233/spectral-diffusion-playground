@@ -5,6 +5,8 @@ __all__ = [
     "filters",
     "frequency_cutoff",
     "noise",
+    "paper_geometry",
+    "paper_geometry_evaluation",
     "utils",
     "visualization",
 ]

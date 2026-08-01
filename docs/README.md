@@ -13,6 +13,16 @@ external data and checkpoints to exact hashes and commits.
 Result: operational reference `r = 4`, primary sensitivity `r = 3, 5`, and
 optional extended sensitivity `r = 6`.
 
+## E004A: Paper Coverage-Concentration Geometry
+
+1. [Paper definition and source audit](paper_geometry_source_audit.md)
+2. [Frozen clean-room protocol](experiment_04a_paper_geometry_protocol.md)
+3. [Validated clean-room results](experiment_04a_paper_geometry_results.md)
+
+Result: the paper's qualitative small-, medium-, and large-noise geometry is
+recovered in a deterministic clean-room setup. The sampled primary-threshold
+high-high region is `sigma in {2,3,4,5}`; it is not defined by E005.
+
 ## E005: Spectral Residual Curves
 
 1. [Frozen residual-energy protocol](experiment_05_spectral_residual_protocol.md)
@@ -34,7 +44,7 @@ frozen influence test in both directions; the high-transition window did not.
 ## Reading Order
 
 New readers should start with the [root README](../README.md), then read the
-E004 decision, E005 results, and E006 results. Reviewers auditing a specific
-experiment should read its protocol before its result document and then inspect
-the linked compact [`results/`](../results/) and [`figures/`](../figures/)
-directories.
+E004 decision, E004A source audit and results, E005 results, and E006 results.
+Reviewers auditing a specific experiment should read its protocol before its
+result document and then inspect the linked compact [`results/`](../results/)
+and [`figures/`](../figures/) directories.
