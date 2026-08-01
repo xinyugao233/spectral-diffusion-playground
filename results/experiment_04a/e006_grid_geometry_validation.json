@@ -1,0 +1,13 @@
+{
+  "all_numeric_values_finite": true,
+  "classification_uses_evaluated_points_only": true,
+  "coverage_values_in_unit_interval": true,
+  "expected_rows": 18,
+  "gap_filling_used": false,
+  "interpolation_used": false,
+  "nonfinite_values": 0,
+  "posterior_normalization_error_max": 1.1435297153639112e-13,
+  "posterior_values_in_unit_interval": true,
+  "rows": 18,
+  "status": "pass"
+}

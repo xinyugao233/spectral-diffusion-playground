@@ -1,0 +1,115 @@
+{
+  "e004a_clean_room_geometry_high_high": {
+    "defines_universal_paper_boundary": false,
+    "evaluated_grid": "E006 18-point EDM schedule",
+    "indices": [
+      8,
+      9
+    ],
+    "lower_confidence_bound_indices": [
+      8,
+      9
+    ],
+    "prohibited_interpretation": "universal or exact paper-defined danger-zone boundary",
+    "role": "clean-room candidate geometric region",
+    "selection_rule": "evaluated points with C_sigma >= 0.8 and W_sigma >= 0.8; no interpolation or gap filling",
+    "sigma_values": [
+      3.256821519765537,
+      1.9233398370400518
+    ],
+    "source": "E004A C_sigma and W_sigma with q_C=q_W=0.8"
+  },
+  "e005_combined_spectral_transition": {
+    "defines_original_danger_zone": false,
+    "indices": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "prohibited_interpretation": "geometric high-high region or proven memorization interval",
+    "role": "union of the two E005 spectral transitions",
+    "selection_rule": "inclusive union of the frozen low- and high-frequency transition indices",
+    "sigma_range": [
+      12.91008238075732,
+      0.05994731123547159
+    ],
+    "source": "E005 complementary residual-energy curves"
+  },
+  "e005_high_spectral_transition": {
+    "defines_original_danger_zone": false,
+    "indices": [
+      11,
+      12,
+      13,
+      14
+    ],
+    "prohibited_interpretation": "paper danger zone or proven fine-detail memorization interval",
+    "role": "high-frequency residual transition",
+    "selection_rule": "E005 frozen 20%-to-80% normalized residual-recovery rule",
+    "sigma_range": [
+      0.5853481231945422,
+      0.05994731123547159
+    ],
+    "source": "E005 high-frequency residual-energy curve at r=4"
+  },
+  "e005_low_spectral_transition": {
+    "defines_original_danger_zone": false,
+    "indices": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "prohibited_interpretation": "paper danger zone or proven low-frequency memorization interval",
+    "role": "low-frequency residual transition",
+    "selection_rule": "E005 frozen 20%-to-80% normalized residual-recovery rule",
+    "sigma_range": [
+      12.91008238075732,
+      0.5853481231945422
+    ],
+    "source": "E005 low-frequency residual-energy curve at r=4"
+  },
+  "e007_geometry_aligned_swap_target": {
+    "blocker": "historical EDM-50K no-swap baseline is 0/256",
+    "execution_status": "blocked",
+    "historical_e006_reinterpreted": false,
+    "indices": [
+      8,
+      9
+    ],
+    "role": "proposed geometry-aligned swap target"
+  },
+  "paper_reported_medium_reference": {
+    "defines_original_danger_zone": false,
+    "historical_internal_key": "paper_medium_reference",
+    "indices": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "prohibited_interpretation": "locally reconstructed E004A geometric boundary or unique paper boundary",
+    "role": "historical literature compatibility reference",
+    "selection_rule": "Table 1 / Figure 10 medium-window convention frozen before E006",
+    "sigma_range": [
+      8.400935309099816,
+      0.13951646873101678
+    ],
+    "source": "paper Table 1 / Figure 10"
+  },
+  "schema_version": 1
+}

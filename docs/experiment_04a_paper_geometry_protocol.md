@@ -117,7 +117,7 @@ is reported separately by metric and sigma. The sampled high-high set and the
 qualitative three-regime pattern are validated independently and are never
 forced to match.
 
-## Paper-Guided Danger Region
+## Clean-Room Geometric High-High Region
 
 The paper defines the qualitative mechanism as simultaneous high coverage and
 high posterior concentration. It does not provide a universal threshold or an
@@ -126,11 +126,19 @@ exact Figure 3 boundary.
 The clean-room run preregistered exploratory thresholds `q_W = q_C = 0.8` and
 sensitivity values `0.7` and `0.9`. At the primary threshold, the full-space
 point estimates are high-high at sampled sigma values `{2,3,4,5}`. Figures may
-shade the continuous interval `2 <= sigma <= 5` only as a **paper-guided
-clean-room high-high region**. The continuous shading is visual; decisions use
+shade the continuous interval `2 <= sigma <= 5` only as an **E004A clean-room
+geometric high-high region**. The continuous shading is visual; decisions use
 the observed grid points without interpolation.
 
 The spectral E005 transition windows never define or revise this region.
+
+For alignment with the historical E006 sampler, the same estimator is also
+evaluated directly at every point on the frozen 18-point E006 schedule. The
+result is stored in
+[`e006_grid_geometry.csv`](../results/experiment_04a/e006_grid_geometry.csv).
+Its classification uses only evaluated points, reports point estimates and
+lower confidence bounds separately, and prohibits interpolation or gap
+filling.
 
 ## Acceptance Gates
 

@@ -1,4 +1,4 @@
-# Experiment 6: Transition-Window Whole-Denoiser Swap Protocol
+# Experiment 6: Historical Spectral-Window Whole-Denoiser Swap Protocol
 
 ## Status
 
@@ -154,6 +154,12 @@ Primary transition windows:
 | `combined_transition` | `5..14` | `12.9101` to `0.0599473` | union of low/high windows |
 | `paper_medium_reference` | `6..13` | `8.40094` to `0.139516` | Table 1/Figure 10 clean-room reference |
 
+The table preserves frozen machine-readable keys. In human-facing text,
+`low_transition` means **E005 low-frequency spectral transition** and
+`paper_medium_reference` means **paper-reported medium reference**. The latter
+is literature compatibility context, not a boundary reconstructed from local
+coverage and posterior-weight curves.
+
 Width-matched controls:
 
 | Target | Width | Pre-window control | Post-window control |
@@ -184,6 +190,17 @@ The paper reports multiple medium-region conventions:
 Because the original executed swap configuration was not recovered, E006 uses
 `paper_medium_reference = 6..13` as a clean-room Table 1/Figure 10 reference.
 This is a compatibility reference, not evidence of original code identity.
+
+## Historical Clarification Added After Execution
+
+E006 tested spectral-aligned windows and a literature-derived paper medium
+reference. It did not preregister a window from locally computed coverage and
+posterior-weight curves, because E004A did not yet exist.
+
+This clarification does not change any frozen condition, decision rule, or
+result. The formal E006 outcome was `INCONCLUSIVE`; therefore E006 did not
+identify a memorization danger zone. The low-frequency spectral transition is
+only the strongest descriptive E006 swap finding.
 
 ## Memorization Evaluation
 

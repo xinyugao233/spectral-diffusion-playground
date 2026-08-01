@@ -87,3 +87,28 @@ result into an exact reproduction of the paper's unavailable execution.
 The fresh curves, per-sigma comparison, validation, manifest, and regenerated
 figures are committed under
 [`results/experiment_04a_reproduction/`](../results/experiment_04a_reproduction/).
+
+## Exact E006-Grid Evaluation
+
+The E004A estimator was additionally run directly at all 18 E006 sampler
+sigmas. At the preregistered clean-room thresholds `q_C=q_W=0.8`, indices
+`{8,9}` qualify, corresponding to `sigma={3.2568215,1.9233398}`. The 95% lower
+confidence bounds produce the same set. Classification uses evaluated points
+only, with no interpolation or gap filling.
+
+The set overlaps the paper-reported medium reference `6..13` and the E005
+low-frequency spectral transition `5..11`, but not the E005 high-frequency
+spectral transition `11..14`. These are descriptive set relationships among
+different definitions. The result does not retroactively alter E006 and does
+not establish a universal paper boundary.
+
+```bash
+python experiments/04a_paper_geometry_curves.py \
+  --compute-e006-grid \
+  --dataset-root /path/to/cifar10 \
+  --device auto
+```
+
+See the [alignment figure](../figures/experiment_04a/e006_grid_geometry_alignment.png),
+[manifest](../results/experiment_04a/e006_grid_geometry_manifest.json), and
+[region-definition audit](danger_zone_definition_audit.md).

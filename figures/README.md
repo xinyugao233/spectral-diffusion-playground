@@ -44,6 +44,11 @@ coverage and maximum-posterior-weight figure. The red interval is the
 `clean-room high-high region (q_C = q_W = 0.8)` based on frozen point-estimate
 thresholds, not a boundary inferred from the E005 spectral curves.
 
+[`e006_grid_geometry_alignment.png`](experiment_04a/e006_grid_geometry_alignment.png)
+uses the exact E006 sigma schedule and deliberately encodes the E004A
+high-high points, E005 spectral transitions, and paper-reported medium
+reference differently so they cannot be read as interchangeable definitions.
+
 ## E005: Spectral Residual Curves
 
 [`experiment_05/`](experiment_05/) contains the six frozen E005 figures plus a
@@ -58,16 +63,17 @@ The cross-analysis figure
 places the geometric and spectral measurements on a shared sigma orientation
 without interpolating either grid for decisions.
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 [`experiment_06/`](experiment_06/) contains six final figures covering
 memorization rates, paired changes, transition/control comparisons,
-nearest-neighbor ratios, the paper-style medium reference, and deterministic
+nearest-neighbor ratios, the paper-reported medium reference, and deterministic
 generated/nearest-neighbor pairs.
 
 The formal E006 outcome remains `INCONCLUSIVE`. The figures support only the
-documented descriptive finding that the low-transition window was the tested
-window most strongly associated with changes in the memorization criterion.
+documented descriptive finding that the E005 low-frequency spectral transition
+was the tested window most strongly associated with changes in the
+memorization criterion.
 
 ## Figure Policy
 

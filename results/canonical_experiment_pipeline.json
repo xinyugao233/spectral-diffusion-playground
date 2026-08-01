@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "stage_1_cutoff": {
+    "experiment": "E004",
+    "reference_cutoff": 4,
+    "sensitivity_cutoffs": [
+      3,
+      5
+    ]
+  },
+  "stage_2_geometry": {
+    "experiment": "E004A",
+    "primary_rule": "95% lower confidence bounds",
+    "selection_metrics": [
+      "C_sigma",
+      "W_sigma"
+    ],
+    "target_indices": [
+      8,
+      9
+    ],
+    "thresholds": {
+      "q_C": 0.8,
+      "q_W": 0.8
+    }
+  },
+  "stage_3_spectral_interpretation": {
+    "cutoff": 4,
+    "defines_danger_zone": false,
+    "experiment": "E005",
+    "high_transition": [
+      11,
+      14
+    ],
+    "low_transition": [
+      5,
+      11
+    ]
+  },
+  "stage_4_historical_swap": {
+    "experiment": "E006",
+    "formal_outcome": "INCONCLUSIVE",
+    "role": "exploratory spectral-aligned intervention",
+    "tested_geometry_defined_target": false
+  },
+  "stage_5_geometry_swap": {
+    "blocker": "historical EDM-50K baseline is 0/256",
+    "experiment": "E007",
+    "post_control": [
+      10,
+      11
+    ],
+    "pre_control": [
+      6,
+      7
+    ],
+    "status": "blocked",
+    "target_indices": [
+      8,
+      9
+    ]
+  }
+}

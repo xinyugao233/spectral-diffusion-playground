@@ -4,6 +4,10 @@ This directory contains compact, machine-readable outputs intended for code
 review, plotting, and provenance checks. Large raw arrays, generated samples,
 downloaded datasets, and checkpoints remain outside Git.
 
+The [canonical pipeline registry](canonical_experiment_pipeline.json) records
+the ordered E004-E007 roles, the geometry-selected target, the distinction
+between selection and spectral interpretation, and the current E007 blocker.
+
 ## E004: Operational Frequency Cutoff
 
 Files stored directly under `results/`:
@@ -42,6 +46,13 @@ It adds Monte Carlo standard errors, a per-sigma committed-versus-fresh
 comparison, complete execution provenance, and regenerated figures. Both
 metrics agree at every sigma under the tolerance frozen before execution.
 
+The three `e006_grid_geometry.*` files in
+[`experiment_04a/`](experiment_04a/) evaluate both E004A quantities directly
+on the exact 18-point E006 schedule. The point-estimate and lower-bound
+high-high sets are both indices `{8,9}` at `q_C=q_W=0.8`; no interpolation or
+gap filling is used. Canonical distinctions among all historical regions are
+stored in [`region_definition_registry.json`](region_definition_registry.json).
+
 ## E005: Spectral Residual Curves
 
 [`experiment_05/`](experiment_05/) contains aggregated curves, numerical
@@ -53,7 +64,7 @@ The 2,304,000-row per-sample residual table remains external at
 reproduction command are recorded in the
 [E005 results document](../docs/experiment_05_spectral_residual_results.md).
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 [`experiment_06/`](experiment_06/) contains condition summaries, paired
 comparisons, the frozen `INCONCLUSIVE` outcome, validation and failure records,
@@ -63,6 +74,10 @@ Generated samples, nearest-neighbor rows, and per-sample rows remain external
 at `/home/xggh8/data/zw-lab/e006_transition_window_swaps`. They are excluded
 from Git intentionally. See the
 [E006 results document](../docs/experiment_06_transition_window_swap_results.md).
+
+E006's internal `paper_medium_reference` key is retained for provenance. It is
+a literature-derived Table 1 / Figure 10 compatibility condition, not an
+E004A-derived geometry window.
 
 ## Artifact Policy
 

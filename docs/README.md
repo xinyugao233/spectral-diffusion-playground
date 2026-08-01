@@ -4,6 +4,10 @@ Protocols freeze decisions before execution. Result documents report the
 validated run without changing those decisions. Provenance documents connect
 external data and checkpoints to exact hashes and commits.
 
+Start with the [canonical experimental pipeline](canonical_experiment_pipeline.md).
+It freezes the order E004 cutoff -> E004A geometry selection -> E005 spectral
+interpretation -> historical E006 exploration -> final E007 intervention.
+
 ## E004: Operational CIFAR-10 Cutoff
 
 1. [Frozen cutoff-selection protocol](experiment_04_frequency_cutoff_protocol.md)
@@ -22,6 +26,8 @@ optional extended sensitivity `r = 6`.
 Result: the paper's qualitative small-, medium-, and large-noise geometry is
 recovered in a deterministic clean-room setup. The sampled primary-threshold
 high-high region is `sigma in {2,3,4,5}`; it is not defined by E005.
+Direct evaluation on the exact E006 schedule selects indices `{8,9}` under
+both the point-estimate and 95% lower-bound rules at `q_C=q_W=0.8`.
 
 ## E005: Spectral Residual Curves
 
@@ -32,19 +38,38 @@ high-high region is `sigma in {2,3,4,5}`; it is not defined by E005.
 Result: an ordered low-frequency then high-frequency residual transition under
 the frozen clean-room setup.
 
-## E006: Transition-Window Swaps
+## E006: Historical Spectral-Window Swaps
 
 1. [Frozen whole-denoiser swap protocol](experiment_06_transition_swap_protocol.md)
 2. [Validated swap results](experiment_06_transition_window_swap_results.md)
 
 Formal outcome: `INCONCLUSIVE` because the EDM-50K no-swap baseline was
-degenerate at `0/256`. Descriptively, the low-transition window passed the
-frozen influence test in both directions; the high-transition window did not.
+degenerate at `0/256`. Descriptively, the E005 low-frequency spectral
+transition passed the frozen influence test in both directions; the E005
+high-frequency spectral transition did not.
+
+## Region Definitions And Proposed E007
+
+1. [Canonical region-definition audit](danger_zone_definition_audit.md)
+2. [Blocked geometry-aligned E007 protocol](experiment_07_geometry_aligned_swap_protocol.md)
+
+The audit distinguishes the literature-derived paper medium reference, E005
+spectral transitions, and E004A clean-room geometric high-high set. E007 is
+`PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY` and does not alter
+historical E006. The target remains indices `8..9`, but the historical E006
+pair cannot support an informative bidirectional decision because its EDM-50K
+baseline is already `0/256`.
+
+The main scientific chain remains incomplete until E007 or an equivalent
+preregistered geometry-aligned swap is executed with a nondegenerate model
+pair. E004A selects the candidate region; E005 interprets its spectral
+location; historical E006 does not substitute for that final test.
 
 ## Reading Order
 
-New readers should start with the [root README](../README.md), then read the
-E004 decision, E004A source audit and results, E005 results, and E006 results.
+New readers should start with the [root README](../README.md), then the
+canonical pipeline, E004 decision, E004A source audit and results, E005
+results, historical E006 results, and blocked E007 protocol.
 Reviewers auditing a specific experiment should read its protocol before its
 result document and then inspect the linked compact [`results/`](../results/)
 and [`figures/`](../figures/) directories.

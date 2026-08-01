@@ -13,7 +13,8 @@ write explicit outputs.
 | `04_frequency_cutoff.py` | Deterministic CIFAR-10 cutoff review packet | Complete |
 | `04a_paper_geometry_curves.py` | Compute, validate, or plot the paper-derived clean-room coverage/concentration baseline | Complete |
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
-| `06_transition_window_swaps.py` | Whole-denoiser transition-window swaps | Complete; formal outcome `INCONCLUSIVE` |
+| `06_transition_window_swaps.py` | Historical spectral-window swaps | Complete; exploratory outcome `INCONCLUSIVE` |
+| E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
 
 ## Local Foundations
 
@@ -27,6 +28,9 @@ python experiments/04a_paper_geometry_curves.py --validate-only
 python experiments/04a_paper_geometry_curves.py --compute \
   --dataset-root /path/to/cifar10 \
   --output-dir results/experiment_04a_reproduction \
+  --device auto
+python experiments/04a_paper_geometry_curves.py --compute-e006-grid \
+  --dataset-root /path/to/cifar10 \
   --device auto
 ```
 
@@ -44,6 +48,16 @@ scripts/e006_eval_transition_swaps.slurm
 Exact commands and identities are in the
 [E005 results](../docs/experiment_05_spectral_residual_results.md) and
 [E006 protocol](../docs/experiment_06_transition_swap_protocol.md).
+
+E007 is protocol-only and has not been executed. Its geometry-aligned target
+is frozen, but the historical E006 model pair is blocked by the known EDM-50K
+`0/256` baseline. A baseline-only nondegenerate-model preflight is required by
+[`docs/experiment_07_geometry_aligned_swap_protocol.md`](../docs/experiment_07_geometry_aligned_swap_protocol.md).
+
+The canonical order is documented in
+[`docs/canonical_experiment_pipeline.md`](../docs/canonical_experiment_pipeline.md).
+E004A selects target `8..9`; E005 only interprets its spectral location; E006
+is historical exploratory evidence; E007 is the required final intervention.
 
 ## Output Discipline
 
