@@ -5,8 +5,9 @@ review, plotting, and provenance checks. Large raw arrays, generated samples,
 downloaded datasets, and checkpoints remain outside Git.
 
 The [canonical pipeline registry](canonical_experiment_pipeline.json) records
-the ordered E004-E007 roles, the geometry-selected target, the distinction
-between selection and spectral interpretation, and the current E007 blocker.
+the ordered E004-E008 roles, full-space and band-specific geometry targets,
+the distinction between selection and spectral interpretation, and the
+current intervention blockers.
 
 ## E004: Operational Frequency Cutoff
 
@@ -52,6 +53,14 @@ on the exact 18-point E006 schedule. The point-estimate and lower-bound
 high-high sets are both indices `{8,9}` at `q_C=q_W=0.8`; no interpolation or
 gap filling is used. Canonical distinctions among all historical regions are
 stored in [`region_definition_registry.json`](region_definition_registry.json).
+
+## E004B: Frequency-Restricted Geometry
+
+[`experiment_04b/`](experiment_04b/) contains 108 finite curve rows, the
+primary target summary, cutoff sensitivity, numerical projection validation,
+and complete local provenance. At `r=4`, the lower-confidence-bound targets
+are low `{8}` and high `{9,10}`. The high lower-bound target narrows to `{10}`
+at sensitivity cutoff `r=5`; this is retained as a documented limitation.
 
 ## E005: Spectral Residual Curves
 

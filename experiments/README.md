@@ -12,9 +12,11 @@ write explicit outputs.
 | `03_frequency_decomposition.py` | Complementary low/high reconstruction | Complete |
 | `04_frequency_cutoff.py` | Deterministic CIFAR-10 cutoff review packet | Complete |
 | `04a_paper_geometry_curves.py` | Compute, validate, or plot the paper-derived clean-room coverage/concentration baseline | Complete |
+| `04b_frequency_restricted_geometry.py` | Compute coverage/concentration separately in frozen low/high Fourier subspaces | Complete |
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
 | `06_transition_window_swaps.py` | Historical spectral-window swaps | Complete; exploratory outcome `INCONCLUSIVE` |
 | E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
+| E008 protocol only | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
 
 ## Local Foundations
 
@@ -32,6 +34,11 @@ python experiments/04a_paper_geometry_curves.py --compute \
 python experiments/04a_paper_geometry_curves.py --compute-e006-grid \
   --dataset-root /path/to/cifar10 \
   --device auto
+python experiments/04b_frequency_restricted_geometry.py --compute \
+  --dataset-root /path/to/cifar10 \
+  --output-dir results/experiment_04b_reproduction \
+  --figure-dir figures/experiment_04b_reproduction \
+  --device cpu --cutoffs 3 4 5
 ```
 
 ## Model Experiments
@@ -54,10 +61,16 @@ is frozen, but the historical E006 model pair is blocked by the known EDM-50K
 `0/256` baseline. A baseline-only nondegenerate-model preflight is required by
 [`docs/experiment_07_geometry_aligned_swap_protocol.md`](../docs/experiment_07_geometry_aligned_swap_protocol.md).
 
+E008 is also protocol-only. It proposes whole-denoiser swaps over the E004B
+low target `8..8` and high target `9..10`; no E008 computation or model work
+has begun. See
+[`docs/experiment_08_frequency_geometry_swap_protocol.md`](../docs/experiment_08_frequency_geometry_swap_protocol.md).
+
 The canonical order is documented in
 [`docs/canonical_experiment_pipeline.md`](../docs/canonical_experiment_pipeline.md).
-E004A selects target `8..9`; E005 only interprets its spectral location; E006
-is historical exploratory evidence; E007 is the required final intervention.
+E004A selects the full-space target `8..9`; E004B independently selects
+band-specific geometry targets; E005 provides residual-energy interpretation;
+E006 is historical exploratory evidence; E007 and E008 remain proposed.
 
 ## Output Discipline
 

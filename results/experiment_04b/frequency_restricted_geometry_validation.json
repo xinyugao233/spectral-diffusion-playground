@@ -1,0 +1,113 @@
+{
+  "cutoffs": {
+    "3": {
+      "bands": {
+        "high": {
+          "band_dimension": 2985,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 1.1013601579509182e-15,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 1.141309269314661e-13,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        },
+        "low": {
+          "band_dimension": 87,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 3.33559830972857e-16,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 7.105427357601002e-15,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        }
+      },
+      "coverage_noise_sha256": "67278ea0973f4e1448db772bdd236a2026290a513e8b1014df9dc680a743be70",
+      "dc_in_low_band": true,
+      "high_idempotence_error_max": 6.661338147750939e-16,
+      "low_idempotence_error_max": 8.881784197001252e-16,
+      "mask_binary": true,
+      "mask_conjugate_symmetric": true,
+      "mask_exact_complement": true,
+      "maximum_inverse_fft_imaginary_residual": 2.5027832077087384e-16,
+      "orthogonality_inner_product_max": 5.329070518200751e-15,
+      "parseval_energy_error_max": 9.094947017729282e-13,
+      "posterior_noise_sha256": "2b8daf93bd7abcae3bb07bd5bdb863d89054547d365efc0c2342e50cb19ba1c2",
+      "rank_sum": 3072,
+      "reconstruction_error_max": 9.71445146547012e-16,
+      "status": "pass"
+    },
+    "4": {
+      "bands": {
+        "high": {
+          "band_dimension": 2925,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 9.840868309058549e-16,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 1.141309269314661e-13,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        },
+        "low": {
+          "band_dimension": 147,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 3.2982363996765265e-16,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 7.66053886991358e-15,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        }
+      },
+      "coverage_noise_sha256": "67278ea0973f4e1448db772bdd236a2026290a513e8b1014df9dc680a743be70",
+      "dc_in_low_band": true,
+      "high_idempotence_error_max": 5.551115123125783e-16,
+      "low_idempotence_error_max": 1.1102230246251565e-15,
+      "mask_binary": true,
+      "mask_conjugate_symmetric": true,
+      "mask_exact_complement": true,
+      "maximum_inverse_fft_imaginary_residual": 2.334218455516414e-16,
+      "orthogonality_inner_product_max": 6.217248937900877e-15,
+      "parseval_energy_error_max": 1.1368683772161603e-12,
+      "posterior_noise_sha256": "2b8daf93bd7abcae3bb07bd5bdb863d89054547d365efc0c2342e50cb19ba1c2",
+      "rank_sum": 3072,
+      "reconstruction_error_max": 9.367506770274758e-16,
+      "status": "pass"
+    },
+    "5": {
+      "bands": {
+        "high": {
+          "band_dimension": 2829,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 1.0344378859522682e-15,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 1.142419492339286e-13,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        },
+        "low": {
+          "band_dimension": 243,
+          "coverage_values_in_unit_interval": true,
+          "maximum_inverse_fft_imaginary_residual": 4.167039143959404e-16,
+          "nonfinite_values": 0,
+          "posterior_normalization_error_max": 1.4654943925052066e-14,
+          "posterior_values_in_unit_interval": true,
+          "status": "pass"
+        }
+      },
+      "coverage_noise_sha256": "67278ea0973f4e1448db772bdd236a2026290a513e8b1014df9dc680a743be70",
+      "dc_in_low_band": true,
+      "high_idempotence_error_max": 4.440892098500626e-16,
+      "low_idempotence_error_max": 9.992007221626409e-16,
+      "mask_binary": true,
+      "mask_conjugate_symmetric": true,
+      "mask_exact_complement": true,
+      "maximum_inverse_fft_imaginary_residual": 2.580655134418625e-16,
+      "orthogonality_inner_product_max": 5.773159728050814e-15,
+      "parseval_energy_error_max": 9.094947017729282e-13,
+      "posterior_noise_sha256": "2b8daf93bd7abcae3bb07bd5bdb863d89054547d365efc0c2342e50cb19ba1c2",
+      "rank_sum": 3072,
+      "reconstruction_error_max": 9.402201239794294e-16,
+      "status": "pass"
+    }
+  },
+  "status": "pass"
+}

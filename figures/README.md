@@ -14,6 +14,7 @@ available plot:
 - E003 reconstruction grid and complementary residuals;
 - one representative E004 class-grouped cutoff montage;
 - the E004A coverage/posterior-concentration geometry;
+- the E004B low/high frequency-restricted geometry;
 - both E005 low/high residual-curve figures and the frozen transition-window
   extraction, plus their comparison with the paper geometry;
 - E006 transition/control and generated/nearest-neighbor figures.
@@ -48,6 +49,14 @@ thresholds, not a boundary inferred from the E005 spectral curves.
 uses the exact E006 sigma schedule and deliberately encodes the E004A
 high-high points, E005 spectral transitions, and paper-reported medium
 reference differently so they cannot be read as interchangeable definitions.
+
+## E004B: Frequency-Restricted Geometry
+
+[`experiment_04b/`](experiment_04b/) contains five figures: separate low- and
+high-band coverage/posterior curves, a direct band comparison, alignment with
+the E004A and E005 index sets, and cutoff sensitivity for `r=3,4,5`. Target
+shading uses the frozen lower-confidence-bound rule. These are geometric
+subspace curves, not denoising residual-energy curves or intervention results.
 
 ## E005: Spectral Residual Curves
 

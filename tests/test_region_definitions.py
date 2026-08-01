@@ -158,27 +158,31 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         )
         self.assertFalse(target["historical_e006_reinterpreted"])
 
-    def test_canonical_pipeline_has_five_ordered_stages(self) -> None:
-        expected = ["E004", "E004A", "E005", "E006", "E007"]
+    def test_canonical_pipeline_has_seven_ordered_stages(self) -> None:
+        expected = ["E004", "E004A", "E004B", "E005", "E006", "E007", "E008"]
         observed = [
             self.pipeline[f"stage_{index}_{suffix}"]["experiment"]
             for index, suffix in (
                 (1, "cutoff"),
                 (2, "geometry"),
-                (3, "spectral_interpretation"),
-                (4, "historical_swap"),
-                (5, "geometry_swap"),
+                (3, "frequency_restricted_geometry"),
+                (4, "spectral_interpretation"),
+                (5, "historical_swap"),
+                (6, "geometry_swap"),
+                (7, "frequency_geometry_swap"),
             )
         ]
         self.assertEqual(observed, expected)
 
     def test_geometry_alone_selects_the_candidate_target(self) -> None:
         geometry = self.pipeline["stage_2_geometry"]
-        spectral = self.pipeline["stage_3_spectral_interpretation"]
-        historical = self.pipeline["stage_4_historical_swap"]
+        band_geometry = self.pipeline["stage_3_frequency_restricted_geometry"]
+        spectral = self.pipeline["stage_4_spectral_interpretation"]
+        historical = self.pipeline["stage_5_historical_swap"]
         self.assertEqual(geometry["selection_metrics"], ["C_sigma", "W_sigma"])
         self.assertEqual(geometry["primary_rule"], "95% lower confidence bounds")
         self.assertEqual(geometry["target_indices"], [8, 9])
+        self.assertFalse(band_geometry["uses_e005_for_selection"])
         self.assertFalse(spectral["defines_danger_zone"])
         self.assertFalse(historical["tested_geometry_defined_target"])
 
@@ -197,19 +201,21 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         for stage in (
             "| 1 | E004 |",
             "| 2 | E004A |",
-            "| 3 | E005 |",
-            "| 4 | E006 |",
-            "| 5 | E007 |",
+            "| 3 | E004B |",
+            "| 4 | E005 |",
+            "| 5 | E006 |",
+            "| 6 | E007 |",
+            "| 7 | E008 |",
         ):
             self.assertIn(stage, self.readme)
         self.assertIn(
-            "The danger-zone indices are selected from coverage and posterior\n"
-            "concentration.",
+            "E004A computes the paper's original full-space coverage and "
+            "posterior-weight\ncurves.",
             self.readme,
         )
 
     def test_e006_is_historical_not_final(self) -> None:
-        historical = self.pipeline["stage_4_historical_swap"]
+        historical = self.pipeline["stage_5_historical_swap"]
         self.assertEqual(
             historical["role"], "exploratory spectral-aligned intervention"
         )
@@ -217,8 +223,8 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         self.assertIn("## E006: Historical Spectral-Window Swaps", self.readme)
         self.assertNotIn("E006: Final Geometry-Aligned", self.readme)
 
-    def test_e007_is_the_blocked_final_stage(self) -> None:
-        final_stage = self.pipeline["stage_5_geometry_swap"]
+    def test_e007_is_the_blocked_full_space_stage(self) -> None:
+        final_stage = self.pipeline["stage_6_geometry_swap"]
         self.assertEqual(final_stage["target_indices"], [8, 9])
         self.assertEqual(final_stage["pre_control"], [6, 7])
         self.assertEqual(final_stage["post_control"], [10, 11])

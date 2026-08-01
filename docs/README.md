@@ -5,8 +5,9 @@ validated run without changing those decisions. Provenance documents connect
 external data and checkpoints to exact hashes and commits.
 
 Start with the [canonical experimental pipeline](canonical_experiment_pipeline.md).
-It freezes the order E004 cutoff -> E004A geometry selection -> E005 spectral
-interpretation -> historical E006 exploration -> final E007 intervention.
+It freezes the order E004 cutoff -> E004A full-space geometry -> E004B
+frequency-restricted geometry -> E005 spectral interpretation -> historical
+E006 exploration -> proposed E007/E008 interventions.
 
 ## E004: Operational CIFAR-10 Cutoff
 
@@ -28,6 +29,18 @@ recovered in a deterministic clean-room setup. The sampled primary-threshold
 high-high region is `sigma in {2,3,4,5}`; it is not defined by E005.
 Direct evaluation on the exact E006 schedule selects indices `{8,9}` under
 both the point-estimate and 95% lower-bound rules at `q_C=q_W=0.8`.
+
+## E004B: Frequency-Restricted Geometry
+
+1. [Frozen clean-room protocol](experiment_04b_frequency_restricted_geometry_protocol.md)
+2. [Validated clean-room results](experiment_04b_frequency_restricted_geometry_results.md)
+
+Result at `r=4`: low-band target `{8}` and high-band target `{9,10}` under
+the primary lower-confidence-bound rule. These are subspace coverage and
+posterior-concentration curves, not E005 denoising residual energies.
+E004B is complete as a descriptive result. Its low/high ranks are `147/2925`,
+so rank, covariance, and energy differences prevent attribution to frequency
+organization alone without matched controls.
 
 ## E005: Spectral Residual Curves
 
@@ -64,6 +77,13 @@ The main scientific chain remains incomplete until E007 or an equivalent
 preregistered geometry-aligned swap is executed with a nondegenerate model
 pair. E004A selects the candidate region; E005 interprets its spectral
 location; historical E006 does not substitute for that final test.
+
+## Proposed E008
+
+[E008](experiment_08_frequency_geometry_swap_protocol.md) freezes only the
+design for whole-denoiser swaps over the E004B low target `8..8` and high
+target `9..10`. It is `PROPOSED — NOT EXECUTED`; the primary bidirectional
+design is blocked by the same known historical EDM-50K `0/256` baseline.
 
 ## Reading Order
 
