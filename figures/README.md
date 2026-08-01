@@ -4,6 +4,22 @@ This directory contains curated outputs from completed experiments. Figures
 show measurements already recorded in machine-readable form; they are not a
 substitute for result tables or frozen protocols.
 
+## README Showcase
+
+The root README surfaces a deliberately small visual sequence rather than every
+available plot:
+
+- E001 RGB FFT visualization;
+- E002 noise/frequency grid and normalized radial distribution;
+- E003 reconstruction grid and complementary residuals;
+- one representative E004 class-grouped cutoff montage;
+- both E005 low/high residual-curve figures and the frozen transition-window
+  extraction;
+- E006 transition/control and generated/nearest-neighbor figures.
+
+Secondary figures remain linked from the corresponding experiment section and
+from the indexes below.
+
 ## E001-E003: Fourier Foundations
 
 - `understanding_images_in_fourier_space_default_fft_reference_rgb.png`

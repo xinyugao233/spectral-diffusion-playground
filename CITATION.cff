@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it with the exact Git commit."
+title: "Spectral Diffusion Playground"
+type: software
+authors:
+  - family-names: Gao
+    given-names: Xinyu
+repository-code: "https://github.com/xinyugao233/spectral-diffusion-playground"
+license: MIT
+version: 0.1.0

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spectral-diffusion-playground"
 version = "0.1.0"
-description = "Educational diffusion-model experiments built around Fourier intuition and reproducible visualizations."
+description = "Frequency-resolved experiments for studying denoising transitions and memorization in diffusion models."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
