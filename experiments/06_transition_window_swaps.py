@@ -66,12 +66,8 @@ TRAIN_ARCHIVE = Path("/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip")
 TRAIN_ARCHIVE_SHA256 = (
     "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"
 )
-SUBSET_TEXT_SHA256 = (
-    "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29"
-)
-SUBSET_INT64_SHA256 = (
-    "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8"
-)
+SUBSET_TEXT_SHA256 = "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29"
+SUBSET_INT64_SHA256 = "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8"
 EDM_1K_CHECKPOINT = Path(
     "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/"
     "network-snapshot-040000.pkl"
@@ -301,9 +297,10 @@ def load_and_validate_config(path: Path) -> dict[str, Any]:
         raise RuntimeError(f"Frozen sampler config mismatch: {sampler}")
     if config["statistics"]["effect_threshold"] != EFFECT_THRESHOLD:
         raise RuntimeError("E006 effect-size threshold mismatch")
-    if config["sample_seeds"][
-        "start"
-    ] != 0 or config["sample_seeds"]["stop_inclusive"] != 255:
+    if (
+        config["sample_seeds"]["start"] != 0
+        or config["sample_seeds"]["stop_inclusive"] != 255
+    ):
         raise RuntimeError("E006 sample-seed range mismatch")
     return config
 
@@ -318,8 +315,7 @@ def validate_provenance(
             REPO_ROOT / "docs/experiment_06_transition_swap_protocol.md"
         ),
         "transition_windows_sha256": sha256_file(
-            REPO_ROOT
-            / "results/experiment_05/experiment_05_transition_windows.json"
+            REPO_ROOT / "results/experiment_05/experiment_05_transition_windows.json"
         ),
         "subset_text_sha256": sha256_file(
             REPO_ROOT / "data/e005_cifar10_subset_1k_indices.txt"
@@ -382,9 +378,7 @@ def selected_conditions(smoke: bool) -> tuple[ConditionSpec, ...]:
     return tuple(condition for condition in conditions if condition.name in wanted)
 
 
-def load_networks(
-    edm_root: Path, device: torch.device
-) -> dict[str, torch.nn.Module]:
+def load_networks(edm_root: Path, device: torch.device) -> dict[str, torch.nn.Module]:
     """Load both validated EMA denoisers."""
     if str(edm_root) not in sys.path:
         sys.path.insert(0, str(edm_root))
@@ -428,12 +422,10 @@ def sample_one(
             zip(schedule[:-1], schedule[1:])
         ):
             model_name = condition.model_for_step(step_index)
-            sigma_tensor = torch.full(
-                (1,), sigma, device=device, dtype=torch.float64
+            sigma_tensor = torch.full((1,), sigma, device=device, dtype=torch.float64)
+            denoised = networks[model_name](state, sigma_tensor, class_labels=None).to(
+                torch.float64
             )
-            denoised = networks[model_name](
-                state, sigma_tensor, class_labels=None
-            ).to(torch.float64)
             if not torch.isfinite(denoised).all().item():
                 raise RuntimeError(
                     f"Nonfinite denoiser output at seed={seed}, step={step_index}"
@@ -502,9 +494,7 @@ def run_smoke_batching_check(
             raise RuntimeError(
                 f"Batching independence failed for {condition.name}: {maximum}"
             )
-        for sample_a, sample_b in zip(
-            first[condition.name], second[condition.name]
-        ):
+        for sample_a, sample_b in zip(first[condition.name], second[condition.name]):
             if generated_sample_hash(sample_a) != generated_sample_hash(sample_b):
                 raise RuntimeError("Generated-sample hash changed across batches")
     return first
@@ -531,16 +521,12 @@ def load_reference_images(subset_indices: np.ndarray) -> np.ndarray:
     """Load frozen reference images as unquantized NCHW float64 in [-1, 1]."""
     images = np.empty((len(subset_indices), 3, 32, 32), dtype=np.float64)
     with zipfile.ZipFile(TRAIN_ARCHIVE) as archive:
-        png_names = sorted(
-            name for name in archive.namelist() if name.endswith(".png")
-        )
+        png_names = sorted(name for name in archive.namelist() if name.endswith(".png"))
         for position, dataset_index in enumerate(subset_indices):
             with archive.open(png_names[int(dataset_index)]) as handle:
                 image = PIL.Image.open(handle).convert("RGB")
                 array = np.asarray(image, dtype=np.float64)
-            images[position] = np.transpose(
-                2.0 * (array / 255.0) - 1.0, (2, 0, 1)
-            )
+            images[position] = np.transpose(2.0 * (array / 255.0) - 1.0, (2, 0, 1))
     return images
 
 
@@ -552,9 +538,9 @@ def nearest_two_torch(
     batch_size: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute exact float64 pixel-space nearest-two neighbors in chunks."""
-    reference_tensor = torch.from_numpy(
-        reference.reshape(reference.shape[0], -1)
-    ).to(device=device, dtype=torch.float64)
+    reference_tensor = torch.from_numpy(reference.reshape(reference.shape[0], -1)).to(
+        device=device, dtype=torch.float64
+    )
     reference_norm = torch.sum(reference_tensor * reference_tensor, dim=1)
     all_indices: list[np.ndarray] = []
     all_distances: list[np.ndarray] = []
@@ -569,9 +555,7 @@ def nearest_two_torch(
             + reference_norm[None, :]
             - 2.0 * (query @ reference_tensor.T)
         ).clamp_min_(0.0)
-        values, indices = torch.topk(
-            squared, k=2, dim=1, largest=False, sorted=True
-        )
+        values, indices = torch.topk(squared, k=2, dim=1, largest=False, sorted=True)
         all_indices.append(indices.cpu().numpy().astype(np.int64))
         all_distances.append(torch.sqrt(values).cpu().numpy().astype(np.float64))
     return np.concatenate(all_indices), np.concatenate(all_distances)
@@ -627,9 +611,7 @@ def evaluate_nearest_neighbors(
                 "window_name": window.name if window else "none",
                 "window_start_index": window.start_index if window else "",
                 "window_end_index": window.end_index if window else "",
-                "window_start_sigma": (
-                    f"{window.start_sigma:.17g}" if window else ""
-                ),
+                "window_start_sigma": (f"{window.start_sigma:.17g}" if window else ""),
                 "window_end_sigma": f"{window.end_sigma:.17g}" if window else "",
                 "sampler": "pure_euler_18_step_rho7",
                 "sample_seed": seed,
@@ -637,12 +619,8 @@ def evaluate_nearest_neighbors(
                 "generated_sample_hash": generated_sample_hash(samples[position]),
                 "d1nn": f"{d1:.17g}",
                 "d2nn": f"{d2:.17g}",
-                "d1nn_reference_index": int(
-                    reference_indices[indices[position, 0]]
-                ),
-                "d2nn_reference_index": int(
-                    reference_indices[indices[position, 1]]
-                ),
+                "d1nn_reference_index": int(reference_indices[indices[position, 0]]),
+                "d2nn_reference_index": int(reference_indices[indices[position, 1]]),
                 "d1nn_over_d2nn": f"{ratio:.17g}",
                 "memorized": int(memorized),
                 "status": status,
@@ -671,9 +649,7 @@ def evaluate_nearest_neighbors(
                         "reference_index": int(
                             reference_indices[indices[position, rank]]
                         ),
-                        "reference_subset_position": int(
-                            indices[position, rank]
-                        ),
+                        "reference_subset_position": int(indices[position, rank]),
                         "distance": f"{distances[position, rank]:.17g}",
                     }
                 )
@@ -731,9 +707,7 @@ def build_condition_summaries(
                 "window_name": window.name if window else "none",
                 "window_start_index": window.start_index if window else "",
                 "window_end_index": window.end_index if window else "",
-                "window_start_sigma": (
-                    f"{window.start_sigma:.17g}" if window else ""
-                ),
+                "window_start_sigma": (f"{window.start_sigma:.17g}" if window else ""),
                 "window_end_sigma": f"{window.end_sigma:.17g}" if window else "",
                 "n_samples": len(labels),
                 "memorized_count": count,
@@ -790,9 +764,7 @@ def build_paired_comparisons(
                 "window_name": condition.window.name,
                 "control_type": control_type,
                 **{
-                    key: (
-                        f"{value:.17g}" if isinstance(value, float) else value
-                    )
+                    key: (f"{value:.17g}" if isinstance(value, float) else value)
                     for key, value in summary.items()
                     if key != "direction_supported"
                 },
@@ -800,9 +772,7 @@ def build_paired_comparisons(
                 "status": "ok",
             }
         )
-    output_by_condition = {
-        str(row["swap_condition"]): row for row in output
-    }
+    output_by_condition = {str(row["swap_condition"]): row for row in output}
     available = set(grouped)
     for direction_index, (base, donor) in enumerate(
         (("edm_1k", "edm_50k"), ("edm_50k", "edm_1k"))
@@ -826,23 +796,19 @@ def build_paired_comparisons(
                 labels_for(grouped[names["transition"]]),
                 labels_for(grouped[names["pre"]]),
                 labels_for(grouped[names["post"]]),
-                seed=PAIR_BOOTSTRAP_SEED
-                + direction_index * 100
-                + window_index * 10,
+                seed=PAIR_BOOTSTRAP_SEED + direction_index * 100 + window_index * 10,
                 resamples=PAIR_BOOTSTRAP_RESAMPLES,
             )
-            output_by_condition[names["transition"]][
-                "passes_practical_threshold"
-            ] = int(bool(result["influential"]))
+            output_by_condition[names["transition"]]["passes_practical_threshold"] = (
+                int(bool(result["influential"]))
+            )
     for row in output:
         if row["passes_practical_threshold"] == "":
             row["passes_practical_threshold"] = "not_applicable"
     return output
 
 
-def primary_condition_name(
-    base: str, donor: str, window: str
-) -> str:
+def primary_condition_name(base: str, donor: str, window: str) -> str:
     """Build one stable swap-condition identifier."""
     return f"{base}_base__{donor}_donor__{window}"
 
@@ -871,18 +837,10 @@ def build_outcome(
         ):
             result = transition_influence(
                 baseline,
-                labels_for(
-                    grouped[primary_condition_name(base, donor, window)]
-                ),
-                labels_for(
-                    grouped[primary_condition_name(base, donor, pre_control)]
-                ),
-                labels_for(
-                    grouped[primary_condition_name(base, donor, post_control)]
-                ),
-                seed=PAIR_BOOTSTRAP_SEED
-                + direction_index * 100
-                + window_index * 10,
+                labels_for(grouped[primary_condition_name(base, donor, window)]),
+                labels_for(grouped[primary_condition_name(base, donor, pre_control)]),
+                labels_for(grouped[primary_condition_name(base, donor, post_control)]),
+                seed=PAIR_BOOTSTRAP_SEED + direction_index * 100 + window_index * 10,
                 resamples=PAIR_BOOTSTRAP_RESAMPLES,
             )
             key = f"{direction}__{window}"
@@ -923,9 +881,7 @@ def build_outcome(
             "memorized_count is exactly 0 or n under the frozen sample set"
         ),
         "baseline_degenerate": baseline_degenerate,
-        "unsupported_danger_zone_language_check": (
-            outcome not in {"YES", "PARTIAL"}
-        ),
+        "unsupported_danger_zone_language_check": (outcome not in {"YES", "PARTIAL"}),
         "failure_summary": {
             "count": len(failures),
             "path": "experiment_06_failures.csv",
@@ -1031,18 +987,22 @@ def validate_outputs(
         "finite_nearest_neighbor_records": finite,
         "failure_rows": len(failures),
     }
-    status = "pass" if all(
-        (
-            checks["observed_per_sample_rows"] == expected_rows,
-            checks["observed_nearest_neighbor_rows"] == expected_rows * 2,
-            checks["condition_summary_rows"] == len(conditions),
-            checks["paired_comparison_rows"]
-            == len([condition for condition in conditions if condition.window]),
-            checks["unique_per_sample_keys"],
-            checks["stable_row_order"],
-            checks["finite_nearest_neighbor_records"],
+    status = (
+        "pass"
+        if all(
+            (
+                checks["observed_per_sample_rows"] == expected_rows,
+                checks["observed_nearest_neighbor_rows"] == expected_rows * 2,
+                checks["condition_summary_rows"] == len(conditions),
+                checks["paired_comparison_rows"]
+                == len([condition for condition in conditions if condition.window]),
+                checks["unique_per_sample_keys"],
+                checks["stable_row_order"],
+                checks["finite_nearest_neighbor_records"],
+            )
         )
-    ) else "fail"
+        else "fail"
+    )
     return {
         "experiment_id": EXPERIMENT_ID,
         "run_id": RUN_ID,
@@ -1067,9 +1027,7 @@ def generate_figures(
     plot_memorization_rates(
         summaries, output_dir / "experiment_06_memorization_rates.png"
     )
-    plot_paired_changes(
-        paired, output_dir / "experiment_06_paired_changes.png"
-    )
+    plot_paired_changes(paired, output_dir / "experiment_06_paired_changes.png")
     plot_transition_controls(
         paired, output_dir / "experiment_06_transition_vs_controls.png"
     )
@@ -1084,24 +1042,17 @@ def generate_figures(
         qualitative,
         output_dir / "experiment_06_generated_nn_pairs.png",
     )
-    plot_paper_medium(
-        paired, output_dir / "experiment_06_paper_medium_reference.png"
-    )
+    plot_paper_medium(paired, output_dir / "experiment_06_paper_medium_reference.png")
 
 
-def plot_memorization_rates(
-    summaries: list[dict[str, object]], path: Path
-) -> None:
+def plot_memorization_rates(summaries: list[dict[str, object]], path: Path) -> None:
     """Plot exact condition-level memorization rates and intervals."""
     names = [short_condition(str(row["condition"])) for row in summaries]
-    rates = np.asarray(
-        [float(row["memorization_rate"]) for row in summaries]
-    )
+    rates = np.asarray([float(row["memorization_rate"]) for row in summaries])
     lows = np.asarray([float(row["ci95_low"]) for row in summaries])
     highs = np.asarray([float(row["ci95_high"]) for row in summaries])
     colors = [
-        "#3b6c8e" if row["base_model"] == "edm_1k" else "#b7623c"
-        for row in summaries
+        "#3b6c8e" if row["base_model"] == "edm_1k" else "#b7623c" for row in summaries
     ]
     fig, ax = plt.subplots(figsize=(15, 6.5))
     x = np.arange(len(names))
@@ -1158,9 +1109,7 @@ def plot_paired_changes(paired: list[dict[str, object]], path: Path) -> None:
     plt.close(fig)
 
 
-def plot_transition_controls(
-    paired: list[dict[str, object]], path: Path
-) -> None:
+def plot_transition_controls(paired: list[dict[str, object]], path: Path) -> None:
     """Compare each primary window to both width-matched controls."""
     index = {str(row["swap_condition"]): row for row in paired}
     groups: list[tuple[str, list[str]]] = []
@@ -1224,9 +1173,7 @@ def plot_ratio_distributions(
     """Plot d1NN/d2NN distributions for every condition."""
     grouped = rows_by_condition(rows)
     values = [
-        np.asarray(
-            [float(row["d1nn_over_d2nn"]) for row in grouped[condition.name]]
-        )
+        np.asarray([float(row["d1nn_over_d2nn"]) for row in grouped[condition.name]])
         for condition in conditions
     ]
     fig, ax = plt.subplots(figsize=(15, 6.5))
@@ -1277,9 +1224,7 @@ def plot_qualitative_pairs(
     )
     for row_index, (condition, category, seed) in enumerate(panels):
         condition_rows = grouped[condition]
-        record = next(
-            row for row in condition_rows if int(row["sample_seed"]) == seed
-        )
+        record = next(row for row in condition_rows if int(row["sample_seed"]) == seed)
         reference_index = int(record["d1nn_reference_index"])
         subset_position = int(np.flatnonzero(subset_indices == reference_index)[0])
         axes[row_index, 0].imshow(to_display(generated[condition][seed]))
