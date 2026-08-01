@@ -38,6 +38,9 @@ both the point-estimate and 95% lower-bound rules at `q_C=q_W=0.8`.
 Result at `r=4`: low-band target `{8}` and high-band target `{9,10}` under
 the primary lower-confidence-bound rule. These are subspace coverage and
 posterior-concentration curves, not E005 denoising residual energies.
+E004B is complete as a descriptive result. Its low/high ranks are `147/2925`,
+so rank, covariance, and energy differences prevent attribution to frequency
+organization alone without matched controls.
 
 ## E005: Spectral Residual Curves
 

@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 120 passing](https://img.shields.io/badge/tests-120%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 121 passing](https://img.shields.io/badge/tests-121%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -307,6 +307,23 @@ uses the same CIFAR-10 examples, 18-point schedule, Gaussian corruptions, and
 definitions as E004A, then computes both quantities after exact complementary
 Fourier projection.
 
+E004B draws two curves in the low-frequency subspace and two curves in the
+high-frequency subspace: coverage and maximum posterior weight in each space:
+
+```text
+C_low_sigma(p,D)
+W_low_sigma(D)
+C_high_sigma(p,D)
+W_high_sigma(D)
+```
+
+This distinction is structural:
+
+```text
+E004B = frequency-restricted data geometry
+E005  = frequency-restricted denoising residual energy
+```
+
 ![Low-frequency coverage and posterior concentration](figures/experiment_04b/low_frequency_coverage_and_posterior.png)
 
 ![High-frequency coverage and posterior concentration](figures/experiment_04b/high_frequency_coverage_and_posterior.png)
@@ -316,6 +333,25 @@ At the primary cutoff `r=4`, the exact real subspace ranks are 147 (low) and
 selects low-band index `{8}` at `sigma=3.2568215` and high-band indices
 `{9,10}` at `sigma={1.9233398,1.0881706}`. Point-estimate classification
 agrees at the primary cutoff.
+
+**Headline interpretation:** at `r=4`, the joint low-band high-high target is
+`{8}` and the joint high-band target is `{9,10}`. This is a descriptive
+ordering in the operational Fourier decomposition; the large rank difference
+between the two subspaces prevents attributing the difference to frequency
+organization alone.
+
+At `r=4`, the low- and high-frequency projectors have substantially different
+ranks, `147` and `2925`. E004B therefore measures the geometry of the actual
+operational Fourier decomposition, but it does not isolate frequency
+organization from subspace dimension, covariance, or energy structure.
+Rank- and power-matched control subspaces would be required before attributing
+the observed ordering specifically to frequency.
+
+The low-band joint high-coverage/high-posterior target occurs one sampler
+index earlier than the high-band target. This statement concerns the joint
+high-high regions. Coverage alone does not exhibit the same ordering: the
+high-band coverage threshold persists to lower sigma, while low-band posterior
+concentration persists farther toward high noise.
 
 The low target is unchanged at `r=3,4,5`. The high target is `{9,10}` at
 `r=3,4`, while its lower-bound sensitivity result narrows to `{10}` at `r=5`.
@@ -695,6 +731,9 @@ spectral-diffusion-playground/
   reproducibility under that freeze, not robustness across datasets or seeds.
 - E004B's high-band lower-confidence target narrows at `r=5`, so the result is
   not frequency-scale invariant.
+- E004B's low/high ranks are `147/2925` at `r=4`; rank, covariance, and power
+  differences confound a frequency-only interpretation until matched controls
+  are evaluated.
 - E005 transition windows depend on the frozen clean-room model, schedule, and
   cutoff family; they do not identify when a model learned either band.
 - E006 uses 256 seeds and a strict pixel-space criterion. Its degenerate

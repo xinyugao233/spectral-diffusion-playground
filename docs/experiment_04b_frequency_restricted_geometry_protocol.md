@@ -63,7 +63,7 @@ W_sigma^b(D) = E[max_i w_i^b(P_b(X + sigma Z), sigma)]
 ```
 
 Queries are noisy training examples. Distances are neither divided by band
-rank nor otherwise normalized. Sigma is not rescaled.
+rank nor otherwise normalized. Sigma is not rescaled by band energy.
 
 ## Gaussian-Shell Coverage
 
@@ -110,3 +110,10 @@ Interpretation is descriptive: E004B may locate different geometric regimes
 in different subspaces, but it cannot establish that a frequency band causes
 memorization. Any intervention over the selected temporal windows belongs to
 the proposed, unexecuted E008 protocol.
+
+At the primary cutoff, the low and high ranks are substantially imbalanced
+(`147` and `2925`). This protocol measures the geometry of the actual
+operational Fourier decomposition; it does not isolate frequency organization
+from rank, covariance, or energy structure. Rank- and power-matched controls
+are required for a frequency-specific attribution, but they do not alter this
+frozen descriptive computation.

@@ -313,6 +313,43 @@ class FrequencyRestrictedRepositoryTests(unittest.TestCase):
         self.assertIn("Low `8..8`", protocol)
         self.assertIn("High `9..10`", protocol)
 
+    def test_documentation_states_four_curves_and_rank_limitations(self) -> None:
+        readme = (REPO_ROOT / "README.md").read_text()
+        results = (
+            REPO_ROOT
+            / "docs"
+            / "experiment_04b_frequency_restricted_geometry_results.md"
+        ).read_text()
+        protocol = (
+            REPO_ROOT
+            / "docs"
+            / "experiment_04b_frequency_restricted_geometry_protocol.md"
+        ).read_text()
+        self.assertIn("two curves in the low-frequency subspace", readme)
+        self.assertIn("two curves in the\nhigh-frequency subspace", readme)
+        for quantity in (
+            "C_low_sigma(p,D)",
+            "W_low_sigma(D)",
+            "C_high_sigma(p,D)",
+            "W_high_sigma(D)",
+        ):
+            self.assertIn(quantity, readme)
+        self.assertIn("E004B = frequency-restricted data geometry", readme)
+        self.assertIn("E005  = frequency-restricted denoising residual energy", readme)
+        self.assertIn("ranks, `147` and `2925`", readme)
+        self.assertIn("does not isolate frequency", readme)
+        self.assertIn("subspace dimension, covariance, or energy structure", readme)
+        self.assertIn("Coverage alone does not exhibit the same ordering", readme)
+        self.assertNotIn("low-frequency coverage occurs earlier", readme.lower())
+        self.assertNotIn("low frequencies cause memorization", readme.lower())
+        self.assertIn("### Required Future Controls", results)
+        self.assertIn("rank-matched random subspaces", results)
+        self.assertIn("rank-and-power-matched", results)
+        self.assertIn("optionally whitened", results)
+        self.assertIn("repeated dataset subsets and Gaussian seeds", results)
+        self.assertIn("Distances are neither divided by band\nrank", protocol)
+        self.assertIn("Sigma is not rescaled by band energy", protocol)
+
 
 if __name__ == "__main__":
     unittest.main()

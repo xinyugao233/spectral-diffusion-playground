@@ -55,6 +55,13 @@ to lower noise. Conversely, low-band posterior concentration remains above
 threshold farther toward high noise: its target reaches index `8`, while the
 high-band posterior first qualifies at index `9`.
 
+At `r=4`, the low- and high-frequency projectors have substantially different
+ranks, `147` and `2925`. E004B therefore measures the geometry of the actual
+operational Fourier decomposition, but it does not isolate frequency
+organization from subspace dimension, covariance, or energy structure.
+Rank- and power-matched control subspaces would be required before attributing
+the observed ordering specifically to frequency.
+
 ![Low-frequency coverage and posterior concentration](../figures/experiment_04b/low_frequency_coverage_and_posterior.png)
 
 ![High-frequency coverage and posterior concentration](../figures/experiment_04b/high_frequency_coverage_and_posterior.png)
@@ -121,11 +128,26 @@ python experiments/04b_frequency_restricted_geometry.py \
 ## Limitations
 
 - This is a clean-room extension, not an original paper result.
+- The low/high projector ranks are strongly imbalanced (`147` versus `2925` at
+  `r=4`), so the observed ordering cannot be attributed to frequency alone.
+- Projected covariance and energy differ between bands and may contribute to
+  the measured shell coverage and posterior concentration.
 - It is deterministic under one frozen subset, seed, and corruption set; it
-  does not establish robustness across alternative subsets or seeds.
+  does not establish robustness across alternative subsets or Gaussian seeds.
 - The cutoff was selected by a disclosed single-reviewer visual decision.
 - The target depends on the frozen cutoff and confidence rule; `r=5` exposes
   high-band lower-bound sensitivity.
 - Frequency bands are operational subspaces, not semantic definitions of
   structure, detail, or memorization.
+- The result is descriptive; it establishes neither causality nor a
+  memorization interval.
 - E008 has not been executed.
+
+### Required Future Controls
+
+Attribution specifically to frequency organization requires separate future
+experiments with (1) rank-matched random subspaces, (2) rank-and-power-matched
+random subspaces, (3) optionally whitened projected coordinates, and (4)
+repeated dataset subsets and Gaussian seeds. These controls are not part of
+E004B and are not required to validate its descriptive result; they are
+required before making a frequency-only explanation.

@@ -58,6 +58,14 @@ the same data and Gaussian corruptions after projection into the frozen
 complementary subspaces. At `r=4`, the primary lower-confidence-bound rule
 selects low target `{8}` and high target `{9,10}`.
 
+These are joint coverage/posterior targets. Coverage alone does not have the
+same ordering: high-band coverage persists to lower sigma, while low-band
+posterior concentration persists farther toward high noise.
+
+The low/high ranks at `r=4` are `147/2925`. E004B is completed as a
+descriptive measurement of the operational Fourier decomposition, but rank,
+covariance, and energy differences prevent a frequency-only attribution.
+
 The low target is unchanged at `r=3,4,5`. The high target is `{9,10}` at
 `r=3,4` and narrows to `{10}` under the `r=5` lower-confidence-bound
 sensitivity check. This scale dependence is reported and cannot revise the
