@@ -24,7 +24,28 @@
       "q_W": 0.8
     }
   },
-  "stage_3_spectral_interpretation": {
+  "stage_3_frequency_restricted_geometry": {
+    "experiment": "E004B",
+    "primary_cutoff": 4,
+    "primary_rule": "95% lower confidence bounds",
+    "selection_metrics": [
+      "C_sigma_band",
+      "W_sigma_band"
+    ],
+    "low_target_indices": [
+      8
+    ],
+    "high_target_indices": [
+      9,
+      10
+    ],
+    "thresholds": {
+      "q_C": 0.8,
+      "q_W": 0.8
+    },
+    "uses_e005_for_selection": false
+  },
+  "stage_4_spectral_interpretation": {
     "cutoff": 4,
     "defines_danger_zone": false,
     "experiment": "E005",
@@ -37,13 +58,13 @@
       11
     ]
   },
-  "stage_4_historical_swap": {
+  "stage_5_historical_swap": {
     "experiment": "E006",
     "formal_outcome": "INCONCLUSIVE",
     "role": "exploratory spectral-aligned intervention",
     "tested_geometry_defined_target": false
   },
-  "stage_5_geometry_swap": {
+  "stage_6_geometry_swap": {
     "blocker": "historical EDM-50K baseline is 0/256",
     "experiment": "E007",
     "post_control": [
@@ -58,6 +79,34 @@
     "target_indices": [
       8,
       9
+    ]
+  },
+  "stage_7_frequency_geometry_swap": {
+    "blocker": "historical EDM-50K baseline is 0/256",
+    "experiment": "E008",
+    "status": "proposed_not_executed",
+    "whole_denoiser_temporal_swap": true,
+    "fourier_coefficient_swap": false,
+    "low_target": [
+      8
+    ],
+    "low_pre_control": [
+      7
+    ],
+    "low_post_control": [
+      9
+    ],
+    "high_target": [
+      9,
+      10
+    ],
+    "high_pre_control": [
+      7,
+      8
+    ],
+    "high_post_control": [
+      11,
+      12
     ]
   }
 }

@@ -276,6 +276,43 @@ class FrequencyRestrictedRepositoryTests(unittest.TestCase):
         source = (REPO_ROOT / "tests" / "test_region_definitions.py").read_text()
         self.assertIn("test_frozen_e005_e006_artifacts_are_byte_identical", source)
 
+    def test_committed_e004b_results_match_frozen_targets(self) -> None:
+        results = REPO_ROOT / "results" / "experiment_04b"
+        summary = json.loads((results / "band_target_summary.json").read_text())
+        validation = json.loads(
+            (results / "frequency_restricted_geometry_validation.json").read_text()
+        )
+        manifest = json.loads(
+            (results / "frequency_restricted_geometry_manifest.json").read_text()
+        )
+        self.assertEqual(summary["low_band_geometry_target_indices"], [8])
+        self.assertEqual(summary["high_band_geometry_target_indices"], [9, 10])
+        self.assertEqual(validation["status"], "pass")
+        self.assertEqual(manifest["validation"]["row_count"], 108)
+        self.assertFalse(manifest["scientific_scope"]["e008_executed"])
+
+    def test_canonical_registries_distinguish_geometry_and_residuals(self) -> None:
+        pipeline = json.loads(
+            (REPO_ROOT / "results" / "canonical_experiment_pipeline.json").read_text()
+        )
+        stage = pipeline["stage_3_frequency_restricted_geometry"]
+        self.assertEqual(stage["low_target_indices"], [8])
+        self.assertEqual(stage["high_target_indices"], [9, 10])
+        self.assertFalse(stage["uses_e005_for_selection"])
+        self.assertEqual(
+            pipeline["stage_7_frequency_geometry_swap"]["status"],
+            "proposed_not_executed",
+        )
+
+    def test_e008_protocol_is_blocked_and_unexecuted(self) -> None:
+        protocol = (
+            REPO_ROOT / "docs" / "experiment_08_frequency_geometry_swap_protocol.md"
+        ).read_text()
+        self.assertIn("PROPOSED — NOT EXECUTED", protocol)
+        self.assertIn("EDM-50K no-swap baseline is `0/256`", protocol)
+        self.assertIn("Low `8..8`", protocol)
+        self.assertIn("High `9..10`", protocol)
+
 
 if __name__ == "__main__":
     unittest.main()

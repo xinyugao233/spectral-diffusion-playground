@@ -19,6 +19,38 @@
     ],
     "source": "E004A C_sigma and W_sigma with q_C=q_W=0.8"
   },
+  "e004b_low_frequency_geometry_target": {
+    "defines_universal_paper_boundary": false,
+    "evaluated_grid": "E006 18-point EDM schedule",
+    "frequency_cutoff": 4,
+    "indices": [
+      8
+    ],
+    "prohibited_interpretation": "semantic structure boundary, causal interval, or proven memorization interval",
+    "role": "clean-room low-subspace geometry target",
+    "selection_rule": "evaluated points with low-band C_sigma and W_sigma lower 95% bounds >= 0.8; no interpolation or gap filling",
+    "sigma_values": [
+      3.256821519765537
+    ],
+    "source": "E004B frequency-restricted C_sigma and W_sigma at r=4"
+  },
+  "e004b_high_frequency_geometry_target": {
+    "defines_universal_paper_boundary": false,
+    "evaluated_grid": "E006 18-point EDM schedule",
+    "frequency_cutoff": 4,
+    "indices": [
+      9,
+      10
+    ],
+    "prohibited_interpretation": "semantic detail boundary, causal interval, or proven memorization interval",
+    "role": "clean-room high-subspace geometry target",
+    "selection_rule": "evaluated points with high-band C_sigma and W_sigma lower 95% bounds >= 0.8; no interpolation or gap filling",
+    "sigma_values": [
+      1.9233398370400518,
+      1.088170636545279
+    ],
+    "source": "E004B frequency-restricted C_sigma and W_sigma at r=4"
+  },
   "e005_combined_spectral_transition": {
     "defines_original_danger_zone": false,
     "indices": [
@@ -88,6 +120,19 @@
       9
     ],
     "role": "proposed geometry-aligned swap target"
+  },
+  "e008_frequency_geometry_swap_targets": {
+    "blocker": "historical EDM-50K no-swap baseline is 0/256",
+    "execution_status": "proposed_not_executed",
+    "fourier_coefficient_swap": false,
+    "high_target_indices": [
+      9,
+      10
+    ],
+    "low_target_indices": [
+      8
+    ],
+    "role": "proposed whole-denoiser temporal swaps over E004B geometry targets"
   },
   "paper_reported_medium_reference": {
     "defines_original_danger_zone": false,

@@ -1,0 +1,139 @@
+{
+  "bands": {
+    "high": {
+      "3": {
+        "band_dimension": 2985,
+        "lower_bound_components": [
+          [
+            9,
+            10
+          ]
+        ],
+        "lower_bound_indices": [
+          9,
+          10
+        ],
+        "point_estimate_components": [
+          [
+            9,
+            10
+          ]
+        ],
+        "point_estimate_indices": [
+          9,
+          10
+        ]
+      },
+      "4": {
+        "band_dimension": 2925,
+        "lower_bound_components": [
+          [
+            9,
+            10
+          ]
+        ],
+        "lower_bound_indices": [
+          9,
+          10
+        ],
+        "point_estimate_components": [
+          [
+            9,
+            10
+          ]
+        ],
+        "point_estimate_indices": [
+          9,
+          10
+        ]
+      },
+      "5": {
+        "band_dimension": 2829,
+        "lower_bound_components": [
+          [
+            10
+          ]
+        ],
+        "lower_bound_indices": [
+          10
+        ],
+        "point_estimate_components": [
+          [
+            9,
+            10
+          ]
+        ],
+        "point_estimate_indices": [
+          9,
+          10
+        ]
+      }
+    },
+    "low": {
+      "3": {
+        "band_dimension": 87,
+        "lower_bound_components": [
+          [
+            8
+          ]
+        ],
+        "lower_bound_indices": [
+          8
+        ],
+        "point_estimate_components": [
+          [
+            8
+          ]
+        ],
+        "point_estimate_indices": [
+          8
+        ]
+      },
+      "4": {
+        "band_dimension": 147,
+        "lower_bound_components": [
+          [
+            8
+          ]
+        ],
+        "lower_bound_indices": [
+          8
+        ],
+        "point_estimate_components": [
+          [
+            8
+          ]
+        ],
+        "point_estimate_indices": [
+          8
+        ]
+      },
+      "5": {
+        "band_dimension": 243,
+        "lower_bound_components": [
+          [
+            8
+          ]
+        ],
+        "lower_bound_indices": [
+          8
+        ],
+        "point_estimate_components": [
+          [
+            8
+          ]
+        ],
+        "point_estimate_indices": [
+          8
+        ]
+      }
+    }
+  },
+  "candidate_cutoffs": [
+    3,
+    4,
+    5
+  ],
+  "primary_cutoff": 4,
+  "primary_target_not_revised_by_sensitivity": true
+}

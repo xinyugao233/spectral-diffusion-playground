@@ -1,0 +1,270 @@
+{
+  "artifacts": {
+    "band_geometry_and_residual_alignment.png": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/figures/experiment_04b/band_geometry_and_residual_alignment.png",
+      "sha256": "8ce18bcb16ff76692d0aeaa00d107ed95325e2b4376d47163ba7487340e6a5fc"
+    },
+    "band_target_summary.json": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/results/experiment_04b/band_target_summary.json",
+      "sha256": "52b4910b0e377ed05686c6345b77b50a043689d54d7dcb30cb143b99e138c7ac"
+    },
+    "cutoff_sensitivity.json": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/results/experiment_04b/cutoff_sensitivity.json",
+      "sha256": "4ef09ecfd3537542ba10048e2b2a9e23cdaced6e6363d4e133928fe7a34a2a5b"
+    },
+    "frequency_geometry_cutoff_sensitivity.png": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/figures/experiment_04b/frequency_geometry_cutoff_sensitivity.png",
+      "sha256": "a8dd58ffd1aaddaae51c52cff88681515127d77d23514673723e831c1b565b9e"
+    },
+    "frequency_restricted_geometry.csv": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/results/experiment_04b/frequency_restricted_geometry.csv",
+      "sha256": "c60115222b12b811f42bc579f0c6b90f85e91380577c2fd3ba7778b76b4b724e"
+    },
+    "frequency_restricted_geometry_validation.json": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/results/experiment_04b/frequency_restricted_geometry_validation.json",
+      "sha256": "0489dc731d0a746ad2fcbf7d3b8d3e658d8d0bb7ac6b5405675164ad302edbee"
+    },
+    "high_frequency_coverage_and_posterior.png": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/figures/experiment_04b/high_frequency_coverage_and_posterior.png",
+      "sha256": "3015af36081178c8f986e3454537eebe52d0b85af8b3b65291d26b3ffdbd8359"
+    },
+    "low_frequency_coverage_and_posterior.png": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/figures/experiment_04b/low_frequency_coverage_and_posterior.png",
+      "sha256": "f95f02103725fb315e9f710b25b186acba6f3ff6864758b7c86e450898ae1ec1"
+    },
+    "low_high_geometry_comparison.png": {
+      "path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/figures/experiment_04b/low_high_geometry_comparison.png",
+      "sha256": "044493126e22d870a53134a07e6d20e51bbaba3b506e842e5674c98780c87399"
+    }
+  },
+  "band_dimensions": {
+    "3": {
+      "high": 2985,
+      "low": 87
+    },
+    "4": {
+      "high": 2925,
+      "low": 147
+    },
+    "5": {
+      "high": 2829,
+      "low": 243
+    }
+  },
+  "base_e004a_config": "configs/e004a_local_geometry.json",
+  "base_e004a_config_sha256": "cd1ab1afbde72d66465e3208c7c3627b69e93b87b614e2b7a613e4d08ec4be4a",
+  "bootstrap_replicates": 500,
+  "command": [
+    "/opt/anaconda3/bin/python",
+    "experiments/04b_frequency_restricted_geometry.py",
+    "--compute",
+    "--dataset-root",
+    "/Users/gaoxinyu/Documents/research/Projects/diffusion-memorization-geometry/data/cifar10",
+    "--output-dir",
+    "results/experiment_04b",
+    "--figure-dir",
+    "figures/experiment_04b",
+    "--device",
+    "cpu",
+    "--cutoffs",
+    "3",
+    "4",
+    "5"
+  ],
+  "config_path": "/Users/gaoxinyu/Documents/research/Projects/spectral-diffusion-playground/configs/e004b_frequency_restricted_geometry.json",
+  "config_sha256": "ac8d1e4ac78bd1862f9f0b7e81a0f23080b01838c31775c031779ce6653c7f0a",
+  "coverage_corruption_draws": 8,
+  "cutoffs": [
+    3,
+    4,
+    5
+  ],
+  "dataset_file_sha256": {
+    "data_batch_1": "54636561a3ce25bd3e19253c6b0d8538147b0ae398331ac4a2d86c6d987368cd",
+    "data_batch_2": "766b2cef9fbc745cf056b3152224f7cf77163b330ea9a15f9392beb8b89bc5a8",
+    "data_batch_3": "0f00d98ebfb30b3ec0ad19f9756dc2630b89003e10525f5e148445e82aa6a1f9",
+    "data_batch_4": "3f7bb240661948b8f4d53e36ec720d8306f5668bd0071dcb4e6c947f78e9682b",
+    "data_batch_5": "d91802434d8376bbaeeadf58a737e3a1b12ac839077e931237e0dcd43adcb154",
+    "test_batch": "f53d8d457504f7cff4ea9e021afcf0e0ad8e24a91f3fc42091b8adef61157831"
+  },
+  "dataset_root": "/Users/gaoxinyu/Documents/research/Projects/diffusion-memorization-geometry/data/cifar10",
+  "dependency_versions": {
+    "matplotlib": "3.9.2",
+    "numpy": "1.26.4",
+    "scipy": "1.13.1"
+  },
+  "device_requested": "cpu",
+  "device_resolved": "cpu",
+  "distance_policy": "unscaled projected Euclidean distance",
+  "execution_mode": "local_cpu_clean_room_compute",
+  "experiment_id": "E004B",
+  "noise_policy": "same full-dimensional Gaussian draws projected into every band and cutoff",
+  "normalization": "x / 127.5 - 1.0",
+  "peak_rss_megabytes": 1059.3125,
+  "posterior_corruption_draws": 4,
+  "primary_cutoff": 4,
+  "python_version": "3.12.7",
+  "query_batch_size": 100,
+  "random_seed": 0,
+  "reference_batch_size": 250,
+  "repository_commit": "07755fac0d8ff4039669782b793db3d75c43cfeb",
+  "repository_worktree_clean_before_run": true,
+  "runtime_seconds": 32.22530262498185,
+  "scientific_scope": {
+    "band_targets_selected_without_e005": true,
+    "e004a_full_space_baseline_preserved": true,
+    "e005_residual_curves_distinct": true,
+    "e008_executed": false
+  },
+  "shell_c": 5,
+  "sigma_grid": [
+    80.0,
+    57.58598472124816,
+    40.78557379650796,
+    28.374584604156844,
+    19.35245298032523,
+    12.91008238075732,
+    8.400935309099816,
+    5.315194521796382,
+    3.256821519765537,
+    1.9233398370400518,
+    1.088170636545279,
+    0.5853481231945422,
+    0.29644228447915727,
+    0.13951646873101678,
+    0.05994731123547159,
+    0.022934518372333384,
+    0.0075280199627840785,
+    0.002000000000000003
+  ],
+  "sigma_policy": "unchanged full-space sigma",
+  "storage_dimension": 3072,
+  "subset_sha256": "39cdd611c46acdedfeb2a9eff47187276afd83750dfdbeedcad04066e127893a",
+  "target_summary": {
+    "connected_components": {
+      "high_lower_bound": [
+        [
+          9,
+          10
+        ]
+      ],
+      "high_point_estimate": [
+        [
+          9,
+          10
+        ]
+      ],
+      "low_lower_bound": [
+        [
+          8
+        ]
+      ],
+      "low_point_estimate": [
+        [
+          8
+        ]
+      ]
+    },
+    "cutoff_stability": {
+      "3": {
+        "high": {
+          "lower_bound_indices": [
+            9,
+            10
+          ],
+          "matches_primary": true
+        },
+        "low": {
+          "lower_bound_indices": [
+            8
+          ],
+          "matches_primary": true
+        }
+      },
+      "4": {
+        "high": {
+          "lower_bound_indices": [
+            9,
+            10
+          ],
+          "matches_primary": true
+        },
+        "low": {
+          "lower_bound_indices": [
+            8
+          ],
+          "matches_primary": true
+        }
+      },
+      "5": {
+        "high": {
+          "lower_bound_indices": [
+            10
+          ],
+          "matches_primary": false
+        },
+        "low": {
+          "lower_bound_indices": [
+            8
+          ],
+          "matches_primary": true
+        }
+      }
+    },
+    "high_band_dimension": 2925,
+    "high_band_geometry_target_indices": [
+      9,
+      10
+    ],
+    "high_lower_bound_indices": [
+      9,
+      10
+    ],
+    "high_point_estimate_indices": [
+      9,
+      10
+    ],
+    "low_band_dimension": 147,
+    "low_band_geometry_target_indices": [
+      8
+    ],
+    "low_lower_bound_indices": [
+      8
+    ],
+    "low_point_estimate_indices": [
+      8
+    ],
+    "primary_cutoff": 4,
+    "q_C": 0.8,
+    "q_W": 0.8
+  },
+  "test_examples": 1000,
+  "test_index_text_sha256": "8db91b2ee25d579493dbc2ca66417cc945e215b5424349884013834d43df7ac4",
+  "thresholds": {
+    "coverage": 0.8,
+    "maximum_posterior_weight": 0.8,
+    "primary_classification": "95% lower confidence bounds"
+  },
+  "title": "Frequency-Restricted Gaussian-Shell Geometry",
+  "training_examples": 1000,
+  "training_index_text_sha256": "8db91b2ee25d579493dbc2ca66417cc945e215b5424349884013834d43df7ac4",
+  "validation": {
+    "all_figures_nonempty": true,
+    "all_numeric_values_finite": true,
+    "committed_curve_estimates_read_in_compute_mode": false,
+    "e005_residual_data_used_for_target_selection": false,
+    "expected_row_count": 108,
+    "figure_count": 5,
+    "high_target_recomputed": [
+      9,
+      10
+    ],
+    "low_target_recomputed": [
+      8
+    ],
+    "numerical_validation_status": "pass",
+    "row_count": 108,
+    "status": "pass",
+    "target_derivation_matches": true
+  }
+}

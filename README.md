@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 104 passing](https://img.shields.io/badge/tests-104%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 120 passing](https://img.shields.io/badge/tests-120%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -12,7 +12,7 @@ The central question is: **how do low- and high-frequency residual transitions
 relate to the medium-noise region independently motivated by Gaussian-shell
 coverage and posterior-weight concentration?**
 
-Experiments E001-E003 build the Fourier foundation. E004-E007 form a
+Experiments E001-E003 build the Fourier foundation. E004-E008 form a
 paper-derived clean-room pipeline grounded in
 [*Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in
 Diffusion Models*](https://arxiv.org/abs/2602.17846).
@@ -23,24 +23,42 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 | --- | --- | --- | --- |
 | 1 | E004 | Human-audited Fourier cutoff protocol | `r=4`, sensitivity `r=3,5` |
 | 2 | E004A | Coverage and posterior-weight geometry | Candidate geometry target `8..9` |
-| 3 | E005 | Low/high residual curves at frozen `r` | Spectral interpretation |
-| 4 | E006 | Historical spectral/reference swaps | Exploratory; `INCONCLUSIVE` |
-| 5 | E007 | Geometry-aligned swap over `8..9` | Proposed; blocked |
+| 3 | E004B | Frequency-restricted coverage and posterior geometry | Low target `8`; high target `9..10` |
+| 4 | E005 | Low/high residual curves at frozen `r` | Spectral interpretation |
+| 5 | E006 | Historical spectral/reference swaps | Exploratory; `INCONCLUSIVE` |
+| 6 | E007 | Full-space geometry swap over `8..9` | Proposed; blocked |
+| 7 | E008 | Frequency-geometry swaps | Proposed; blocked and unexecuted |
 
 ```mermaid
 flowchart LR
     A[Choose Fourier cutoff r] --> B[Compute coverage C_sigma]
     B --> C[Compute posterior weight W_sigma]
-    C --> D[Freeze geometry-defined danger-zone indices]
-    D --> E[Interpret with low/high spectral curves]
-    E --> F[Swap whole denoiser over geometry-defined zone]
-    F --> G[Compare with width-matched controls]
+    C --> D[Freeze full-space geometry target]
+    D --> E[Project geometry into frozen frequency bands]
+    E --> F[Interpret with low/high residual curves]
+    F --> G[Propose whole-denoiser interventions]
 ```
 
-The danger-zone indices are selected from coverage and posterior
-concentration. The spectral curves are evaluated afterward to interpret the
-frequency structure of that region. The cutoff `r` defines E005's Fourier
-projections, but it does not enter `C_sigma(p,D)` or `W_sigma(D)`.
+E004A computes the paper's original full-space coverage and posterior-weight
+curves. E004B projects the same data and Gaussian corruptions into the frozen
+low- and high-frequency subspaces and computes coverage and posterior
+concentration separately in each subspace.
+
+For each frequency band, E004B draws two geometric curves: coverage and
+maximum posterior weight. These are distinct from E005's low/high denoising
+residual-energy curves. Neither spectral measurement revises the E004A
+full-space target.
+
+The frequency-specific extension follows this frozen order:
+
+```text
+E004: freeze r
+  -> E004A: retain the full-space geometry baseline
+  -> E004B: compute low/high frequency-restricted geometry
+  -> select separate low/high geometry targets
+  -> E005: compare with low/high residual dynamics
+  -> E008: propose frequency-targeted temporal swap tests
+```
 
 See the [canonical pipeline specification](docs/canonical_experiment_pipeline.md)
 and [machine-readable registry](results/canonical_experiment_pipeline.json).
@@ -53,6 +71,12 @@ Gaussian-shell coverage `C_sigma(p,D)` and maximum empirical-posterior weight
 the original Figure 3 execution artifacts were unavailable.
 
 ![Gaussian-shell coverage and maximum posterior weight across noise levels](figures/experiment_04a/coverage_and_max_posterior_weight.png)
+
+E004B asks how that same geometry decomposes across the frozen Fourier bands.
+At `r=4`, the conservative lower-confidence-bound rule selects low-band index
+`8` and high-band indices `9..10`.
+
+![Low- and high-frequency Gaussian-shell geometry](figures/experiment_04b/low_high_geometry_comparison.png)
 
 E005 adds a separate spectral analysis. It reveals two ordered residual-energy
 transitions in a fixed denoiser: the low-frequency residual changes at higher
@@ -77,9 +101,11 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 
 - **Freeze the spectral measurement first:** [E004 cutoff](#e004-selecting-an-operational-cifar-10-cutoff).
 - **Select the candidate interval geometrically:** [coverage and posterior concentration](#original-paper-geometry-coverage-and-posterior-concentration).
+- **Inspect geometry inside each Fourier band:** [E004B frequency-restricted geometry](#e004b-frequency-restricted-gaussian-shell-geometry).
 - **See the spectral extension:** [E005 residual curves and transition windows](#e005-low--and-high-frequency-residual-transitions).
 - **Review the historical intervention:** [E006 spectral-window swaps](#e006-historical-spectral-window-swaps).
 - **See the required final test and blocker:** [proposed E007](#e007-final-geometry-aligned-whole-denoiser-swap).
+- **See the band-specific intervention design:** [proposed E008](#e008-proposed-frequency-geometry-whole-denoiser-swaps).
 - **Audit the evidence:** [E005 result record](docs/experiment_05_spectral_residual_results.md)
   and [E006 result record](docs/experiment_06_transition_window_swap_results.md).
 - **Reproduce the foundations locally:** [installation and commands](#installation-and-reproduction).
@@ -93,9 +119,11 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 | E003 | Where does image information appear across frequency radii? | [Decomposition grid](figures/where_image_information_lives_grid.png) | Complementary low/high reconstructions exactly recover the image | Complete |
 | E004 | Which cutoff is a useful operational CIFAR-10 split? | [Cutoff montage](figures/experiment_04_cutoff_montage_classes_0_1.png) | Reference `r = 4`; sensitivity `r = 3, 5` | Complete |
 | E004A | What are the paper's original two geometric curves? | [Coverage/concentration curves](figures/experiment_04a/coverage_and_max_posterior_weight.png) | Clean-room three-regime geometry; sampled high-high region at `sigma = 2..5` | Complete |
+| E004B | How does the same geometry differ across frozen Fourier bands? | [Band comparison](figures/experiment_04b/low_high_geometry_comparison.png) | Low target `{8}`; high target `{9,10}` at `r=4` | Complete |
 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
 | E006 | What happened in the historical spectral-aligned swaps? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Exploratory; formal outcome `INCONCLUSIVE` | Complete |
 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
+| E008 | Do swaps over the E004B band-specific targets differ from controls? | [Blocked protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | No result | Proposed; blocked and unexecuted |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -270,6 +298,48 @@ configuration. It is independent of the committed curve estimates, but uses
 the same subset, seed, sigma grid, estimator, normalization, and Gaussian
 draws. The near-exact agreement establishes deterministic reproducibility, not
 robustness across alternative subsets or seeds.
+
+## E004B: Frequency-Restricted Gaussian-Shell Geometry
+
+**Question.** Does the paper-derived coverage/concentration geometry occupy
+the frozen low- and high-frequency subspaces at the same noise levels? E004B
+uses the same CIFAR-10 examples, 18-point schedule, Gaussian corruptions, and
+definitions as E004A, then computes both quantities after exact complementary
+Fourier projection.
+
+![Low-frequency coverage and posterior concentration](figures/experiment_04b/low_frequency_coverage_and_posterior.png)
+
+![High-frequency coverage and posterior concentration](figures/experiment_04b/high_frequency_coverage_and_posterior.png)
+
+At the primary cutoff `r=4`, the exact real subspace ranks are 147 (low) and
+2,925 (high). Applying the frozen `q_C=q_W=0.8` lower-confidence-bound rule
+selects low-band index `{8}` at `sigma=3.2568215` and high-band indices
+`{9,10}` at `sigma={1.9233398,1.0881706}`. Point-estimate classification
+agrees at the primary cutoff.
+
+The low target is unchanged at `r=3,4,5`. The high target is `{9,10}` at
+`r=3,4`, while its lower-bound sensitivity result narrows to `{10}` at `r=5`.
+This dependence remains visible and does not revise `r=4`.
+
+- **Purpose:** Extend the paper geometry into preregistered complementary
+  frequency subspaces without using denoiser outputs.
+- **Main artifact:** [Band comparison](figures/experiment_04b/low_high_geometry_comparison.png),
+  [cutoff sensitivity](figures/experiment_04b/frequency_geometry_cutoff_sensitivity.png),
+  and [validated results](docs/experiment_04b_frequency_restricted_geometry_results.md).
+- **Takeaway:** Under the frozen clean-room setup, the low-band geometric
+  target occurs one sampler index earlier at higher noise, while the high-band
+  target occupies the next two lower-noise points. This is descriptive
+  geometry, not causal or memorization evidence.
+
+```bash
+python experiments/04b_frequency_restricted_geometry.py \
+  --compute \
+  --dataset-root /path/to/cifar10 \
+  --output-dir results/experiment_04b_reproduction \
+  --figure-dir figures/experiment_04b_reproduction \
+  --device cpu \
+  --cutoffs 3 4 5
+```
 
 ## E005: Low- And High-Frequency Residual Transitions
 
@@ -478,6 +548,20 @@ No E007 swap has been executed.
 
 See the [blocked E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md).
 
+## E008: Proposed Frequency-Geometry Whole-Denoiser Swaps
+
+E008 is the unexecuted band-specific intervention implied by E004B. It would
+swap the **whole denoiser** over low target `8..8` and high target `9..10`,
+each compared with immediately adjacent width-matched controls. It does not
+swap Fourier coefficients or isolated frequency outputs.
+
+The primary bidirectional design is **PROPOSED — NOT EXECUTED** and blocked by
+the historical EDM-50K no-swap baseline of `0/256`. A nondegenerate model pair
+must first pass a preregistered baseline-only preflight. No E008 checkpoint
+evaluation, inference, sampling, Slurm job, result, or figure exists.
+
+See the [blocked E008 protocol](docs/experiment_08_frequency_geometry_swap_protocol.md).
+
 ## Mathematical Core
 
 The paper geometry first measures full-space coverage and concentration:
@@ -485,6 +569,14 @@ The paper geometry first measures full-space coverage and concentration:
 ```text
 C_sigma(p,D) = P(X + sigma Z in union_i S_sigma(x_i))
 W_sigma(D)   = E max_i w_i(X + sigma Z, sigma)
+```
+
+E004B evaluates the same definitions on projected data and projected Gaussian
+corruptions. Its shell dimensions are the exact real projector ranks:
+
+```text
+C_sigma^b(p,D), W_sigma^b(D),  b in {low, high}
+d_low(r=4) = 147, d_high(r=4) = 2925
 ```
 
 E005 then asks a different question by applying complementary Fourier
@@ -514,9 +606,11 @@ to the full residual energy within the frozen tolerance.
 | --- | --- | --- | --- |
 | E004 | [Protocol](docs/experiment_04_frequency_cutoff_protocol.md) · [Reviewer instructions](docs/experiment_04_reviewer_instructions.md) · [Decision](docs/experiment_04_frequency_cutoff_decision.md) | [Results index](results/README.md#e004-operational-frequency-cutoff) | [Montages](figures/README.md#e004-operational-frequency-cutoff) |
 | E004A | [Source audit](docs/paper_geometry_source_audit.md) · [Protocol](docs/experiment_04a_paper_geometry_protocol.md) · [Results](docs/experiment_04a_paper_geometry_results.md) | [`results/experiment_04a/`](results/experiment_04a/) | [`figures/experiment_04a/`](figures/experiment_04a/) |
+| E004B | [Protocol](docs/experiment_04b_frequency_restricted_geometry_protocol.md) · [Results](docs/experiment_04b_frequency_restricted_geometry_results.md) | [`results/experiment_04b/`](results/experiment_04b/) | [`figures/experiment_04b/`](figures/experiment_04b/) |
 | E005 | [Protocol](docs/experiment_05_spectral_residual_protocol.md) · [Model provenance](docs/experiment_05_clean_room_models.md) · [Results](docs/experiment_05_spectral_residual_results.md) | [`results/experiment_05/`](results/experiment_05/) | [`figures/experiment_05/`](figures/experiment_05/) |
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
 | E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
+| E008 | [Blocked proposed protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | Blocked; not executed | Not generated |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.
@@ -534,7 +628,7 @@ pip install -e .
 python -m unittest discover tests
 ```
 
-E004 requires an existing torchvision-compatible CIFAR-10 root. E005 and E006
+E004, E004A, and E004B require an existing CIFAR-10 root. E005 and E006
 require the frozen external archive, matched EDM checkpoints, and recorded
 Hellbender environment. Exact hashes, configurations, paths, and Slurm commands
 are recorded in the E005/E006 protocol and result documents. No experiment
@@ -575,10 +669,10 @@ E006: /home/xggh8/data/zw-lab/e006_transition_window_swaps
 ```text
 spectral-diffusion-playground/
 ├── assets/       # deterministic examples and documented image provenance
-├── configs/      # frozen E005/E006 execution configurations
+├── configs/      # frozen geometry and model-experiment configurations
 ├── data/         # small versioned manifests, never downloaded datasets
 ├── docs/         # protocols, provenance records, and result narratives
-├── experiments/  # independently executable E001-E006 and E004A entry points
+├── experiments/  # independently executable E001-E006, E004A, and E004B entry points
 ├── figures/      # curated, reviewable figures
 ├── results/      # compact machine-readable outputs
 ├── scripts/      # guarded preflight and Slurm launchers
@@ -597,12 +691,16 @@ spectral-diffusion-playground/
   grid, and executed code were unavailable.
 - The E004A high-high thresholds are preregistered clean-room diagnostics, not
   universal boundaries supplied by the paper.
+- E004B uses the same deterministic subset and corruption draws; it establishes
+  reproducibility under that freeze, not robustness across datasets or seeds.
+- E004B's high-band lower-confidence target narrows at `r=5`, so the result is
+  not frequency-scale invariant.
 - E005 transition windows depend on the frozen clean-room model, schedule, and
   cutoff family; they do not identify when a model learned either band.
 - E006 uses 256 seeds and a strict pixel-space criterion. Its degenerate
   EDM-50K baseline triggers the frozen safeguard and prevents a directional
   conclusion.
-- E004-E006 are paper-derived clean-room experiments, not exact reproductions
+- E004A-E006 are paper-derived clean-room experiments, not exact reproductions
   of the paper's unavailable executed code.
 
 ## Citation And License

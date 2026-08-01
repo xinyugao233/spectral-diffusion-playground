@@ -1,0 +1,98 @@
+{
+  "connected_components": {
+    "high_lower_bound": [
+      [
+        9,
+        10
+      ]
+    ],
+    "high_point_estimate": [
+      [
+        9,
+        10
+      ]
+    ],
+    "low_lower_bound": [
+      [
+        8
+      ]
+    ],
+    "low_point_estimate": [
+      [
+        8
+      ]
+    ]
+  },
+  "cutoff_stability": {
+    "3": {
+      "high": {
+        "lower_bound_indices": [
+          9,
+          10
+        ],
+        "matches_primary": true
+      },
+      "low": {
+        "lower_bound_indices": [
+          8
+        ],
+        "matches_primary": true
+      }
+    },
+    "4": {
+      "high": {
+        "lower_bound_indices": [
+          9,
+          10
+        ],
+        "matches_primary": true
+      },
+      "low": {
+        "lower_bound_indices": [
+          8
+        ],
+        "matches_primary": true
+      }
+    },
+    "5": {
+      "high": {
+        "lower_bound_indices": [
+          10
+        ],
+        "matches_primary": false
+      },
+      "low": {
+        "lower_bound_indices": [
+          8
+        ],
+        "matches_primary": true
+      }
+    }
+  },
+  "high_band_dimension": 2925,
+  "high_band_geometry_target_indices": [
+    9,
+    10
+  ],
+  "high_lower_bound_indices": [
+    9,
+    10
+  ],
+  "high_point_estimate_indices": [
+    9,
+    10
+  ],
+  "low_band_dimension": 147,
+  "low_band_geometry_target_indices": [
+    8
+  ],
+  "low_lower_bound_indices": [
+    8
+  ],
+  "low_point_estimate_indices": [
+    8
+  ],
+  "primary_cutoff": 4,
+  "q_C": 0.8,
+  "q_W": 0.8
+}
