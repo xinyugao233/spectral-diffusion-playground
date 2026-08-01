@@ -85,6 +85,11 @@ design for whole-denoiser swaps over the E004B low target `8..8` and high
 target `9..10`. It is `PROPOSED — NOT EXECUTED`; the primary bidirectional
 design is blocked by the same known historical EDM-50K `0/256` baseline.
 
+The [baseline-only checkpoint preflight](experiment_08_checkpoint_preflight.md)
+freezes the existing-snapshot inventory, disjoint pilot seeds, strict
+eligibility interval, and deterministic pair-selection rule required before
+any E008 swap can be considered. Implementing this gate does not execute E008.
+
 ## Reading Order
 
 New readers should start with the [root README](../README.md), then the

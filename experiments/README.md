@@ -16,7 +16,8 @@ write explicit outputs.
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
 | `06_transition_window_swaps.py` | Historical spectral-window swaps | Complete; exploratory outcome `INCONCLUSIVE` |
 | E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
-| E008 protocol only | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
+| `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Implemented; inventory and pilot pending |
+| E008 swap protocol | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
 
 ## Local Foundations
 
@@ -65,6 +66,10 @@ E008 is also protocol-only. It proposes whole-denoiser swaps over the E004B
 low target `8..8` and high target `9..10`; no E008 computation or model work
 has begun. See
 [`docs/experiment_08_frequency_geometry_swap_protocol.md`](../docs/experiment_08_frequency_geometry_swap_protocol.md).
+
+The separate [checkpoint preflight](../docs/experiment_08_checkpoint_preflight.md)
+evaluates no-swap pilot baselines only. Its interface cannot accept a donor
+model or swap window, and its reserved confirmatory seeds are untouched.
 
 The canonical order is documented in
 [`docs/canonical_experiment_pipeline.md`](../docs/canonical_experiment_pipeline.md).

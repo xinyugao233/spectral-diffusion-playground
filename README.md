@@ -27,7 +27,7 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 | 4 | E005 | Low/high residual curves at frozen `r` | Spectral interpretation |
 | 5 | E006 | Historical spectral/reference swaps | Exploratory; `INCONCLUSIVE` |
 | 6 | E007 | Full-space geometry swap over `8..9` | Proposed; blocked |
-| 7 | E008 | Frequency-geometry swaps | Proposed; blocked and unexecuted |
+| 7 | E008 | Frequency-geometry swaps | Baseline-only preflight implemented; swaps blocked and unexecuted |
 
 ```mermaid
 flowchart LR
@@ -123,7 +123,7 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
 | E006 | What happened in the historical spectral-aligned swaps? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Exploratory; formal outcome `INCONCLUSIVE` | Complete |
 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
-| E008 | Do swaps over the E004B band-specific targets differ from controls? | [Blocked protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | No result | Proposed; blocked and unexecuted |
+| E008 | Do swaps over the E004B band-specific targets differ from controls? | [Baseline preflight](docs/experiment_08_checkpoint_preflight.md) | No swap result | Preflight implemented; swaps blocked and unexecuted |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -593,10 +593,12 @@ swap Fourier coefficients or isolated frequency outputs.
 
 The primary bidirectional design is **PROPOSED — NOT EXECUTED** and blocked by
 the historical EDM-50K no-swap baseline of `0/256`. A nondegenerate model pair
-must first pass a preregistered baseline-only preflight. No E008 checkpoint
-evaluation, inference, sampling, Slurm job, result, or figure exists.
+must first pass a preregistered baseline-only preflight. The preflight
+implementation is ready, but no candidate inventory or pilot result exists.
+No E008 swap, confirmatory inference, result, or figure exists.
 
-See the [blocked E008 protocol](docs/experiment_08_frequency_geometry_swap_protocol.md).
+See the [baseline preflight protocol](docs/experiment_08_checkpoint_preflight.md)
+and [blocked E008 protocol](docs/experiment_08_frequency_geometry_swap_protocol.md).
 
 ## Mathematical Core
 
@@ -646,7 +648,7 @@ to the full residual energy within the frozen tolerance.
 | E005 | [Protocol](docs/experiment_05_spectral_residual_protocol.md) · [Model provenance](docs/experiment_05_clean_room_models.md) · [Results](docs/experiment_05_spectral_residual_results.md) | [`results/experiment_05/`](results/experiment_05/) | [`figures/experiment_05/`](figures/experiment_05/) |
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
 | E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
-| E008 | [Blocked proposed protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | Blocked; not executed | Not generated |
+| E008 | [Baseline preflight](docs/experiment_08_checkpoint_preflight.md) · [Blocked swap protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | Preflight pending; swaps not executed | Not generated |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.

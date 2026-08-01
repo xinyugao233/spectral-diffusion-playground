@@ -84,6 +84,13 @@
   "stage_7_frequency_geometry_swap": {
     "blocker": "historical EDM-50K baseline is 0/256",
     "experiment": "E008",
+    "checkpoint_preflight": {
+      "status": "implemented_not_executed",
+      "baseline_only": true,
+      "pilot_seed_range": [10000, 10127],
+      "confirmatory_seed_range_reserved": [0, 255],
+      "eligible_count_interval": [13, 115]
+    },
     "status": "proposed_not_executed",
     "whole_denoiser_temporal_swap": true,
     "fourier_coefficient_swap": false,

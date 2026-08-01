@@ -68,6 +68,14 @@ preflight on pilot seeds disjoint from confirmatory seeds. No swap effect may
 be inspected during pair selection. If no nondegenerate pair is available,
 E008 remains blocked.
 
+The baseline-only preflight is frozen separately in
+[the E008 checkpoint preflight protocol](experiment_08_checkpoint_preflight.md).
+It inventories all existing matched-run snapshots before sampling, uses pilot
+seeds `10000..10127`, reserves confirmatory seeds `0..255`, requires an
+inclusive pilot count of `13..115`, and selects an eligible pair solely by
+minimum absolute baseline-rate difference with a SHA-256 tie-break. Preparing
+this preflight does not execute E008.
+
 ## Memorization Criterion And Guardrails
 
 Unless superseded by a separately reviewed freeze, retain the E006

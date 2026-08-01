@@ -84,6 +84,13 @@ documented descriptive finding that the E005 low-frequency spectral transition
 was the tested window most strongly associated with changes in the
 memorization criterion.
 
+## E008 Baseline Preflight
+
+After validated execution, checkpoint-rate, training-duration, and
+eligible-pair figures will live in `experiment_08_preflight/`. These are
+baseline-only diagnostics; they cannot contain swap effects. No such figure is
+committed yet.
+
 ## Figure Policy
 
 Keep filenames stable, use one experiment subdirectory for scientific result

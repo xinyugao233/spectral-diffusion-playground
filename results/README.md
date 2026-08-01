@@ -88,6 +88,13 @@ E006's internal `paper_medium_reference` key is retained for provenance. It is
 a literature-derived Table 1 / Figure 10 compatibility condition, not an
 E004A-derived geometry window.
 
+## E008 Baseline Preflight
+
+The no-swap checkpoint preflight will place compact inventory, pilot,
+selection, and validation artifacts in `results/experiment_08_preflight/`
+after cluster execution. No preflight result is committed yet. Confirmatory
+seeds `0..255` remain reserved and no E008 swap output exists.
+
 ## Artifact Policy
 
 Commit an output only when it is small, deterministic, reviewable, and needed

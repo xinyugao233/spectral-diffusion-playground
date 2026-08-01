@@ -136,6 +136,12 @@ controls. It is not a Fourier coefficient swap. E008 is **PROPOSED — NOT
 EXECUTED**, and its primary bidirectional design is blocked by the same known
 historical EDM-50K `0/256` baseline.
 
+The separately frozen E008 checkpoint preflight evaluates only full no-swap
+trajectories on pilot seeds `10000..10127`. It inventories the existing
+matched-run checkpoint pools before inference, applies the immutable eligible
+count range `13..115`, and reserves confirmatory seeds `0..255`. Completing
+that gate would select model identities; it would not execute E008.
+
 ## Canonical Region Table
 
 | Object | Indices | Sigma | How selected | Role |

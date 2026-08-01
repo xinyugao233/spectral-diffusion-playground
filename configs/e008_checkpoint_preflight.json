@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "experiment_id": "experiment_08_preflight",
+  "scientific_scope": {
+    "baseline_only": true,
+    "donor_models_allowed": false,
+    "swap_windows_allowed": false,
+    "e008_executed": false
+  },
+  "candidate_roots": {
+    "edm_1k": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415",
+    "edm_50k": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg"
+  },
+  "candidate_pattern": "network-snapshot-XXXXXX.pkl",
+  "pilot_seeds": {
+    "start": 10000,
+    "stop_inclusive": 10127,
+    "count": 128
+  },
+  "future_confirmatory_seeds": {
+    "start": 0,
+    "stop_inclusive": 255,
+    "count": 256,
+    "used_by_preflight": false
+  },
+  "eligibility": {
+    "rate_interval_inclusive": [0.1, 0.9],
+    "count_interval_inclusive": [13, 115],
+    "confidence_interval": "two-sided Clopper-Pearson 95% descriptive only"
+  },
+  "pair_selection": {
+    "primary": "minimum absolute pilot memorization-rate difference",
+    "tie_break": "lexicographic (edm_1k_sha256, edm_50k_sha256)"
+  },
+  "sampler": {
+    "algorithm": "pure_euler",
+    "num_denoiser_calls": 18,
+    "sigma_max": 80.0,
+    "sigma_min": 0.002,
+    "rho": 7.0,
+    "terminal_sigma": 0.0,
+    "churn": 0.0,
+    "heun_correction": false,
+    "class_labels": null,
+    "canonical_per_seed_inference": true
+  },
+  "memorization": {
+    "criterion": "d1nn < d2nn / 3",
+    "tensor_domain": "unclamped_unquantized_nchw_float64_minus1_to1_after_inference",
+    "flattening": "channel_major_C_order",
+    "distance": "exact_euclidean_pixel_space",
+    "reference_subset": "data/e005_cifar10_subset_1k_indices.txt",
+    "reference_subset_text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29",
+    "reference_subset_int64_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8"
+  },
+  "dataset": {
+    "archive": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"
+  },
+  "execution": {
+    "edm_root": "/home/xggh8/edm",
+    "output_dir": "/home/xggh8/data/zw-lab/e008_checkpoint_preflight",
+    "smoke_output_template": "/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_{job_id}",
+    "batch_size": 16,
+    "nn_batch_size": 64
+  }
+}
