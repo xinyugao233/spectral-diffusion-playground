@@ -50,13 +50,18 @@ Durable identities and clean-room deviations are recorded in
 [`geometry_manifest.json`](../results/experiment_04a/geometry_manifest.json)
 and the [source audit](paper_geometry_source_audit.md).
 
-## Independent Local Reproduction
+## End-To-End Local Regeneration
 
-The committed curves were independently regenerated from the hash-verified
+The committed curves were regenerated end to end from the hash-verified
 CIFAR-10 Python batches using implementation commit `432c371489961be3b55dea187bf8ea6951ffb9be`.
 This run loaded and normalized the frozen first 1,000 training and first 1,000
 test examples, generated fresh deterministic corruption arrays from seed `0`,
 and recomputed both metrics rather than reading committed estimates.
+
+The rerun is independent of the committed curve estimates, but uses the same
+frozen subset, seed, sigma grid, estimator, normalization, and corruption
+draws. Its near-exact agreement demonstrates deterministic reproducibility,
+not robustness across alternative subsets or random seeds.
 
 ```text
 device: CPU, NumPy/SciPy float64 oracle

@@ -219,12 +219,18 @@ it does not use committed estimates as numerical inputs. `--plot-only` retains
 the lightweight figure-regeneration path, and `--validate-only` checks an
 existing result directory without recomputation.
 
-The recorded independent CPU run completed in 3.31 seconds with 441.8 MiB peak
+The recorded end-to-end CPU run completed in 3.31 seconds with 441.8 MiB peak
 resident memory. Every sigma passed the tolerance frozen before execution;
 maximum absolute differences were `1.11e-16` for coverage and `4.72e-16` for
 maximum posterior weight. The sampled high-high set remained `{2,3,4,5}`.
 See the [fresh reproduction artifacts](results/experiment_04a_reproduction/)
 and [comparison record](results/experiment_04a_reproduction/reproduction_comparison.csv).
+
+This is an end-to-end local regeneration under the frozen clean-room
+configuration. It is independent of the committed curve estimates, but uses
+the same subset, seed, sigma grid, estimator, normalization, and Gaussian
+draws. The near-exact agreement establishes deterministic reproducibility, not
+robustness across alternative subsets or seeds.
 
 ## E005: Low- And High-Frequency Residual Transitions
 

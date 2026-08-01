@@ -63,7 +63,7 @@ hashes, is [`configs/e004a_local_geometry.json`](../configs/e004a_local_geometry
 The local evaluator verifies the six canonical CIFAR-10 batch hashes before
 computation and refuses to overwrite a nonempty output directory.
 
-## Independent Local Evaluation
+## End-To-End Local Regeneration
 
 The committed curves can be regenerated numerically rather than treated as
 plotting inputs:
@@ -93,8 +93,8 @@ The modes are deliberately separate:
 
 ## Reproduction Agreement Rule
 
-The tolerance was frozen before the independent local run. For each metric and
-sigma, define the committed standard-error proxy as
+The tolerance was frozen before the artifact-independent deterministic rerun.
+For each metric and sigma, define the committed standard-error proxy as
 
 ```text
 SE_committed = (CI_high - CI_low) / (2 * 1.96)
