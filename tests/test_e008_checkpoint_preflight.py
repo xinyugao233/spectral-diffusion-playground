@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import csv
 import hashlib
+import io
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -179,6 +183,19 @@ class ResumeAndRepositoryTests(unittest.TestCase):
         self.assertNotIn("--donor-checkpoint", strings)
         self.assertNotIn("--swap-window", strings)
 
+    def test_help_is_available_outside_slurm(self) -> None:
+        module = load_entrypoint()
+        stdout = io.StringIO()
+        with (
+            mock.patch.object(sys, "argv", [str(module.__file__), "--help"]),
+            mock.patch.dict(os.environ, {}, clear=True),
+            contextlib.redirect_stdout(stdout),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            module.main()
+        self.assertEqual(raised.exception.code, 0)
+        self.assertIn("--inventory-only", stdout.getvalue())
+
     def test_per_sample_schema_contains_no_swap_fields(self) -> None:
         module = load_entrypoint()
         header = module.per_sample_header()
@@ -211,6 +228,58 @@ class ResumeAndRepositoryTests(unittest.TestCase):
             pipeline["stage_7_frequency_geometry_swap"]["status"],
             "proposed_not_executed",
         )
+
+    def test_zero_confirmatory_overlap_passes_output_validation(self) -> None:
+        module = load_entrypoint()
+        config = module.load_and_validate_config(module.DEFAULT_CONFIG)
+        with tempfile.TemporaryDirectory() as temporary:
+            output_dir = Path(temporary)
+            inventory_path = output_dir / module.INVENTORY_FILENAME
+            candidate = {field: "" for field in module.inventory_header()}
+            candidate.update(
+                {
+                    "model_role": "edm_1k",
+                    "checkpoint_sha256": "a" * 64,
+                    "training_kimg": 0,
+                    "inventory_status": "accepted",
+                }
+            )
+            module.write_csv(inventory_path, [candidate], module.inventory_header())
+            module.dump_json(
+                output_dir / module.POOL_MANIFEST_FILENAME,
+                {
+                    "pool_frozen_before_pilot": True,
+                    "pilot_started": False,
+                    "inventory": {"sha256": sha256_file(inventory_path)},
+                    "config_sha256": sha256_file(module.DEFAULT_CONFIG),
+                    "scientific_scope": config["scientific_scope"],
+                    "pilot_seeds": list(PILOT_SEEDS),
+                },
+            )
+            rows = []
+            for seed in PILOT_SEEDS:
+                row = {field: "" for field in module.per_sample_header()}
+                row.update(
+                    {
+                        "model_role": "edm_1k",
+                        "checkpoint_sha256": "a" * 64,
+                        "training_kimg": 0,
+                        "sample_seed": seed,
+                        "memorized": 0,
+                        "status": "ok",
+                    }
+                )
+                rows.append(row)
+            module.write_csv(
+                output_dir / module.PER_SAMPLE_FILENAME,
+                rows,
+                module.per_sample_header(),
+            )
+            validation = module.validate_outputs(
+                output_dir, config, require_complete=True
+            )
+        self.assertEqual(validation["status"], "pass")
+        self.assertTrue(validation["checks"]["confirmatory_seed_overlap_absent"])
 
 
 def summary(role: str, digest: str, rate: float) -> dict[str, object]:

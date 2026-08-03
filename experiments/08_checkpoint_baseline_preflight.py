@@ -94,9 +94,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main() -> None:
     """Execute exactly one inventory, pilot, summary, or validation mode."""
+    args = parse_args()
     if "SLURM_JOB_ID" not in os.environ:
         raise RuntimeError("Refusing to run E008 checkpoint work outside Slurm")
-    args = parse_args()
     config = load_and_validate_config(args.config)
     resolve_args(args, config)
     validate_args(args)
@@ -843,8 +843,8 @@ def validate_outputs(
         == sha256_file(inventory_path),
         "no_duplicate_checkpoint_seed_keys": len(keys) == len(observed_keys),
         "pilot_seed_set_exact": {seed for _, seed in keys} == set(PILOT_SEEDS),
-        "confirmatory_seed_overlap_count": len(
-            {seed for _, seed in keys}.intersection(CONFIRMATORY_SEEDS)
+        "confirmatory_seed_overlap_absent": not {seed for _, seed in keys}.intersection(
+            CONFIRMATORY_SEEDS
         ),
         "all_candidates_have_complete_rows": observed_keys == expected_keys,
         "swap_fields_absent": all(
