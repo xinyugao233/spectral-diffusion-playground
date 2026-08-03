@@ -281,6 +281,31 @@ class ResumeAndRepositoryTests(unittest.TestCase):
         self.assertEqual(validation["status"], "pass")
         self.assertTrue(validation["checks"]["confirmatory_seed_overlap_absent"])
 
+    def test_launcher_redirects_all_temporary_state_out_of_home(self) -> None:
+        launcher = (REPO_ROOT / "scripts/e008_checkpoint_preflight.slurm").read_text()
+        self.assertIn('TMP_ROOT="/home/xggh8/data/tmp/e008_${SLURM_JOB_ID}"', launcher)
+        for variable in (
+            "TMPDIR",
+            "XDG_CACHE_HOME",
+            "TORCH_HOME",
+            "MPLCONFIGDIR",
+            "WANDB_DIR",
+            "HF_HOME",
+            "TRANSFORMERS_CACHE",
+            "HF_DATASETS_CACHE",
+            "PIP_CACHE_DIR",
+        ):
+            with self.subTest(variable=variable):
+                self.assertIn(f"export {variable}=", launcher)
+
+    def test_checkout_provenance_records_user_and_resolved_paths(self) -> None:
+        module = load_entrypoint()
+        user_path = "/home/xggh8/projects/spectral-diffusion-playground"
+        with mock.patch.dict(os.environ, {"E008_REPO_ROOT": user_path}):
+            provenance = module.repository_checkout_provenance()
+        self.assertEqual(provenance["user_facing_path"], user_path)
+        self.assertEqual(provenance["resolved_path"], str(REPO_ROOT.resolve()))
+
 
 def summary(role: str, digest: str, rate: float) -> dict[str, object]:
     """Build one synthetic eligible checkpoint summary."""

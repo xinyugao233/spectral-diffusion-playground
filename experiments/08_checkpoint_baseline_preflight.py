@@ -475,9 +475,20 @@ def run_pilot(args: argparse.Namespace, config: Mapping[str, Any]) -> None:
             output_dir / POOL_MANIFEST_FILENAME
         ),
         "repository_commit": git_commit(),
+        "repository_checkout": repository_checkout_provenance(),
+        "output_dir": str(output_dir),
         "device": str(device),
         "host": socket.gethostname(),
         "slurm_job_id": os.environ["SLURM_JOB_ID"],
+        "slurm": {
+            "partition": os.environ.get("SLURM_JOB_PARTITION", ""),
+            "gpu_type": (
+                torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu"
+            ),
+            "cpus_per_task": os.environ.get("SLURM_CPUS_PER_TASK", ""),
+            "memory_per_node_mb": os.environ.get("SLURM_MEM_PER_NODE", ""),
+            "time_limit": os.environ.get("SLURM_TIMELIMIT", ""),
+        },
         "python": platform.python_version(),
         "torch": torch.__version__,
         "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG", ""),
@@ -792,6 +803,7 @@ def summarize(args: argparse.Namespace, config: Mapping[str, Any]) -> None:
             output_dir / POOL_MANIFEST_FILENAME
         ),
         "code_commit": git_commit(),
+        "repository_checkout": repository_checkout_provenance(),
         "e008_executed": False,
         "swap_conditions_generated": False,
     }
@@ -1091,6 +1103,14 @@ def repository_commit(path: Path) -> str:
     return subprocess.check_output(
         ["git", "-C", str(path), "rev-parse", "HEAD"], text=True
     ).strip()
+
+
+def repository_checkout_provenance() -> dict[str, str]:
+    """Record both the submitted checkout path and its canonical resolution."""
+    return {
+        "user_facing_path": os.environ.get("E008_REPO_ROOT", str(REPO_ROOT)),
+        "resolved_path": str(REPO_ROOT.resolve()),
+    }
 
 
 if __name__ == "__main__":

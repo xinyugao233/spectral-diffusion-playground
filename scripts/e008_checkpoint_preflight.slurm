@@ -110,8 +110,8 @@ if [ -n "${SLURM_TMPDIR:-}" ]; then
   TMP_ROOT="$SLURM_TMPDIR"
   TMP_SOURCE="provided"
 else
-  TMP_ROOT="/cluster/pixstor/zwggh-lab/xinyu/slurm_tmp/e008_${SLURM_JOB_ID}"
-  TMP_SOURCE="fallback"
+  TMP_ROOT="/home/xggh8/data/tmp/e008_${SLURM_JOB_ID}"
+  TMP_SOURCE="data_allocation_fallback"
 fi
 mkdir -p "$TMP_ROOT"
 if [ ! -d "$TMP_ROOT" ] || [ ! -w "$TMP_ROOT" ]; then
@@ -121,13 +121,28 @@ fi
 export SLURM_TMPDIR="$TMP_ROOT"
 export TMPDIR="${TMP_ROOT}/tmp"
 export XDG_CACHE_HOME="${TMP_ROOT}/.cache"
-export TORCH_HOME="${TMP_ROOT}/torch_cache"
-export MPLCONFIGDIR="${TMP_ROOT}/matplotlib"
+export TORCH_HOME="${XDG_CACHE_HOME}/torch"
+export MPLCONFIGDIR="${XDG_CACHE_HOME}/matplotlib"
+export WANDB_DIR="${TMP_ROOT}/wandb"
+export HF_HOME="${XDG_CACHE_HOME}/huggingface"
+export TRANSFORMERS_CACHE="${HF_HOME}/transformers"
+export HF_DATASETS_CACHE="${HF_HOME}/datasets"
+export PIP_CACHE_DIR="${XDG_CACHE_HOME}/pip"
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export PYTHONPATH="${REPO_ROOT}/src:/home/xggh8/edm:${PYTHONPATH:-}"
-mkdir -p "$TMPDIR" "$XDG_CACHE_HOME" "$TORCH_HOME" "$MPLCONFIGDIR"
+mkdir -p \
+  "$TMPDIR" \
+  "$XDG_CACHE_HOME" \
+  "$TORCH_HOME" \
+  "$MPLCONFIGDIR" \
+  "$WANDB_DIR" \
+  "$TRANSFORMERS_CACHE" \
+  "$HF_DATASETS_CACHE" \
+  "$PIP_CACHE_DIR"
 
 echo "repository_root=${REPO_ROOT}"
+echo "repository_user_path=${E008_REPO_ROOT}"
+echo "repository_resolved_path=${REPO_ROOT}"
 echo "repository_commit=${ACTUAL_COMMIT}"
 echo "config=${CONFIG}"
 echo "config_sha256=${ACTUAL_CONFIG_SHA256}"
