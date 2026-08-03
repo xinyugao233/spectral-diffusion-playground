@@ -203,6 +203,21 @@ class ResumeAndRepositoryTests(unittest.TestCase):
         self.assertNotIn("window_name", header)
         self.assertIn("d1nn_over_d2nn", header)
 
+    def test_smoke_diagnostic_localizes_distance_only_difference(self) -> None:
+        module = load_entrypoint()
+        batched = complete_pilot_row(10000)
+        single = dict(batched)
+        single["d1nn"] = "1.0000000000000002"
+        diagnostic = module.compare_smoke_rows([batched], [single])
+        record = diagnostic["records"][0]
+        self.assertEqual(diagnostic["status"], "difference_detected")
+        self.assertTrue(record["generated_sample_hash_equal"])
+        self.assertEqual(record["maximum_sample_difference"], 0.0)
+        self.assertTrue(record["nearest_neighbor_indices_equal"])
+        self.assertTrue(record["memorized_equal"])
+        self.assertIn("d1nn", record["differing_fields"])
+        self.assertGreater(record["numeric_fields"]["d1nn"]["absolute_difference"], 0.0)
+
     def test_config_freezes_baseline_only_scope(self) -> None:
         config = json.loads(
             (REPO_ROOT / "configs/e008_checkpoint_preflight.json").read_text()
@@ -287,7 +302,9 @@ class ResumeAndRepositoryTests(unittest.TestCase):
             'OUTPUT_DIR="/home/xggh8/data/zw-lab/e008_checkpoint_preflight_smoke_${SLURM_JOB_ID}"',
             launcher,
         )
-        self.assertNotIn("/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_", launcher)
+        self.assertNotIn(
+            "/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_", launcher
+        )
         self.assertIn('TMP_ROOT="/home/xggh8/data/tmp/e008_${SLURM_JOB_ID}"', launcher)
         for variable in (
             "TMPDIR",
@@ -331,6 +348,26 @@ def pilot_row(digest: str, seed: int, *, status: str) -> dict[str, object]:
         "sample_seed": seed,
         "status": status,
         "error": "failure" if status != "ok" else "",
+    }
+
+
+def complete_pilot_row(seed: int) -> dict[str, object]:
+    """Build one complete row for smoke diagnostic tests."""
+    return {
+        "model_role": "edm_1k",
+        "checkpoint_path": "/checkpoint.pkl",
+        "checkpoint_sha256": "a" * 64,
+        "training_kimg": 0,
+        "sample_seed": seed,
+        "generated_sample_hash": "b" * 64,
+        "d1nn": "1",
+        "d2nn": "4",
+        "d1nn_reference_index": 1,
+        "d2nn_reference_index": 2,
+        "d1nn_over_d2nn": "0.25",
+        "memorized": 1,
+        "status": "ok",
+        "error": "",
     }
 
 

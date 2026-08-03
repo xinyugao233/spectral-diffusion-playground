@@ -450,10 +450,13 @@ def run_pilot(args: argparse.Namespace, config: Mapping[str, Any]) -> None:
                 nn_batch_size=1,
                 orchestration_batch_size=1,
             )
+            diagnostic = compare_smoke_rows(candidate_rows, repeated_rows)
+            dump_json(output_dir / "smoke_batching_diagnostic.json", diagnostic)
             if candidate_rows != repeated_rows:
                 raise RuntimeError(
                     "Smoke batching invariance failed for "
-                    f"{candidate['checkpoint_sha256']}"
+                    f"{candidate['checkpoint_sha256']}; diagnostic="
+                    f"{output_dir / 'smoke_batching_diagnostic.json'}"
                 )
         all_rows = merge_resume_rows(all_rows, candidate_rows)
         write_csv(output_dir / PER_SAMPLE_FILENAME, all_rows, per_sample_header())
@@ -515,6 +518,79 @@ def copy_pool_files(source: Path, destination: Path) -> None:
     for name in (INVENTORY_FILENAME, POOL_MANIFEST_FILENAME):
         target = destination / name
         target.write_bytes((source / name).read_bytes())
+
+
+def compare_smoke_rows(
+    batched: Sequence[Mapping[str, object]],
+    single_item: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Report exact and numerical differences between two smoke evaluations."""
+    first = {int(row["sample_seed"]): row for row in batched}
+    second = {int(row["sample_seed"]): row for row in single_item}
+    if set(first) != set(second):
+        raise RuntimeError("Smoke diagnostic seed sets differ")
+    numeric_fields = ("d1nn", "d2nn", "d1nn_over_d2nn")
+    exact_fields = (
+        "model_role",
+        "checkpoint_path",
+        "checkpoint_sha256",
+        "training_kimg",
+        "sample_seed",
+        "generated_sample_hash",
+        "d1nn_reference_index",
+        "d2nn_reference_index",
+        "memorized",
+        "status",
+        "error",
+    )
+    records: list[dict[str, object]] = []
+    for seed in sorted(first):
+        left = first[seed]
+        right = second[seed]
+        hashes_equal = left["generated_sample_hash"] == right["generated_sample_hash"]
+        numeric = {}
+        for field in numeric_fields:
+            left_value = float(left[field])
+            right_value = float(right[field])
+            absolute = abs(left_value - right_value)
+            scale = max(abs(left_value), abs(right_value))
+            numeric[field] = {
+                "batched": left_value,
+                "single_item": right_value,
+                "absolute_difference": absolute,
+                "relative_difference": absolute / scale if scale > 0.0 else 0.0,
+                "exactly_equal": left[field] == right[field],
+            }
+        records.append(
+            {
+                "sample_seed": seed,
+                "generated_sample_hash_equal": hashes_equal,
+                "maximum_sample_difference": 0.0 if hashes_equal else None,
+                "nearest_neighbor_indices_equal": (
+                    left["d1nn_reference_index"] == right["d1nn_reference_index"]
+                    and left["d2nn_reference_index"] == right["d2nn_reference_index"]
+                ),
+                "memorized_equal": left["memorized"] == right["memorized"],
+                "nonnumeric_metadata_equal": all(
+                    left[field] == right[field] for field in exact_fields
+                ),
+                "numeric_fields": numeric,
+                "differing_fields": [
+                    field
+                    for field in (*exact_fields, *numeric_fields)
+                    if left[field] != right[field]
+                ],
+            }
+        )
+    return {
+        "status": (
+            "exact_match"
+            if all(not record["differing_fields"] for record in records)
+            else "difference_detected"
+        ),
+        "comparison": "GPU nearest-neighbor batch versus single-item batch",
+        "records": records,
+    }
 
 
 def verify_pool_manifest(
