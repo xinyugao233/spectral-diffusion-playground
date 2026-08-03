@@ -283,6 +283,11 @@ class ResumeAndRepositoryTests(unittest.TestCase):
 
     def test_launcher_redirects_all_temporary_state_out_of_home(self) -> None:
         launcher = (REPO_ROOT / "scripts/e008_checkpoint_preflight.slurm").read_text()
+        self.assertIn(
+            'OUTPUT_DIR="/home/xggh8/data/zw-lab/e008_checkpoint_preflight_smoke_${SLURM_JOB_ID}"',
+            launcher,
+        )
+        self.assertNotIn("/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_", launcher)
         self.assertIn('TMP_ROOT="/home/xggh8/data/tmp/e008_${SLURM_JOB_ID}"', launcher)
         for variable in (
             "TMPDIR",

@@ -77,7 +77,7 @@ case "$MODE" in
       echo "error: frozen candidate pool is missing" >&2
       exit 1
     fi
-    OUTPUT_DIR="/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_${SLURM_JOB_ID}"
+    OUTPUT_DIR="/home/xggh8/data/zw-lab/e008_checkpoint_preflight_smoke_${SLURM_JOB_ID}"
     if [ -e "$OUTPUT_DIR" ]; then
       echo "error: smoke output already exists: ${OUTPUT_DIR}" >&2
       exit 1
