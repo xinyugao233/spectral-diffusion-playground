@@ -49,6 +49,7 @@ from spectral_diffusion_playground.e008_checkpoint_preflight import (
     candidate_is_eligible,
     discover_checkpoint_paths,
     merge_resume_rows,
+    nearest_two_cpu,
     parse_training_kimg,
     read_csv_rows,
     select_model_pair,
@@ -495,6 +496,31 @@ def run_pilot(args: argparse.Namespace, config: Mapping[str, Any]) -> None:
         "python": platform.python_version(),
         "torch": torch.__version__,
         "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG", ""),
+        "nearest_neighbor_evaluator": {
+            "device": "cpu",
+            "dtype": "float64",
+            "distance": "direct_squared_differences_then_euclidean_sqrt",
+            "tie_break": "reference_subset_position",
+        },
+        "pre_execution_and_diagnostic_jobs": [
+            {
+                "job_id": "15623452",
+                "status": "pre_execution_commit_guard_failure",
+                "pilot_rows_persisted": 0,
+            },
+            {
+                "job_id": "15623680",
+                "status": "smoke_exact_row_comparison_failure",
+                "pilot_rows_persisted": 0,
+            },
+            {
+                "job_id": "15623703",
+                "status": "intentional_field_level_diagnostic_failure",
+                "generated_samples_identical": True,
+                "maximum_observed_distance_difference": 3.552713678800501e-15,
+                "pilot_rows_persisted": 0,
+            },
+        ],
     }
     dump_json(output_dir / "pilot_run_manifest.json", run_manifest)
     if not args.smoke:
@@ -703,9 +729,7 @@ def evaluate_candidate(
                 rows.append(failed_row(candidate, seed, error))
         if samples:
             sample_array = np.stack(samples)
-            indices, distances = nearest_two_torch(
-                sample_array, reference, device=device, batch_size=nn_batch_size
-            )
+            indices, distances = nearest_two_cpu(sample_array, reference)
             for position, seed in enumerate(successful_seeds):
                 d1 = float(distances[position, 0])
                 d2 = float(distances[position, 1])
@@ -738,35 +762,6 @@ def load_reference_images(archive_path: Path, indices: np.ndarray) -> np.ndarray
                 )
             images[position] = np.transpose(2.0 * array / 255.0 - 1.0, (2, 0, 1))
     return images
-
-
-def nearest_two_torch(
-    generated: np.ndarray,
-    reference: np.ndarray,
-    *,
-    device: torch.device,
-    batch_size: int,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Compute exact float64 pixel-space nearest-two neighbors in chunks."""
-    bank = torch.from_numpy(reference.reshape(reference.shape[0], -1)).to(
-        device=device, dtype=torch.float64
-    )
-    bank_norm = torch.sum(bank * bank, dim=1)
-    all_indices: list[np.ndarray] = []
-    all_distances: list[np.ndarray] = []
-    for start in range(0, generated.shape[0], batch_size):
-        query = torch.from_numpy(
-            generated[start : start + batch_size].reshape(-1, 3072)
-        ).to(device=device, dtype=torch.float64)
-        squared = (
-            torch.sum(query * query, dim=1, keepdim=True)
-            + bank_norm[None, :]
-            - 2.0 * query @ bank.T
-        ).clamp_min_(0.0)
-        values, indices = torch.topk(squared, 2, dim=1, largest=False, sorted=True)
-        all_indices.append(indices.cpu().numpy().astype(np.int64))
-        all_distances.append(torch.sqrt(values).cpu().numpy().astype(np.float64))
-    return np.concatenate(all_indices), np.concatenate(all_distances)
 
 
 def successful_row(

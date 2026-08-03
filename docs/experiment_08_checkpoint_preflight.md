@@ -35,7 +35,10 @@ inference; later checkpoint discovery cannot alter the active pool.
 - Output representation: unclamped, unquantized NCHW values in `[-1,1]`.
 - Reference: the frozen E005 clean-room CIFAR-10 1K subset.
 - Distance: exact float64 Euclidean pixel distance after channel-major
-  flattening.
+  flattening. Generated samples move to CPU before nearest-neighbor evaluation;
+  direct float64 differences determine squared distances, reference subset
+  position breaks exact ties, and square roots preserve Euclidean `d1NN` and
+  `d2NN` values.
 - Memorized: strictly `d1NN < d2NN / 3`.
 
 Each checkpoint supplies all 18 denoiser calls. The command line has no donor
@@ -74,3 +77,16 @@ figures under `figures/experiment_08_preflight/` only after a validated run.
 The full external run directory remains the provenance source. No result is
 present at protocol-freeze time.
 
+## Smoke-Recovery Record
+
+- Job `15623452` failed before execution at the repository commit guard.
+- Job `15623680` failed the original exact row-comparison smoke guard; no
+  checkpoint-seed row was persisted.
+- Diagnostic job `15623703` established byte-identical generated samples,
+  identical neighbor indices and memorization decisions, and only a maximum
+  `3.552713678800501e-15` GPU distance difference. It intentionally failed
+  after writing the diagnostic.
+
+This evidence motivated deterministic CPU distance evaluation. The frozen
+config, checkpoint pool, pilot seeds, eligibility rule, and no-swap boundary
+were not changed.

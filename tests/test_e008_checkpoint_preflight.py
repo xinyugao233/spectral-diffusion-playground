@@ -32,11 +32,13 @@ from spectral_diffusion_playground.e008_checkpoint_preflight import (
     discover_checkpoint_paths,
     independent_seed_latents,
     merge_resume_rows,
+    nearest_two_cpu,
     parse_training_kimg,
     select_model_pair,
     sha256_file,
     validate_no_swap_only,
 )
+from spectral_diffusion_playground.e006_transition_swaps import nearest_two
 
 
 def load_entrypoint():
@@ -150,6 +152,49 @@ class FrozenPilotRuleTests(unittest.TestCase):
             validate_no_swap_only(donor_checkpoint="donor.pkl")
         with self.assertRaisesRegex(ValueError, "window"):
             validate_no_swap_only(swap_window="8..8")
+
+    def test_cpu_nearest_two_is_exactly_partition_invariant(self) -> None:
+        rng = np.random.default_rng(91)
+        generated = rng.normal(size=(5, 3, 4, 4))
+        references = rng.normal(size=(11, 3, 4, 4))
+        full_indices, full_distances = nearest_two_cpu(generated, references)
+        split = [
+            nearest_two_cpu(generated[index : index + 1], references)
+            for index in range(5)
+        ]
+        split_indices = np.concatenate([result[0] for result in split])
+        split_distances = np.concatenate([result[1] for result in split])
+        np.testing.assert_array_equal(full_indices, split_indices)
+        np.testing.assert_array_equal(full_distances, split_distances)
+
+    def test_cpu_nearest_two_uses_stable_reference_position_tie_break(self) -> None:
+        generated = np.asarray([[0.0, 0.0]])
+        references = np.asarray(
+            [
+                [1.0, 0.0],
+                [-1.0, 0.0],
+                [0.0, 2.0],
+            ]
+        )
+        indices, distances = nearest_two_cpu(generated, references)
+        np.testing.assert_array_equal(indices, [[0, 1]])
+        np.testing.assert_array_equal(distances, [[1.0, 1.0]])
+
+    def test_cpu_nearest_two_preserves_e006_euclidean_distances(self) -> None:
+        rng = np.random.default_rng(17)
+        generated = rng.normal(size=(4, 12))
+        references = rng.normal(size=(9, 12))
+        expected_indices, expected_distances = nearest_two(generated, references)
+        actual_indices, actual_distances = nearest_two_cpu(generated, references)
+        np.testing.assert_array_equal(actual_indices, expected_indices)
+        np.testing.assert_allclose(actual_distances, expected_distances, atol=2e-15)
+
+    def test_entrypoint_no_longer_uses_gpu_nearest_neighbor_arithmetic(self) -> None:
+        module = load_entrypoint()
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("nearest_two_torch", source)
+        self.assertNotIn("torch.topk", source)
+        self.assertIn("nearest_two_cpu(sample_array, reference)", source)
 
 
 class ResumeAndRepositoryTests(unittest.TestCase):

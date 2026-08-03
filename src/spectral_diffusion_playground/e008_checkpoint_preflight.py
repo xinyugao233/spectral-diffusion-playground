@@ -162,6 +162,41 @@ def independent_seed_latents(
     }
 
 
+def nearest_two_cpu(
+    generated: np.ndarray,
+    references: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return deterministic nearest-two positions and Euclidean distances.
+
+    Each generated sample is evaluated independently with direct CPU float64
+    differences. Squared distances determine ordering; reference position is
+    the explicit tie-breaker. Square roots preserve the frozen E006 Euclidean
+    distance convention used by ``d1NN < d2NN / 3``.
+    """
+    queries = np.asarray(generated, dtype=np.float64)
+    bank = np.asarray(references, dtype=np.float64)
+    if queries.ndim < 2 or bank.ndim < 2:
+        raise ValueError("Generated samples and references must include batch axes")
+    queries = queries.reshape(queries.shape[0], -1)
+    bank = bank.reshape(bank.shape[0], -1)
+    if queries.shape[1] != bank.shape[1] or bank.shape[0] < 2:
+        raise ValueError(
+            f"Expected compatible arrays with at least two references, got "
+            f"{queries.shape} and {bank.shape}"
+        )
+    positions = np.arange(bank.shape[0], dtype=np.int64)
+    nearest_positions = np.empty((queries.shape[0], 2), dtype=np.int64)
+    nearest_distances = np.empty((queries.shape[0], 2), dtype=np.float64)
+    for query_index, sample in enumerate(queries):
+        differences = bank - sample[None, :]
+        squared = np.sum(differences * differences, axis=1, dtype=np.float64)
+        order = np.lexsort((positions, squared))
+        selected = order[:2]
+        nearest_positions[query_index] = selected
+        nearest_distances[query_index] = np.sqrt(squared[selected])
+    return nearest_positions, nearest_distances
+
+
 def merge_resume_rows(
     existing: Sequence[Mapping[str, object]],
     incoming: Sequence[Mapping[str, object]],
