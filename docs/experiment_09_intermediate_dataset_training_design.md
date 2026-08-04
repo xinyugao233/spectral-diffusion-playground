@@ -53,7 +53,7 @@ sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
 E009_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
 E009_REPO_COMMIT=<evaluation-commit> \
 sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
-  scripts/e009_stage_a_evaluation.slurm pilot
+  scripts/e009_stage_a_pilot_array.slurm
 
 E009_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
 E009_REPO_COMMIT=<evaluation-commit> \
@@ -61,7 +61,9 @@ sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
   scripts/e009_stage_a_evaluation.slurm summarize
 ```
 
-These commands are preparation artifacts only. No E009 baseline record exists
+The pilot is a three-task array with isolated 2K, 5K, and 10K output shards;
+the final command deterministically merges those shards. These commands are
+preparation artifacts only. No E009 baseline record exists
 until the inventory gate passes and the `pilot` command is separately
 submitted.
 

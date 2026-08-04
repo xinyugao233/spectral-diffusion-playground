@@ -19,6 +19,7 @@ OUTPUT_DIR = Path("/home/xggh8/data/zw-lab/e009_stage_a_baseline")
 EXPERIMENT_ID = "experiment_09_stage_a_baseline"
 PILOT_SEEDS = tuple(range(20_000, 20_128))
 CONFIRMATORY_SEEDS = tuple(range(256))
+ROLES = ("edm_2k", "edm_5k", "edm_10k")
 
 
 def load_e008_entrypoint():
@@ -136,6 +137,37 @@ def freeze_inventory(engine, config: Mapping[str, Any], output_dir: Path) -> Non
         },
     }
     engine.dump_json(output_dir / engine.POOL_MANIFEST_FILENAME, manifest)
+    freeze_role_shards(engine, manifest, rows, output_dir)
+
+
+def freeze_role_shards(
+    engine,
+    master_manifest: Mapping[str, Any],
+    rows: Sequence[Mapping[str, object]],
+    output_dir: Path,
+) -> None:
+    """Create three immutable role-specific pools for isolated array writes."""
+    for role in ROLES:
+        shard_dir = output_dir / "shards" / role
+        shard_dir.mkdir(parents=True)
+        shard_rows = [dict(row) for row in rows if row["model_role"] == role]
+        if len(shard_rows) != 13:
+            raise RuntimeError(f"Expected 13 frozen checkpoints for {role}")
+        inventory_path = shard_dir / engine.INVENTORY_FILENAME
+        engine.write_csv(inventory_path, shard_rows, engine.inventory_header())
+        shard_manifest = dict(master_manifest)
+        shard_manifest["parent_inventory_sha256"] = master_manifest["inventory"][
+            "sha256"
+        ]
+        shard_manifest["inventory"] = {
+            "path": str(inventory_path),
+            "sha256": core.sha256_file(inventory_path),
+            "row_count": len(shard_rows),
+            "accepted_count": len(shard_rows),
+            "rejected_count": 0,
+            "records": shard_rows,
+        }
+        engine.dump_json(shard_dir / engine.POOL_MANIFEST_FILENAME, shard_manifest)
 
 
 def read_bool(value: object) -> bool:
@@ -184,6 +216,7 @@ def select_pair(
 
 def summarize(engine, config: Mapping[str, Any], output_dir: Path) -> None:
     """Aggregate all candidates and apply the frozen Stage A decision tree."""
+    merge_role_shards(engine, output_dir)
     inventory = engine.read_csv_rows(output_dir / engine.INVENTORY_FILENAME)
     samples = engine.read_csv_rows(output_dir / engine.PER_SAMPLE_FILENAME)
     grouped: dict[str, list[dict[str, object]]] = {}
@@ -280,6 +313,30 @@ def summarize(engine, config: Mapping[str, Any], output_dir: Path) -> None:
         raise RuntimeError(f"E009 baseline validation failed: {validation}")
 
 
+def merge_role_shards(engine, output_dir: Path) -> None:
+    """Merge three complete disjoint role shards into stable master CSV files."""
+    merged: list[dict[str, object]] = []
+    for role in ROLES:
+        shard_dir = output_dir / "shards" / role
+        rows = [
+            engine.normalize_resume_row(row)
+            for row in engine.read_csv_rows(shard_dir / engine.PER_SAMPLE_FILENAME)
+        ]
+        if len(rows) != 13 * len(PILOT_SEEDS):
+            raise RuntimeError(f"Incomplete E009 pilot shard for {role}: {len(rows)}")
+        if any(row["model_role"] != role for row in rows):
+            raise RuntimeError(f"Cross-role rows found in {role} shard")
+        merged.extend(rows)
+    merged = core.merge_resume_rows([], merged)
+    engine.write_csv(
+        output_dir / engine.PER_SAMPLE_FILENAME, merged, engine.per_sample_header()
+    )
+    failures = [row for row in merged if row["status"] != "ok"]
+    engine.write_csv(
+        output_dir / engine.FAILURES_FILENAME, failures, engine.per_sample_header()
+    )
+
+
 def parse_args() -> argparse.Namespace:
     """Parse a pre-staged mode; no mode is run automatically."""
     parser = argparse.ArgumentParser()
@@ -287,6 +344,7 @@ def parse_args() -> argparse.Namespace:
     modes.add_argument("--inventory-only", action="store_true")
     modes.add_argument("--run-pilot", action="store_true")
     modes.add_argument("--summarize", action="store_true")
+    parser.add_argument("--role", choices=ROLES)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     return parser.parse_args()
 
@@ -302,9 +360,14 @@ def main() -> None:
     if args.inventory_only:
         freeze_inventory(engine, config, args.output_dir.resolve())
     elif args.run_pilot:
+        if args.role is None:
+            raise ValueError("--run-pilot requires one frozen --role")
         engine.summarize = lambda *_: None
-        engine.run_pilot(build_args(config, args.output_dir.resolve()), config)
+        shard_dir = args.output_dir.resolve() / "shards" / args.role
+        engine.run_pilot(build_args(config, shard_dir), config)
     else:
+        if args.role is not None:
+            raise ValueError("--role is valid only with --run-pilot")
         summarize(engine, config, args.output_dir.resolve())
 
 

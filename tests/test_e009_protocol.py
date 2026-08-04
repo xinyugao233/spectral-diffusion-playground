@@ -199,8 +199,12 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertEqual(config["eligibility"]["count_interval_inclusive"], [13, 115])
         self.assertFalse(config["scientific_scope"]["swap_windows_allowed"])
         launcher = (REPO_ROOT / "scripts/e009_stage_a_evaluation.slurm").read_text()
+        array = (REPO_ROOT / "scripts/e009_stage_a_pilot_array.slurm").read_text()
         self.assertIn("pilot_seeds=20000..20127", launcher)
         self.assertIn("swap_execution_available=false", launcher)
+        self.assertIn("#SBATCH --array=0-2%3", array)
+        self.assertIn("pilot_seeds=20000..20127", array)
+        self.assertIn("swap_execution_available=false", array)
 
     def test_stage_a_pair_rule_prefers_larger_dataset_on_rate_tie(self) -> None:
         path = REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
