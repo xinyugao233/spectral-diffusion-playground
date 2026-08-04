@@ -11,5 +11,12 @@
 set -euo pipefail
 
 : "${E009_REPO_ROOT:?E009_REPO_ROOT is required}"
-exec "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
+"${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
   configs/e009_smoke_edm2k_1kimg.yaml fresh
+
+python "${E009_REPO_ROOT}/scripts/e009_validate_smoke_checkpoint.py" \
+  --scratch-dir \
+  /cluster/pixstor/zwggh-lab/xinyu/e009_training_scratch/e009_smoke_edm2k_1kimg \
+  --final-dir /home/xggh8/data/zw-lab/e009_smoke_edm2k_1kimg \
+  --edm-root /home/xggh8/edm \
+  --expected-kimg 1

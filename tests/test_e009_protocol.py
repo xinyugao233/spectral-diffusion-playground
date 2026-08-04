@@ -30,12 +30,24 @@ def load_preflight():
     return module
 
 
+def load_smoke_validator():
+    """Load the E009 smoke-checkpoint validator from its tracked script."""
+    path = REPO_ROOT / "scripts/e009_validate_smoke_checkpoint.py"
+    spec = importlib.util.spec_from_file_location("e009_smoke_validator", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Could not load E009 smoke validator")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class E009ProtocolTests(unittest.TestCase):
     """Protect inputs, training parity, seeds, budgets, and stop rules."""
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.preflight = load_preflight()
+        cls.smoke_validator = load_smoke_validator()
         cls.protocol = json.loads(
             (REPO_ROOT / "configs/e009_stage_a_protocol.json").read_text()
         )
@@ -130,9 +142,34 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertIn("#SBATCH --time=00:30:00", smoke)
         self.assertIn("SLURM_JOB_ID is required", entrypoint)
         self.assertIn("CUBLAS_WORKSPACE_CONFIG=:4096:8", entrypoint)
+        self.assertIn("e009_validate_smoke_checkpoint.py", smoke)
         combined = array + smoke + entrypoint
         for forbidden in ("donor", "swap_window", "confirmatory"):
             self.assertNotIn(forbidden, combined)
+
+    def test_smoke_snapshot_selection_is_highest_kimg(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in (
+                "network-snapshot-000000.pkl",
+                "network-snapshot-000001.pkl",
+            ):
+                (root / name).write_bytes(b"snapshot")
+            selected = self.smoke_validator.find_final_snapshot([root])
+            self.assertEqual(selected.name, "network-snapshot-000001.pkl")
+
+    def test_smoke_ema_requires_unconditional_finite_state(self) -> None:
+        import torch
+
+        model = torch.nn.Linear(2, 2)
+        model.label_dim = 0
+        result = self.smoke_validator.validate_ema(model)
+        self.assertEqual(result["label_dim"], 0)
+        model.label_dim = 10
+        with self.assertRaisesRegex(ValueError, "not unconditional"):
+            self.smoke_validator.validate_ema(model)
 
     def test_e008_remains_blocked_and_unexecuted(self) -> None:
         outcome = json.loads(
