@@ -92,9 +92,10 @@ eligibility interval, and deterministic pair-selection rule. Its
 `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints passed, but all 21 EDM-50K
 checkpoints were `0/128`. This gate did not execute E008.
 
-The [E009 design proposal](experiment_09_intermediate_dataset_training_design.md)
-records the next model-development direction: intermediate CIFAR-10 subset
-sizes and a newly frozen baseline pilot. No training has started.
+The [frozen E009 Stage A protocol](experiment_09_intermediate_dataset_training_design.md)
+uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
+checkpoint cadence, new pilot seeds, and prospective stopping/pair-selection
+rules. No E009 training or pilot result exists at protocol freeze.
 
 ## Reading Order
 

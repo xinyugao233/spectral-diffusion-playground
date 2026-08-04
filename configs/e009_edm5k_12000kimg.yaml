@@ -1,0 +1,36 @@
+experiment:
+  name: e009_edm5k_12000kimg
+  seed: 0
+  edm_root: /home/xggh8/edm
+  persistent_scratch_root: /cluster/pixstor/zwggh-lab/xinyu/e009_training_scratch
+  persistent_data_root: /home/xggh8/data/zw-lab
+  run_dir_root: scratch
+  stage_mode: full
+
+dataset:
+  path: /home/xggh8/data/zw-lab/e009_stage_a_subsets/e009_cifar10_subset_5k.zip
+  resolution: 32
+  use_labels: false
+  cache: true
+  subset_size: 5000
+  subset_seed: 0
+
+training:
+  arch: ddpmpp
+  batch_size: 64
+  batch_gpu: 64
+  duration_kimg: 12000
+  tick_kimg: 1000
+  snapshot_ticks: 1
+  state_dump_ticks: 1
+  lr: 0.001
+  ema_halflife_kimg: 500
+  dropout: 0.13
+  use_fp16: false
+  xflip: false
+  workers: 1
+  model_channels: 128
+  channel_mult: [2, 2, 2]
+  sigma_data: 0.5
+  p_mean: -1.2
+  p_std: 1.2

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E009",
+  "status": "protocol_frozen_training_not_started",
+  "scientific_scope": {
+    "baseline_model_design_only": true,
+    "e008_swaps_allowed": false,
+    "confirmatory_inference_allowed": false
+  },
+  "stage_a": {
+    "dataset_sizes": [2000, 5000, 10000],
+    "duration_kimg": 12000,
+    "checkpoint_kimg": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
+    "training_seed_by_size": {"2000": 0, "5000": 0, "10000": 0},
+    "parallel_array": "0-2%3",
+    "configs": {
+      "2000": "configs/e009_edm2k_12000kimg.yaml",
+      "5000": "configs/e009_edm5k_12000kimg.yaml",
+      "10000": "configs/e009_edm10k_12000kimg.yaml"
+    }
+  },
+  "subsets": {
+    "anchor": "data/e005_cifar10_subset_1k_indices.txt",
+    "manifest": "data/e009_nested_subsets_manifest.json",
+    "expansion_seed": 9,
+    "requirements": ["nested", "exactly_class_balanced", "anchor_preserved"]
+  },
+  "artifact_hashes": {
+    "nested_subset_manifest_sha256": "9c505006109829a4046de552e36929b93f34961c1be566d5c705ae83dd5d6580",
+    "config_sha256": {
+      "configs/e009_edm2k_12000kimg.yaml": "aa747cb0dd10fab8240615ea6d2c8607880226226a7f28a0dba853f67805b8fd",
+      "configs/e009_edm5k_12000kimg.yaml": "e4a076c301e3e330872a6088774a5c7d688a18b0639831f5e250d759282868d8",
+      "configs/e009_edm10k_12000kimg.yaml": "f35a010e1b8c7a0168e47e022db25e36a302db43dea60aeaf19bc132cd156ac6",
+      "configs/e009_smoke_edm2k_1kimg.yaml": "9633d99228f651694f512a0d3f39307cad28abe94311dbbc89f1c1e87f035f24"
+    }
+  },
+  "pilot": {
+    "seeds": {"start": 20000, "stop_inclusive": 20127, "count": 128},
+    "excluded_seed_ranges": [[0, 255], [10000, 10127]],
+    "expected_checkpoint_count": 39,
+    "expected_record_count": 4992,
+    "criterion": "d1nn < d2nn / 3",
+    "eligible_count_interval_inclusive": [13, 115]
+  },
+  "pair_selection": {
+    "candidate_small_role": "six eligible EDM-1K checkpoints from E008 preflight",
+    "candidate_large_role_minimum_dataset_size": 5000,
+    "primary": "minimum absolute pilot memorization-rate difference",
+    "tie_breaks": ["prefer larger new dataset size", "lexicographic (new_checkpoint_sha256, edm_1k_checkpoint_sha256)"]
+  },
+  "stage_a_decision": {
+    "eligible_5k_or_10k": "freeze deterministic best pair and complete E009",
+    "only_2k_eligible": "record provisional 2K candidate; trigger Stage B because required dataset-size contrast is at least 5x",
+    "no_new_eligible_checkpoint": "trigger Stage B"
+  },
+  "stage_b_if_triggered": {
+    "automatic_submission": false,
+    "add_dataset_size": 20000,
+    "new_run_duration_kimg": 12000,
+    "extend_one_stage_a_size_to_kimg": 20000,
+    "extension_candidates": [5000, 10000],
+    "extension_choice": "minimum distance of any Stage A memorized count to inclusive interval [13,115]; tie -> larger dataset size; tie -> config SHA-256",
+    "requires_separate_review": true
+  },
+  "compute_budget": {
+    "smoke": {"tasks": 1, "gpu": "L40S", "time_limit": "00:30:00"},
+    "stage_a_training": {"tasks": 3, "gpu_per_task": "L40S:1", "time_limit_per_task": "1-00:00:00", "maximum_gpu_hours": 72},
+    "stage_a_pilot": {"tasks": 1, "gpu": "L40S", "time_limit": "02:00:00"},
+    "persistent_checkpoint_budget_gb": 12
+  }
+}

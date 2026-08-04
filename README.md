@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 150 passing](https://img.shields.io/badge/tests-150%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 162 passing](https://img.shields.io/badge/tests-162%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -28,7 +28,7 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 | 5 | E006 | Historical spectral/reference swaps | Exploratory; `INCONCLUSIVE` |
 | 6 | E007 | Full-space geometry swap over `8..9` | Proposed; blocked |
 | 7 | E008 | Frequency-geometry swaps | Preflight complete: `BLOCKED_NO_ELIGIBLE_PAIR`; swaps unexecuted |
-| 8 | E009 | Intermediate-dataset model design | Proposed; no training started |
+| 8 | E009 | Intermediate-dataset model design | Stage A protocol frozen; training pending smoke |
 
 ```mermaid
 flowchart LR
@@ -125,7 +125,7 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 | E006 | What happened in the historical spectral-aligned swaps? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Exploratory; formal outcome `INCONCLUSIVE` | Complete |
 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
 | E008 | Do swaps over the E004B band-specific targets differ from controls? | [Preflight results](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png) | `BLOCKED_NO_ELIGIBLE_PAIR`; no swap result | Preflight complete; swaps blocked and unexecuted |
-| E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Design](docs/experiment_09_intermediate_dataset_training_design.md) | No result | Proposed; no training started |
+| E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Frozen Stage A protocol](docs/experiment_09_intermediate_dataset_training_design.md) | No result | Protocol frozen; training pending smoke |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -612,6 +612,25 @@ See the [baseline preflight protocol](docs/experiment_08_checkpoint_preflight.md
 and [results](docs/experiment_08_checkpoint_preflight_results.md), plus the
 [blocked E008 protocol](docs/experiment_08_frequency_geometry_swap_protocol.md).
 
+## E009: Staged Intermediate-Dataset Model Design
+
+E009 freezes a fast two-stage search for a nondegenerate larger-data baseline.
+Stage A uses deterministic nested, class-balanced CIFAR-10 subsets at 2K, 5K,
+and 10K, with matched EDM settings, 12K-kimg budgets, and snapshots every 1K
+kimg. All three runs use training seed `0` and are designed for one parallel
+Slurm array.
+
+The future baseline pilot uses seeds `20000..20127`, never reuses E008 pilot
+seeds `10000..10127`, and keeps confirmatory seeds `0..255` untouched. The
+eligibility interval remains `13..115 / 128`. Pair selection minimizes the
+baseline-rate gap, then prefers the larger new dataset, then uses checkpoint
+hash order. At least a 5K model is required to unblock E008; a 2K-only result
+triggers the separately reviewed Stage B.
+
+See the [frozen E009 protocol](docs/experiment_09_intermediate_dataset_training_design.md)
+and [nested subset manifest](data/e009_nested_subsets_manifest.json). E008
+remains blocked and unexecuted throughout model selection.
+
 ## Mathematical Core
 
 The paper geometry first measures full-space coverage and concentration:
@@ -661,7 +680,7 @@ to the full residual energy within the frozen tolerance.
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
 | E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
 | E008 | [Baseline preflight](docs/experiment_08_checkpoint_preflight.md) · [Results](docs/experiment_08_checkpoint_preflight_results.md) · [Blocked swap protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | [`results/experiment_08_preflight/`](results/experiment_08_preflight/) | [`figures/experiment_08_preflight/`](figures/experiment_08_preflight/) |
-| E009 | [Intermediate-dataset design](docs/experiment_09_intermediate_dataset_training_design.md) | Not generated | Not generated |
+| E009 | [Frozen staged protocol](docs/experiment_09_intermediate_dataset_training_design.md) | No result; subset manifests only | Not generated |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.

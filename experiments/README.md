@@ -18,6 +18,7 @@ write explicit outputs.
 | E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
 | `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Complete; `BLOCKED_NO_ELIGIBLE_PAIR` |
 | E008 swap protocol | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
+| E009 protocol only | Staged intermediate-dataset model search | Stage A frozen; training pending smoke |
 
 ## Local Foundations
 
