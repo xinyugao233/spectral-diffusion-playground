@@ -35,6 +35,36 @@ authorized training budget is three L40S tasks at 24 hours each (72 GPU-hours
 hard cap; approximately 42 GPU-hours expected from the matched 50K timing).
 Persistent checkpoint storage is capped at 12 GB.
 
+## Pre-staged Baseline Evaluation
+
+The baseline-only evaluator is prepared but must not run until all three
+training tasks complete and each run contains the exact `0, 1K, ..., 12K`
+snapshot inventory. It freezes all 39 checkpoint hashes before inference,
+uses only seeds `20000..20127`, and contains no swap interface. The three
+future commands are intentionally separate so the inventory can be reviewed
+before GPU evaluation:
+
+```bash
+E009_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
+E009_REPO_COMMIT=<evaluation-commit> \
+sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
+  scripts/e009_stage_a_evaluation.slurm inventory
+
+E009_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
+E009_REPO_COMMIT=<evaluation-commit> \
+sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
+  scripts/e009_stage_a_evaluation.slurm pilot
+
+E009_REPO_ROOT=/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground \
+E009_REPO_COMMIT=<evaluation-commit> \
+sbatch --export=ALL,E009_REPO_ROOT,E009_REPO_COMMIT \
+  scripts/e009_stage_a_evaluation.slurm summarize
+```
+
+These commands are preparation artifacts only. No E009 baseline record exists
+until the inventory gate passes and the `pilot` command is separately
+submitted.
+
 ## Frozen Nested Subsets
 
 The complete E005 clean-room 1K manifest is retained unchanged. For each

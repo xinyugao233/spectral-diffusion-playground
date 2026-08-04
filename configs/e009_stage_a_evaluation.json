@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "experiment_id": "experiment_09_stage_a_baseline",
+  "scientific_scope": {
+    "baseline_only": true,
+    "donor_models_allowed": false,
+    "swap_windows_allowed": false,
+    "e008_executed": false
+  },
+  "candidate_roots": {
+    "edm_2k": "/home/xggh8/data/zw-lab/e009_edm2k_12000kimg",
+    "edm_5k": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg",
+    "edm_10k": "/home/xggh8/data/zw-lab/e009_edm10k_12000kimg"
+  },
+  "candidate_subset_sizes": {"edm_2k": 2000, "edm_5k": 5000, "edm_10k": 10000},
+  "expected_training_kimg": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
+  "pilot_seeds": {"start": 20000, "stop_inclusive": 20127, "count": 128},
+  "future_confirmatory_seeds": {"start": 0, "stop_inclusive": 255, "count": 256, "used_by_preflight": false},
+  "eligibility": {"rate_interval_inclusive": [0.1, 0.9], "count_interval_inclusive": [13, 115], "confidence_interval": "two-sided Clopper-Pearson 95% descriptive only"},
+  "pair_selection": {
+    "primary": "minimum absolute pilot memorization-rate difference",
+    "minimum_larger_role_dataset_size": 5000,
+    "tie_breaks": ["prefer larger new dataset size", "lexicographic (new_checkpoint_sha256, edm_1k_checkpoint_sha256)"],
+    "edm_1k_summary": "results/experiment_08_preflight/pilot_checkpoint_summary.csv",
+    "edm_1k_summary_sha256": "902c41e3a81a42308b24ef1f1cbe092789d28a018fe0093562eac71eb760332b"
+  },
+  "sampler": {"algorithm": "pure_euler", "num_denoiser_calls": 18, "sigma_max": 80.0, "sigma_min": 0.002, "rho": 7.0, "terminal_sigma": 0.0, "churn": 0.0, "heun_correction": false, "class_labels": null, "canonical_per_seed_inference": true},
+  "memorization": {"criterion": "d1nn < d2nn / 3", "tensor_domain": "unclamped_unquantized_nchw_float64_minus1_to1_after_inference", "flattening": "channel_major_C_order", "distance": "exact_euclidean_pixel_space", "reference_subset": "data/e005_cifar10_subset_1k_indices.txt", "reference_subset_text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29", "reference_subset_int64_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8"},
+  "dataset": {"archive": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip", "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"},
+  "execution": {"edm_root": "/home/xggh8/edm", "output_dir": "/home/xggh8/data/zw-lab/e009_stage_a_baseline", "batch_size": 16, "nn_batch_size": 64}
+}

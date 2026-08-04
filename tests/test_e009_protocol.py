@@ -187,6 +187,56 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertEqual(outcome["outcome"], "BLOCKED_NO_ELIGIBLE_PAIR")
         self.assertFalse(outcome["e008_executed"])
 
+    def test_stage_a_evaluation_is_pre_staged_without_swaps(self) -> None:
+        config = json.loads(
+            (REPO_ROOT / "configs/e009_stage_a_evaluation.json").read_text()
+        )
+        self.assertEqual(
+            config["pilot_seeds"],
+            {"start": 20000, "stop_inclusive": 20127, "count": 128},
+        )
+        self.assertEqual(config["expected_training_kimg"], list(range(0, 12001, 1000)))
+        self.assertEqual(config["eligibility"]["count_interval_inclusive"], [13, 115])
+        self.assertFalse(config["scientific_scope"]["swap_windows_allowed"])
+        launcher = (REPO_ROOT / "scripts/e009_stage_a_evaluation.slurm").read_text()
+        self.assertIn("pilot_seeds=20000..20127", launcher)
+        self.assertIn("swap_execution_available=false", launcher)
+
+    def test_stage_a_pair_rule_prefers_larger_dataset_on_rate_tie(self) -> None:
+        path = REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
+        experiments_root = str(path.parent)
+        if experiments_root not in sys.path:
+            sys.path.insert(0, experiments_root)
+        spec = importlib.util.spec_from_file_location("e009_eval", path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        new_rows = [
+            {
+                "model_role": "edm_5k",
+                "eligible": True,
+                "memorization_rate": 0.5,
+                "checkpoint_sha256": "a",
+            },
+            {
+                "model_role": "edm_10k",
+                "eligible": True,
+                "memorization_rate": 0.5,
+                "checkpoint_sha256": "b",
+            },
+        ]
+        small_rows = [
+            {
+                "model_role": "edm_1k",
+                "eligible": True,
+                "memorization_rate": 0.5,
+                "checkpoint_sha256": "c",
+            }
+        ]
+        selected = module.select_pair(new_rows, small_rows)
+        assert selected is not None
+        self.assertEqual(selected["larger_data_checkpoint"]["model_role"], "edm_10k")
+
 
 if __name__ == "__main__":
     unittest.main()
