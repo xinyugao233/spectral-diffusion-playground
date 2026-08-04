@@ -86,9 +86,15 @@ target `9..10`. It is `PROPOSED — NOT EXECUTED`; the primary bidirectional
 design is blocked by the same known historical EDM-50K `0/256` baseline.
 
 The [baseline-only checkpoint preflight](experiment_08_checkpoint_preflight.md)
-freezes the existing-snapshot inventory, disjoint pilot seeds, strict
-eligibility interval, and deterministic pair-selection rule required before
-any E008 swap can be considered. Implementing this gate does not execute E008.
+froze the existing-snapshot inventory, disjoint pilot seeds, strict
+eligibility interval, and deterministic pair-selection rule. Its
+[validated results](experiment_08_checkpoint_preflight_results.md) are
+`BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints passed, but all 21 EDM-50K
+checkpoints were `0/128`. This gate did not execute E008.
+
+The [E009 design proposal](experiment_09_intermediate_dataset_training_design.md)
+records the next model-development direction: intermediate CIFAR-10 subset
+sizes and a newly frozen baseline pilot. No training has started.
 
 ## Reading Order
 

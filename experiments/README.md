@@ -16,7 +16,7 @@ write explicit outputs.
 | `05_spectral_residual_curves.py` | Orthogonal fixed-sigma residual energies | Complete |
 | `06_transition_window_swaps.py` | Historical spectral-window swaps | Complete; exploratory outcome `INCONCLUSIVE` |
 | E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
-| `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Implemented; inventory and pilot pending |
+| `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Complete; `BLOCKED_NO_ELIGIBLE_PAIR` |
 | E008 swap protocol | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
 
 ## Local Foundations
@@ -62,14 +62,17 @@ is frozen, but the historical E006 model pair is blocked by the known EDM-50K
 `0/256` baseline. A baseline-only nondegenerate-model preflight is required by
 [`docs/experiment_07_geometry_aligned_swap_protocol.md`](../docs/experiment_07_geometry_aligned_swap_protocol.md).
 
-E008 is also protocol-only. It proposes whole-denoiser swaps over the E004B
-low target `8..8` and high target `9..10`; no E008 computation or model work
-has begun. See
+E008 swaps remain protocol-only. The baseline preflight is complete, but it
+found no eligible EDM-50K checkpoint among the 21 available snapshots. It
+proposes whole-denoiser swaps over the E004B low target `8..8` and high target
+`9..10`; no E008 swap or confirmatory computation has begun. See
 [`docs/experiment_08_frequency_geometry_swap_protocol.md`](../docs/experiment_08_frequency_geometry_swap_protocol.md).
 
 The separate [checkpoint preflight](../docs/experiment_08_checkpoint_preflight.md)
 evaluates no-swap pilot baselines only. Its interface cannot accept a donor
-model or swap window, and its reserved confirmatory seeds are untouched.
+model or swap window, and its reserved confirmatory seeds are untouched. The
+[results](../docs/experiment_08_checkpoint_preflight_results.md) record
+`BLOCKED_NO_ELIGIBLE_PAIR`.
 
 The canonical order is documented in
 [`docs/canonical_experiment_pipeline.md`](../docs/canonical_experiment_pipeline.md).

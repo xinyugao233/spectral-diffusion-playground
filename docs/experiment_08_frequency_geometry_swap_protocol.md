@@ -68,6 +68,12 @@ preflight on pilot seeds disjoint from confirmatory seeds. No swap effect may
 be inspected during pair selection. If no nondegenerate pair is available,
 E008 remains blocked.
 
+The completed preflight returned `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K
+checkpoints were eligible, but every one of the 21 EDM-50K checkpoints was
+`0/128`. The historical pair therefore cannot be replaced from the existing
+matched checkpoint pools. See the
+[preflight results](experiment_08_checkpoint_preflight_results.md).
+
 The baseline-only preflight is frozen separately in
 [the E008 checkpoint preflight protocol](experiment_08_checkpoint_preflight.md).
 It inventories all existing matched-run snapshots before sampling, uses pilot
@@ -95,5 +101,6 @@ intervention limitations stated nearby.
 
 ## Current Status
 
-No checkpoint evaluation, inference, sampling, model swap, Slurm job, result,
-or figure has been produced for E008.
+Baseline-only checkpoint evaluation is complete. No E008 swap, confirmatory
+inference, target/control sampling, or swap result has been produced. E008 is
+blocked pending a separately designed and validated nondegenerate model pair.

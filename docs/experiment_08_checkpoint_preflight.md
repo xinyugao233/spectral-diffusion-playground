@@ -1,6 +1,8 @@
 # E008 Baseline-Only Checkpoint Preflight
 
-> **IMPLEMENTED — CANDIDATE INVENTORY AND PILOT NOT YET EXECUTED**
+> **COMPLETE — `BLOCKED_NO_ELIGIBLE_PAIR`**
+>
+> The baseline pilot is complete. E008 swaps remain unexecuted.
 
 ## Objective
 
@@ -73,9 +75,8 @@ records.
 ## Required Outputs
 
 Compact outputs are imported under `results/experiment_08_preflight/` and
-figures under `figures/experiment_08_preflight/` only after a validated run.
-The full external run directory remains the provenance source. No result is
-present at protocol-freeze time.
+figures under `figures/experiment_08_preflight/`. The full external run
+directory remains the provenance source.
 
 ## Smoke-Recovery Record
 
@@ -90,3 +91,14 @@ present at protocol-freeze time.
 This evidence motivated deterministic CPU distance evaluation. The frozen
 config, checkpoint pool, pilot seeds, eligibility rule, and no-swap boundary
 were not changed.
+
+## Completed Pilot
+
+Slurm job `15625456` completed with exit code `0:0` at executed commit
+`b15b60e2df6191bbf1dc865ce6f2bc22e87141a6`. All `5,376` expected rows were
+successful. Six EDM-1K checkpoints were eligible, while all 21 EDM-50K
+checkpoints produced `0/128`. The frozen outcome is
+`BLOCKED_NO_ELIGIBLE_PAIR`; no pair was selected and no swap or confirmatory
+evaluation was run.
+
+See the [validated results](experiment_08_checkpoint_preflight_results.md).

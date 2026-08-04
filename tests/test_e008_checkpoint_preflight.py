@@ -374,6 +374,98 @@ class ResumeAndRepositoryTests(unittest.TestCase):
         self.assertEqual(provenance["resolved_path"], str(REPO_ROOT.resolve()))
 
 
+class CommittedPilotResultTests(unittest.TestCase):
+    """Protect the completed negative preflight result and execution boundary."""
+
+    RESULTS = REPO_ROOT / "results" / "experiment_08_preflight"
+    EXPECTED_HASHES = {
+        "candidate_checkpoint_inventory.csv": (
+            "2c6316b39b9eab01e6508db7e30b363e8ed842445e97998d4c6ded33c1c2f94c"
+        ),
+        "candidate_pool_manifest.json": (
+            "d0b4cc35396203ab45748799cae0a1173f8fd1de8713e80fec976887ef702e9d"
+        ),
+        "pilot_checkpoint_summary.csv": (
+            "902c41e3a81a42308b24ef1f1cbe092789d28a018fe0093562eac71eb760332b"
+        ),
+        "pilot_failures.csv": (
+            "a52620c201a9f8bc9da835dc62fa89ef4ed204ea9ede981f2f11b96b6ab9f7ea"
+        ),
+        "pilot_per_sample.csv": (
+            "f1c6930e9fc021eb1016db0351514239655b5d716ef7712aeee9a9037efeb7b3"
+        ),
+        "pilot_run_manifest.json": (
+            "170a2b7b6cf9c1920ed456c43de2d5d6b9fcd642aa179c9d826b27364603f403"
+        ),
+        "preflight_outcome.json": (
+            "5b52d5298c0e9e2459b4823dae9dd713fcf05bf30d6593e9d730a18c3c0e7728"
+        ),
+        "selected_model_pair.json": (
+            "e3b6cedbc318a3fa94dcc651230ff91d6dbe298fbb0b8fa6f425758e7126d7f4"
+        ),
+    }
+
+    def test_imported_artifact_hashes_are_exact(self) -> None:
+        for name, expected in self.EXPECTED_HASHES.items():
+            with self.subTest(name=name):
+                self.assertEqual(sha256_file(self.RESULTS / name), expected)
+
+    def test_all_expected_rows_are_complete_and_no_swap_fields_exist(self) -> None:
+        with (self.RESULTS / "pilot_per_sample.csv").open(newline="") as handle:
+            reader = csv.DictReader(handle)
+            rows = list(reader)
+            header = reader.fieldnames or []
+        self.assertEqual(len(rows), 42 * 128)
+        self.assertEqual(
+            len(
+                {
+                    (row["model_role"], row["checkpoint_sha256"], row["sample_seed"])
+                    for row in rows
+                }
+            ),
+            42 * 128,
+        )
+        self.assertEqual({int(row["sample_seed"]) for row in rows}, set(PILOT_SEEDS))
+        self.assertTrue(all(row["status"] == "ok" for row in rows))
+        self.assertFalse(set(header).intersection({"donor_model", "window_name"}))
+
+    def test_summary_records_six_eligible_1k_and_zero_eligible_50k(self) -> None:
+        with (self.RESULTS / "pilot_checkpoint_summary.csv").open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual(len(rows), 42)
+        eligible_1k = [
+            row
+            for row in rows
+            if row["model_role"] == "edm_1k" and row["eligible"] == "True"
+        ]
+        edm_50k = [row for row in rows if row["model_role"] == "edm_50k"]
+        self.assertEqual(len(eligible_1k), 6)
+        self.assertEqual(len(edm_50k), 21)
+        self.assertTrue(all(row["memorized_count"] == "0" for row in edm_50k))
+        self.assertTrue(all(row["n_samples"] == "128" for row in edm_50k))
+
+    def test_formal_outcome_blocks_pair_without_executing_e008(self) -> None:
+        outcome = json.loads((self.RESULTS / "preflight_outcome.json").read_text())
+        selected = json.loads((self.RESULTS / "selected_model_pair.json").read_text())
+        manifest = json.loads((self.RESULTS / "pilot_run_manifest.json").read_text())
+        validation = json.loads(
+            (self.RESULTS / "preflight_validation.json").read_text()
+        )
+        self.assertEqual(outcome["outcome"], "BLOCKED_NO_ELIGIBLE_PAIR")
+        self.assertFalse(outcome["e008_executed"])
+        self.assertFalse(outcome["new_training_started"])
+        self.assertIsNone(selected["selected_pair"])
+        self.assertFalse(selected["swap_conditions_generated"])
+        self.assertFalse(manifest["future_confirmatory_seeds_touched"])
+        self.assertEqual(
+            manifest["repository_commit"],
+            "b15b60e2df6191bbf1dc865ce6f2bc22e87141a6",
+        )
+        self.assertEqual(validation["status"], "pass")
+        self.assertEqual(validation["per_sample_row_count"], 5376)
+        self.assertEqual(validation["failed_row_count"], 0)
+
+
 def summary(role: str, digest: str, rate: float) -> dict[str, object]:
     """Build one synthetic eligible checkpoint summary."""
     return {

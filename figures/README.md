@@ -86,10 +86,11 @@ memorization criterion.
 
 ## E008 Baseline Preflight
 
-After validated execution, checkpoint-rate, training-duration, and
-eligible-pair figures will live in `experiment_08_preflight/`. These are
-baseline-only diagnostics; they cannot contain swap effects. No such figure is
-committed yet.
+[`experiment_08_preflight/`](experiment_08_preflight/) contains the validated
+checkpoint-rate, training-duration, and eligible-pair figures from the
+5,376-record baseline-only pilot. They show six eligible EDM-1K checkpoints
+and no eligible EDM-50K checkpoint. These figures cannot contain swap effects;
+E008 remains unexecuted.
 
 ## Figure Policy
 
