@@ -22,5 +22,5 @@ if [ -z "${SLURM_ARRAY_TASK_ID:-}" ] || [ "$SLURM_ARRAY_TASK_ID" -gt 2 ]; then
   exit 1
 fi
 
-exec "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
+exec bash "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
   "${CONFIGS[$SLURM_ARRAY_TASK_ID]}" fresh

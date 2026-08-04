@@ -140,6 +140,13 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertIn("#SBATCH --gres=gpu:L40S:1", array)
         self.assertIn("#SBATCH --time=1-00:00:00", array)
         self.assertIn("#SBATCH --time=00:30:00", smoke)
+        self.assertIn(
+            'bash "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh"', smoke
+        )
+        self.assertIn(
+            'exec bash "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh"',
+            array,
+        )
         self.assertIn("SLURM_JOB_ID is required", entrypoint)
         self.assertIn("CUBLAS_WORKSPACE_CONFIG=:4096:8", entrypoint)
         self.assertIn("e009_validate_smoke_checkpoint.py", smoke)

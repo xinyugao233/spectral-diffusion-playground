@@ -11,7 +11,7 @@
 set -euo pipefail
 
 : "${E009_REPO_ROOT:?E009_REPO_ROOT is required}"
-"${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
+bash "${E009_REPO_ROOT}/scripts/e009_training_entrypoint.sh" \
   configs/e009_smoke_edm2k_1kimg.yaml fresh
 
 python "${E009_REPO_ROOT}/scripts/e009_validate_smoke_checkpoint.py" \
