@@ -133,8 +133,14 @@ E007 can run.
 E008 proposes separate whole-denoiser interventions over E004B low target
 `8..8` and high target `9..10`, with immediately adjacent width-matched
 controls. It is not a Fourier coefficient swap. E008 is **PROPOSED — NOT
-EXECUTED**, and its primary bidirectional design is blocked by the same known
-historical EDM-50K `0/256` baseline.
+EXECUTED**.
+
+The separately frozen E008 checkpoint preflight evaluated only full no-swap
+trajectories on pilot seeds `10000..10127`. It inventoried the existing
+matched-run checkpoint pools before inference, applied the immutable eligible
+count range `13..115`, and reserved confirmatory seeds `0..255`. The completed
+gate returned `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints were eligible,
+but all 21 EDM-50K checkpoints produced `0/128`. No E008 condition was run.
 
 ## Canonical Region Table
 

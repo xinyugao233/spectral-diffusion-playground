@@ -1,0 +1,8 @@
+{
+  "e008_executed": false,
+  "eligible_edm_1k_count": 6,
+  "eligible_edm_50k_count": 0,
+  "experiment_id": "experiment_08_preflight",
+  "new_training_started": false,
+  "outcome": "BLOCKED_NO_ELIGIBLE_PAIR"
+}

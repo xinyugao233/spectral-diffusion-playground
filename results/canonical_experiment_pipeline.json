@@ -65,7 +65,7 @@
     "tested_geometry_defined_target": false
   },
   "stage_6_geometry_swap": {
-    "blocker": "historical EDM-50K baseline is 0/256",
+    "blocker": "completed checkpoint preflight found no eligible EDM-50K checkpoint; all 21 were 0/128",
     "experiment": "E007",
     "post_control": [
       10,
@@ -82,8 +82,19 @@
     ]
   },
   "stage_7_frequency_geometry_swap": {
-    "blocker": "historical EDM-50K baseline is 0/256",
+    "blocker": "completed checkpoint preflight found no eligible EDM-50K checkpoint; all 21 were 0/128",
     "experiment": "E008",
+    "checkpoint_preflight": {
+      "status": "complete_blocked_no_eligible_pair",
+      "baseline_only": true,
+      "pilot_seed_range": [10000, 10127],
+      "confirmatory_seed_range_reserved": [0, 255],
+      "eligible_count_interval": [13, 115],
+      "record_count": 5376,
+      "eligible_edm_1k_count": 6,
+      "eligible_edm_50k_count": 0,
+      "outcome": "BLOCKED_NO_ELIGIBLE_PAIR"
+    },
     "status": "proposed_not_executed",
     "whole_denoiser_temporal_swap": true,
     "fourier_coefficient_swap": false,

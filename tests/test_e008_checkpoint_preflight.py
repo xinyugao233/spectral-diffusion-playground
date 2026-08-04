@@ -1,0 +1,512 @@
+"""Tests for the E008 no-swap checkpoint baseline preflight."""
+
+from __future__ import annotations
+
+import ast
+import contextlib
+import csv
+import hashlib
+import io
+import importlib.util
+import json
+import os
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+import numpy as np
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from spectral_diffusion_playground.e008_checkpoint_preflight import (
+    CONFIRMATORY_SEEDS,
+    ELIGIBLE_COUNT_MAX,
+    ELIGIBLE_COUNT_MIN,
+    PILOT_SEEDS,
+    candidate_is_eligible,
+    discover_checkpoint_paths,
+    independent_seed_latents,
+    merge_resume_rows,
+    nearest_two_cpu,
+    parse_training_kimg,
+    select_model_pair,
+    sha256_file,
+    validate_no_swap_only,
+)
+from spectral_diffusion_playground.e006_transition_swaps import nearest_two
+
+
+def load_entrypoint():
+    """Load the numeric experiment entrypoint for parser and schema tests."""
+    path = REPO_ROOT / "experiments" / "08_checkpoint_baseline_preflight.py"
+    experiments_root = str(path.parent)
+    if experiments_root not in sys.path:
+        sys.path.insert(0, experiments_root)
+    spec = importlib.util.spec_from_file_location("experiment_08_preflight", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Could not load E008 preflight entrypoint")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class CheckpointInventoryTests(unittest.TestCase):
+    """Verify complete deterministic checkpoint discovery and hashing."""
+
+    def test_training_kimg_parser_is_exact(self) -> None:
+        self.assertEqual(parse_training_kimg("network-snapshot-002000.pkl"), 2000)
+        for malformed in (
+            "network-snapshot-2000.pkl",
+            "network-snapshot-002000.pt",
+            "snapshot-002000.pkl",
+        ):
+            with self.subTest(malformed=malformed), self.assertRaises(ValueError):
+                parse_training_kimg(malformed)
+
+    def test_discovery_keeps_malformed_candidates_visible(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "network-snapshot-000000.pkl").write_bytes(b"zero")
+            (root / "network-snapshot-002000.pkl").write_bytes(b"two")
+            (root / "network-snapshot-bad.pkl").write_bytes(b"bad")
+            (root / "notes.txt").write_text("ignored")
+            accepted, rejected = discover_checkpoint_paths(root)
+            self.assertEqual(
+                [path.name for path in accepted],
+                ["network-snapshot-000000.pkl", "network-snapshot-002000.pkl"],
+            )
+            self.assertEqual(
+                [path.name for path in rejected], ["network-snapshot-bad.pkl"]
+            )
+
+    def test_sha256_is_deterministic(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "snapshot.pkl"
+            path.write_bytes(b"frozen checkpoint")
+            expected = hashlib.sha256(b"frozen checkpoint").hexdigest()
+            self.assertEqual(sha256_file(path, chunk_size=3), expected)
+            self.assertEqual(sha256_file(path, chunk_size=11), expected)
+
+
+class FrozenPilotRuleTests(unittest.TestCase):
+    """Lock the prospective seeds, eligibility, and pair-selection rules."""
+
+    def test_seed_sets_are_exact_and_disjoint(self) -> None:
+        self.assertEqual(PILOT_SEEDS, tuple(range(10000, 10128)))
+        self.assertEqual(CONFIRMATORY_SEEDS, tuple(range(256)))
+        self.assertFalse(set(PILOT_SEEDS).intersection(CONFIRMATORY_SEEDS))
+
+    def test_seeded_latents_are_order_and_batch_invariant(self) -> None:
+        first = independent_seed_latents(PILOT_SEEDS[:4], (3, 4, 4))
+        second = independent_seed_latents(reversed(PILOT_SEEDS[:4]), (3, 4, 4))
+        for seed in PILOT_SEEDS[:4]:
+            np.testing.assert_array_equal(first[seed], second[seed])
+
+    def test_eligibility_is_exactly_13_through_115(self) -> None:
+        self.assertEqual((ELIGIBLE_COUNT_MIN, ELIGIBLE_COUNT_MAX), (13, 115))
+        self.assertFalse(candidate_is_eligible(12, 128))
+        self.assertTrue(candidate_is_eligible(13, 128))
+        self.assertTrue(candidate_is_eligible(115, 128))
+        self.assertFalse(candidate_is_eligible(116, 128))
+        with self.assertRaises(ValueError):
+            candidate_is_eligible(13, 127)
+
+    def test_pair_selection_minimizes_rate_difference(self) -> None:
+        rows = [
+            summary("edm_1k", "b", 0.40),
+            summary("edm_1k", "a", 0.60),
+            summary("edm_50k", "y", 0.43),
+            summary("edm_50k", "z", 0.80),
+        ]
+        selected = select_model_pair(rows)
+        self.assertIsNotNone(selected)
+        assert selected is not None
+        self.assertEqual(selected["edm_1k"]["checkpoint_sha256"], "b")
+        self.assertEqual(selected["edm_50k"]["checkpoint_sha256"], "y")
+        self.assertAlmostEqual(selected["absolute_pilot_rate_difference"], 0.03)
+
+    def test_pair_selection_uses_sha_tie_break(self) -> None:
+        rows = [
+            summary("edm_1k", "b", 0.5),
+            summary("edm_1k", "a", 0.5),
+            summary("edm_50k", "d", 0.5),
+            summary("edm_50k", "c", 0.5),
+        ]
+        selected = select_model_pair(rows)
+        assert selected is not None
+        self.assertEqual(selected["edm_1k"]["checkpoint_sha256"], "a")
+        self.assertEqual(selected["edm_50k"]["checkpoint_sha256"], "c")
+
+    def test_no_pair_is_selected_when_one_role_is_ineligible(self) -> None:
+        rows = [summary("edm_1k", "a", 0.5)]
+        self.assertIsNone(select_model_pair(rows))
+
+    def test_no_swap_guard_rejects_donor_and_window(self) -> None:
+        validate_no_swap_only()
+        with self.assertRaisesRegex(ValueError, "donor"):
+            validate_no_swap_only(donor_checkpoint="donor.pkl")
+        with self.assertRaisesRegex(ValueError, "window"):
+            validate_no_swap_only(swap_window="8..8")
+
+    def test_cpu_nearest_two_is_exactly_partition_invariant(self) -> None:
+        rng = np.random.default_rng(91)
+        generated = rng.normal(size=(5, 3, 4, 4))
+        references = rng.normal(size=(11, 3, 4, 4))
+        full_indices, full_distances = nearest_two_cpu(generated, references)
+        split = [
+            nearest_two_cpu(generated[index : index + 1], references)
+            for index in range(5)
+        ]
+        split_indices = np.concatenate([result[0] for result in split])
+        split_distances = np.concatenate([result[1] for result in split])
+        np.testing.assert_array_equal(full_indices, split_indices)
+        np.testing.assert_array_equal(full_distances, split_distances)
+
+    def test_cpu_nearest_two_uses_stable_reference_position_tie_break(self) -> None:
+        generated = np.asarray([[0.0, 0.0]])
+        references = np.asarray(
+            [
+                [1.0, 0.0],
+                [-1.0, 0.0],
+                [0.0, 2.0],
+            ]
+        )
+        indices, distances = nearest_two_cpu(generated, references)
+        np.testing.assert_array_equal(indices, [[0, 1]])
+        np.testing.assert_array_equal(distances, [[1.0, 1.0]])
+
+    def test_cpu_nearest_two_preserves_e006_euclidean_distances(self) -> None:
+        rng = np.random.default_rng(17)
+        generated = rng.normal(size=(4, 12))
+        references = rng.normal(size=(9, 12))
+        expected_indices, expected_distances = nearest_two(generated, references)
+        actual_indices, actual_distances = nearest_two_cpu(generated, references)
+        np.testing.assert_array_equal(actual_indices, expected_indices)
+        np.testing.assert_allclose(actual_distances, expected_distances, atol=2e-15)
+
+    def test_entrypoint_no_longer_uses_gpu_nearest_neighbor_arithmetic(self) -> None:
+        module = load_entrypoint()
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("nearest_two_torch", source)
+        self.assertNotIn("torch.topk", source)
+        self.assertIn("nearest_two_cpu(sample_array, reference)", source)
+
+
+class ResumeAndRepositoryTests(unittest.TestCase):
+    """Protect resume records and prior frozen experiment artifacts."""
+
+    def test_resume_keeps_failed_rows_and_rejects_conflicts(self) -> None:
+        failed = pilot_row("a", 10000, status="failed")
+        complete = pilot_row("a", 10001, status="ok")
+        merged = merge_resume_rows([failed], [complete, dict(failed)])
+        self.assertEqual(len(merged), 2)
+        self.assertEqual(merged[0]["status"], "failed")
+        conflicting = dict(failed)
+        conflicting["error"] = "different"
+        with self.assertRaises(ValueError):
+            merge_resume_rows([failed], [conflicting])
+
+    def test_entrypoint_has_no_donor_or_window_arguments(self) -> None:
+        module = load_entrypoint()
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        parse_node = next(
+            node
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and node.name == "parse_args"
+        )
+        strings = {
+            node.value
+            for node in ast.walk(parse_node)
+            if isinstance(node, ast.Constant) and isinstance(node.value, str)
+        }
+        self.assertNotIn("--donor-checkpoint", strings)
+        self.assertNotIn("--swap-window", strings)
+
+    def test_help_is_available_outside_slurm(self) -> None:
+        module = load_entrypoint()
+        stdout = io.StringIO()
+        with (
+            mock.patch.object(sys, "argv", [str(module.__file__), "--help"]),
+            mock.patch.dict(os.environ, {}, clear=True),
+            contextlib.redirect_stdout(stdout),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            module.main()
+        self.assertEqual(raised.exception.code, 0)
+        self.assertIn("--inventory-only", stdout.getvalue())
+
+    def test_per_sample_schema_contains_no_swap_fields(self) -> None:
+        module = load_entrypoint()
+        header = module.per_sample_header()
+        self.assertNotIn("donor_model", header)
+        self.assertNotIn("window_name", header)
+        self.assertIn("d1nn_over_d2nn", header)
+
+    def test_smoke_diagnostic_localizes_distance_only_difference(self) -> None:
+        module = load_entrypoint()
+        batched = complete_pilot_row(10000)
+        single = dict(batched)
+        single["d1nn"] = "1.0000000000000002"
+        diagnostic = module.compare_smoke_rows([batched], [single])
+        record = diagnostic["records"][0]
+        self.assertEqual(diagnostic["status"], "difference_detected")
+        self.assertTrue(record["generated_sample_hash_equal"])
+        self.assertEqual(record["maximum_sample_difference"], 0.0)
+        self.assertTrue(record["nearest_neighbor_indices_equal"])
+        self.assertTrue(record["memorized_equal"])
+        self.assertIn("d1nn", record["differing_fields"])
+        self.assertGreater(record["numeric_fields"]["d1nn"]["absolute_difference"], 0.0)
+
+    def test_config_freezes_baseline_only_scope(self) -> None:
+        config = json.loads(
+            (REPO_ROOT / "configs/e008_checkpoint_preflight.json").read_text()
+        )
+        self.assertTrue(config["scientific_scope"]["baseline_only"])
+        self.assertFalse(config["scientific_scope"]["donor_models_allowed"])
+        self.assertFalse(config["scientific_scope"]["swap_windows_allowed"])
+        self.assertEqual(config["eligibility"]["count_interval_inclusive"], [13, 115])
+
+    def test_prior_hash_guards_remain_active(self) -> None:
+        region_test = (REPO_ROOT / "tests/test_region_definitions.py").read_text()
+        frequency_test = (
+            REPO_ROOT / "tests/test_frequency_restricted_geometry.py"
+        ).read_text()
+        self.assertIn("FROZEN_E005_E006_ARTIFACTS", region_test)
+        self.assertIn("FROZEN_PRIOR_ARTIFACTS", frequency_test)
+
+    def test_e008_remains_unexecuted_in_canonical_pipeline(self) -> None:
+        pipeline = json.loads(
+            (REPO_ROOT / "results/canonical_experiment_pipeline.json").read_text()
+        )
+        self.assertEqual(
+            pipeline["stage_7_frequency_geometry_swap"]["status"],
+            "proposed_not_executed",
+        )
+
+    def test_zero_confirmatory_overlap_passes_output_validation(self) -> None:
+        module = load_entrypoint()
+        config = module.load_and_validate_config(module.DEFAULT_CONFIG)
+        with tempfile.TemporaryDirectory() as temporary:
+            output_dir = Path(temporary)
+            inventory_path = output_dir / module.INVENTORY_FILENAME
+            candidate = {field: "" for field in module.inventory_header()}
+            candidate.update(
+                {
+                    "model_role": "edm_1k",
+                    "checkpoint_sha256": "a" * 64,
+                    "training_kimg": 0,
+                    "inventory_status": "accepted",
+                }
+            )
+            module.write_csv(inventory_path, [candidate], module.inventory_header())
+            module.dump_json(
+                output_dir / module.POOL_MANIFEST_FILENAME,
+                {
+                    "pool_frozen_before_pilot": True,
+                    "pilot_started": False,
+                    "inventory": {"sha256": sha256_file(inventory_path)},
+                    "config_sha256": sha256_file(module.DEFAULT_CONFIG),
+                    "scientific_scope": config["scientific_scope"],
+                    "pilot_seeds": list(PILOT_SEEDS),
+                },
+            )
+            rows = []
+            for seed in PILOT_SEEDS:
+                row = {field: "" for field in module.per_sample_header()}
+                row.update(
+                    {
+                        "model_role": "edm_1k",
+                        "checkpoint_sha256": "a" * 64,
+                        "training_kimg": 0,
+                        "sample_seed": seed,
+                        "memorized": 0,
+                        "status": "ok",
+                    }
+                )
+                rows.append(row)
+            module.write_csv(
+                output_dir / module.PER_SAMPLE_FILENAME,
+                rows,
+                module.per_sample_header(),
+            )
+            validation = module.validate_outputs(
+                output_dir, config, require_complete=True
+            )
+        self.assertEqual(validation["status"], "pass")
+        self.assertTrue(validation["checks"]["confirmatory_seed_overlap_absent"])
+
+    def test_launcher_redirects_all_temporary_state_out_of_home(self) -> None:
+        launcher = (REPO_ROOT / "scripts/e008_checkpoint_preflight.slurm").read_text()
+        self.assertIn(
+            'OUTPUT_DIR="/home/xggh8/data/zw-lab/e008_checkpoint_preflight_smoke_${SLURM_JOB_ID}"',
+            launcher,
+        )
+        self.assertNotIn(
+            "/home/xggh8/scratch/zw-lab/e008_checkpoint_preflight_smoke_", launcher
+        )
+        self.assertIn('TMP_ROOT="/home/xggh8/data/tmp/e008_${SLURM_JOB_ID}"', launcher)
+        for variable in (
+            "TMPDIR",
+            "XDG_CACHE_HOME",
+            "TORCH_HOME",
+            "MPLCONFIGDIR",
+            "WANDB_DIR",
+            "HF_HOME",
+            "TRANSFORMERS_CACHE",
+            "HF_DATASETS_CACHE",
+            "PIP_CACHE_DIR",
+        ):
+            with self.subTest(variable=variable):
+                self.assertIn(f"export {variable}=", launcher)
+
+    def test_checkout_provenance_records_user_and_resolved_paths(self) -> None:
+        module = load_entrypoint()
+        user_path = "/home/xggh8/projects/spectral-diffusion-playground"
+        with mock.patch.dict(os.environ, {"E008_REPO_ROOT": user_path}):
+            provenance = module.repository_checkout_provenance()
+        self.assertEqual(provenance["user_facing_path"], user_path)
+        self.assertEqual(provenance["resolved_path"], str(REPO_ROOT.resolve()))
+
+
+class CommittedPilotResultTests(unittest.TestCase):
+    """Protect the completed negative preflight result and execution boundary."""
+
+    RESULTS = REPO_ROOT / "results" / "experiment_08_preflight"
+    EXPECTED_HASHES = {
+        "candidate_checkpoint_inventory.csv": (
+            "2c6316b39b9eab01e6508db7e30b363e8ed842445e97998d4c6ded33c1c2f94c"
+        ),
+        "candidate_pool_manifest.json": (
+            "d0b4cc35396203ab45748799cae0a1173f8fd1de8713e80fec976887ef702e9d"
+        ),
+        "pilot_checkpoint_summary.csv": (
+            "902c41e3a81a42308b24ef1f1cbe092789d28a018fe0093562eac71eb760332b"
+        ),
+        "pilot_failures.csv": (
+            "a52620c201a9f8bc9da835dc62fa89ef4ed204ea9ede981f2f11b96b6ab9f7ea"
+        ),
+        "pilot_per_sample.csv": (
+            "f1c6930e9fc021eb1016db0351514239655b5d716ef7712aeee9a9037efeb7b3"
+        ),
+        "pilot_run_manifest.json": (
+            "170a2b7b6cf9c1920ed456c43de2d5d6b9fcd642aa179c9d826b27364603f403"
+        ),
+        "preflight_outcome.json": (
+            "5b52d5298c0e9e2459b4823dae9dd713fcf05bf30d6593e9d730a18c3c0e7728"
+        ),
+        "selected_model_pair.json": (
+            "e3b6cedbc318a3fa94dcc651230ff91d6dbe298fbb0b8fa6f425758e7126d7f4"
+        ),
+    }
+
+    def test_imported_artifact_hashes_are_exact(self) -> None:
+        for name, expected in self.EXPECTED_HASHES.items():
+            with self.subTest(name=name):
+                self.assertEqual(sha256_file(self.RESULTS / name), expected)
+
+    def test_all_expected_rows_are_complete_and_no_swap_fields_exist(self) -> None:
+        with (self.RESULTS / "pilot_per_sample.csv").open(newline="") as handle:
+            reader = csv.DictReader(handle)
+            rows = list(reader)
+            header = reader.fieldnames or []
+        self.assertEqual(len(rows), 42 * 128)
+        self.assertEqual(
+            len(
+                {
+                    (row["model_role"], row["checkpoint_sha256"], row["sample_seed"])
+                    for row in rows
+                }
+            ),
+            42 * 128,
+        )
+        self.assertEqual({int(row["sample_seed"]) for row in rows}, set(PILOT_SEEDS))
+        self.assertTrue(all(row["status"] == "ok" for row in rows))
+        self.assertFalse(set(header).intersection({"donor_model", "window_name"}))
+
+    def test_summary_records_six_eligible_1k_and_zero_eligible_50k(self) -> None:
+        with (self.RESULTS / "pilot_checkpoint_summary.csv").open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual(len(rows), 42)
+        eligible_1k = [
+            row
+            for row in rows
+            if row["model_role"] == "edm_1k" and row["eligible"] == "True"
+        ]
+        edm_50k = [row for row in rows if row["model_role"] == "edm_50k"]
+        self.assertEqual(len(eligible_1k), 6)
+        self.assertEqual(len(edm_50k), 21)
+        self.assertTrue(all(row["memorized_count"] == "0" for row in edm_50k))
+        self.assertTrue(all(row["n_samples"] == "128" for row in edm_50k))
+
+    def test_formal_outcome_blocks_pair_without_executing_e008(self) -> None:
+        outcome = json.loads((self.RESULTS / "preflight_outcome.json").read_text())
+        selected = json.loads((self.RESULTS / "selected_model_pair.json").read_text())
+        manifest = json.loads((self.RESULTS / "pilot_run_manifest.json").read_text())
+        validation = json.loads(
+            (self.RESULTS / "preflight_validation.json").read_text()
+        )
+        self.assertEqual(outcome["outcome"], "BLOCKED_NO_ELIGIBLE_PAIR")
+        self.assertFalse(outcome["e008_executed"])
+        self.assertFalse(outcome["new_training_started"])
+        self.assertIsNone(selected["selected_pair"])
+        self.assertFalse(selected["swap_conditions_generated"])
+        self.assertFalse(manifest["future_confirmatory_seeds_touched"])
+        self.assertEqual(
+            manifest["repository_commit"],
+            "b15b60e2df6191bbf1dc865ce6f2bc22e87141a6",
+        )
+        self.assertEqual(validation["status"], "pass")
+        self.assertEqual(validation["per_sample_row_count"], 5376)
+        self.assertEqual(validation["failed_row_count"], 0)
+
+
+def summary(role: str, digest: str, rate: float) -> dict[str, object]:
+    """Build one synthetic eligible checkpoint summary."""
+    return {
+        "model_role": role,
+        "checkpoint_sha256": digest,
+        "memorization_rate": rate,
+        "eligible": True,
+    }
+
+
+def pilot_row(digest: str, seed: int, *, status: str) -> dict[str, object]:
+    """Build one minimal stable resume row."""
+    return {
+        "model_role": "edm_1k",
+        "checkpoint_sha256": digest,
+        "training_kimg": 0,
+        "sample_seed": seed,
+        "status": status,
+        "error": "failure" if status != "ok" else "",
+    }
+
+
+def complete_pilot_row(seed: int) -> dict[str, object]:
+    """Build one complete row for smoke diagnostic tests."""
+    return {
+        "model_role": "edm_1k",
+        "checkpoint_path": "/checkpoint.pkl",
+        "checkpoint_sha256": "a" * 64,
+        "training_kimg": 0,
+        "sample_seed": seed,
+        "generated_sample_hash": "b" * 64,
+        "d1nn": "1",
+        "d2nn": "4",
+        "d1nn_reference_index": 1,
+        "d2nn_reference_index": 2,
+        "d1nn_over_d2nn": "0.25",
+        "memorized": 1,
+        "status": "ok",
+        "error": "",
+    }
+
+
+if __name__ == "__main__":
+    unittest.main()

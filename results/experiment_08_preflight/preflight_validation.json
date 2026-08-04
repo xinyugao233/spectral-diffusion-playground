@@ -1,0 +1,52 @@
+{
+  "accepted_candidate_count": 42,
+  "artifacts": {
+    "candidate_checkpoint_inventory.csv": {
+      "sha256": "2c6316b39b9eab01e6508db7e30b363e8ed842445e97998d4c6ded33c1c2f94c",
+      "size_bytes": 27753
+    },
+    "candidate_pool_manifest.json": {
+      "sha256": "d0b4cc35396203ab45748799cae0a1173f8fd1de8713e80fec976887ef702e9d",
+      "size_bytes": 54725
+    },
+    "pilot_checkpoint_summary.csv": {
+      "sha256": "902c41e3a81a42308b24ef1f1cbe092789d28a018fe0093562eac71eb760332b",
+      "size_bytes": 11284
+    },
+    "pilot_failures.csv": {
+      "sha256": "a52620c201a9f8bc9da835dc62fa89ef4ed204ea9ede981f2f11b96b6ab9f7ea",
+      "size_bytes": 184
+    },
+    "pilot_per_sample.csv": {
+      "sha256": "f1c6930e9fc021eb1016db0351514239655b5d716ef7712aeee9a9037efeb7b3",
+      "size_bytes": 1734716
+    },
+    "pilot_run_manifest.json": {
+      "sha256": "170a2b7b6cf9c1920ed456c43de2d5d6b9fcd642aa179c9d826b27364603f403",
+      "size_bytes": 3148
+    },
+    "preflight_outcome.json": {
+      "sha256": "5b52d5298c0e9e2459b4823dae9dd713fcf05bf30d6593e9d730a18c3c0e7728",
+      "size_bytes": 210
+    },
+    "selected_model_pair.json": {
+      "sha256": "e3b6cedbc318a3fa94dcc651230ff91d6dbe298fbb0b8fa6f425758e7126d7f4",
+      "size_bytes": 5577
+    }
+  },
+  "checks": {
+    "all_candidates_have_complete_rows": true,
+    "confirmatory_seed_overlap_absent": true,
+    "criterion_unchanged": true,
+    "e008_unexecuted": true,
+    "inventory_hash_matches": true,
+    "no_duplicate_checkpoint_seed_keys": true,
+    "pilot_seed_set_exact": true,
+    "pool_frozen_before_pilot": true,
+    "swap_fields_absent": true
+  },
+  "experiment_id": "experiment_08_preflight",
+  "failed_row_count": 0,
+  "per_sample_row_count": 5376,
+  "status": "pass"
+}

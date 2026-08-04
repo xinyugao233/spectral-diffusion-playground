@@ -88,6 +88,18 @@ E006's internal `paper_medium_reference` key is retained for provenance. It is
 a literature-derived Table 1 / Figure 10 compatibility condition, not an
 E004A-derived geometry window.
 
+## E008 Baseline Preflight
+
+[`experiment_08_preflight/`](experiment_08_preflight/) contains the frozen
+42-checkpoint inventory, all `5,376` per-seed no-swap pilot records, the
+checkpoint summary, zero-row failure table, run manifest, validation record,
+and blocked pair-selection outcome.
+
+The formal result is `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints were
+eligible, but every one of the 21 EDM-50K checkpoints was `0/128`.
+Confirmatory seeds `0..255` remain reserved and no E008 swap output exists.
+See the [results document](../docs/experiment_08_checkpoint_preflight_results.md).
+
 ## Artifact Policy
 
 Commit an output only when it is small, deterministic, reviewable, and needed

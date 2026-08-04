@@ -84,6 +84,14 @@ documented descriptive finding that the E005 low-frequency spectral transition
 was the tested window most strongly associated with changes in the
 memorization criterion.
 
+## E008 Baseline Preflight
+
+[`experiment_08_preflight/`](experiment_08_preflight/) contains the validated
+checkpoint-rate, training-duration, and eligible-pair figures from the
+5,376-record baseline-only pilot. They show six eligible EDM-1K checkpoints
+and no eligible EDM-50K checkpoint. These figures cannot contain swap effects;
+E008 remains unexecuted.
+
 ## Figure Policy
 
 Keep filenames stable, use one experiment subdirectory for scientific result
