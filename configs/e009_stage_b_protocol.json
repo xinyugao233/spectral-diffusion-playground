@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "experiment_id": "E009_STAGE_B",
   "status": "protocol_frozen_training_not_started",
   "supersedes": "unexecuted configs/e009_stage_a_protocol.json stage_b_if_triggered placeholder",
@@ -18,14 +18,28 @@
     "ema_snapshot_sha256": "a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58",
     "stage_a_config_sha256": "e4a076c301e3e330872a6088774a5c7d688a18b0639831f5e250d759282868d8",
     "training_options_sha256": "ca39f38ebb94ee78e2a65ac1f2065efe22c5aa915af3581a2c8e469a649a652f",
+    "run_manifest_sha256": "d63dbddaaf06422462e8268ffd40a69459947ee35f82ee1887aaab0b9882c81a",
     "training_commit": "d19c470bc4b547e2bad5488b30892be2814c7b12",
     "stage_a_immutable": true
+  },
+  "warm_start_amendment": {
+    "warm_start": true,
+    "exact_continuation": false,
+    "frozen_before_stage_b_execution": true,
+    "rng_seed": 1,
+    "starting_exposure_kimg": 12000,
+    "network_source": "resume_anchor.training_state",
+    "optimizer_source": "resume_anchor.training_state",
+    "ema_source": "resume_anchor.ema_snapshot_sha256",
+    "stage_a_rng_restored": false,
+    "interpretation": "5K warm-start extension checkpoints initialized from the Stage A 12K state"
   },
   "training": {
     "new_lineage_name": "e009_stage_b_edm5k_30000kimg",
     "dataset_size": 5000,
     "dataset_archive_sha256": "1e96a4f7a701bd067f71c725bbe83f1dcd65a750b310f206eee878ce2c07355a",
-    "seed": 0,
+    "seed": 1,
+    "warm_start": true,
     "start_kimg": 12000,
     "stop_kimg": 30000,
     "new_checkpoint_kimg": [13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000],
@@ -46,6 +60,31 @@
     "sigma_data": 0.5,
     "p_mean": -1.2,
     "p_std": 1.2
+  },
+  "state_serialization": {
+    "schema_version": 2,
+    "network": true,
+    "optimizer": true,
+    "ema": true,
+    "explicit_progress_counters": true,
+    "numpy_rng": true,
+    "torch_cpu_rng": true,
+    "torch_cuda_rng_all": true,
+    "sampler_rng_and_position": true,
+    "dataloader_generator": true,
+    "dataloader_workers": 0,
+    "unavailable_sources_recorded": true
+  },
+  "smoke_gate": {
+    "start_kimg": 12000,
+    "stop_kimg": 13000,
+    "expected_snapshot": "network-snapshot-013000.pkl",
+    "expected_training_state": "training-state-013000.pt",
+    "full_continuation_allowed_before_pass": false
+  },
+  "artifact_hashes": {
+    "configs/e009_stage_b_edm5k_13000kimg_smoke.yaml": "021b4cc979136da93185dbac92f9189deb7e48a634ba382de848b7b0796d09df",
+    "configs/e009_stage_b_edm5k_30000kimg.yaml": "64edbb118b46e0f4a50e7af7d432aa43a2c7bc7a04d2831f39d0770651125254"
   },
   "evaluation": {
     "new_5k_checkpoint_count": 18,

@@ -1,11 +1,28 @@
-# E009 Stage B: Matched-Exposure 5K Continuation
+# E009 Stage B: Matched-Exposure 5K Warm-Start Extension
 
 Status: **PROTOCOL FROZEN — TRAINING NOT STARTED**
 
 Date frozen: 2026-08-05
 
-> Stage B resumes the verified 5K optimizer/EMA state from 12K to at most 30K
-> kimg. It does not execute E008 swaps or use confirmatory seeds.
+> Stage B warm-starts from the verified 5K training network and optimizer at
+> 12K, loads the separately frozen 12K EMA, and trains to at most 30K kimg
+> under a newly frozen RNG seed. It does not execute E008 swaps or use
+> confirmatory seeds.
+
+## Pre-Execution Amendment: Exact Resume Is Unavailable
+
+Source inspection before any Stage B execution established that the Stage A
+state stores only `net` and `optimizer_state`. The 12K EMA is stored in a
+separate network snapshot; NumPy, Torch, CUDA, sampler, and DataLoader RNG
+states were not serialized; and progress is reconstructed from the artifact
+filename. Exact continuation of the uninterrupted Stage A stochastic
+trajectory is therefore impossible.
+
+Stage B is prospectively amended to a separately identified warm-start
+extension. Its checkpoints may be described only as **5K warm-start extension
+checkpoints initialized from the Stage A 12K state**. They must not be
+described as an exact uninterrupted continuation. This amendment was frozen
+before a Stage B smoke, training run, inference run, or result inspection.
 
 ## Decision And Rationale
 
@@ -30,13 +47,13 @@ count at which the 2K model first became eligible.
 
 ## Scope And Non-Goals
 
-Stage B changes one quantity: additional optimization duration for the
-existing 5K trajectory. It does not:
+Stage B studies additional optimization from the preserved 5K state under a
+new, reproducible RNG lineage. It does not:
 
 - train a new 5K model from scratch;
 - train or extend the 10K model;
 - add a 20K subset;
-- alter architecture, optimizer, data, seed, sampler, evaluator, criterion,
+- alter architecture, optimizer, data, evaluator, criterion,
   eligibility, or pair selection after observing results;
 - run donor models, swap windows, E008 conditions, or confirmatory inference.
 
@@ -55,10 +72,12 @@ files into or remove files from the Stage A directory.
 | 12K EMA snapshot SHA-256 | `a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58` |
 | Stage A config SHA-256 | `e4a076c301e3e330872a6088774a5c7d688a18b0639831f5e250d759282868d8` |
 | Training-options SHA-256 | `ca39f38ebb94ee78e2a65ac1f2065efe22c5aa915af3581a2c8e469a649a652f` |
+| Run-manifest SHA-256 | `d63dbddaaf06422462e8268ffd40a69459947ee35f82ee1887aaab0b9882c81a` |
 | Stage A training commit | `d19c470bc4b547e2bad5488b30892be2814c7b12` |
 
-Proposed new lineage name: `e009_stage_b_edm5k_30000kimg`. The exact Stage B
-training config and its hash must be committed and reviewed before the smoke.
+The immutable new lineage is `e009_stage_b_edm5k_30000kimg`. Its parent
+training-state and EMA-snapshot hashes are verified independently before any
+output directory is created.
 
 ## Frozen Training Contract
 
@@ -67,7 +86,8 @@ training config and its hash must be committed and reviewed before the smoke.
 | Dataset | Existing nested, class-balanced CIFAR-10 5K subset |
 | Dataset archive SHA-256 | `1e96a4f7a701bd067f71c725bbe83f1dcd65a750b310f206eee878ce2c07355a` |
 | Dataset size | `5000` |
-| Training seed | `0`, with RNG/optimizer/EMA restored from the frozen state |
+| Warm start | `true` |
+| Training seed | `1`, newly frozen for all accessible Stage B RNG sources |
 | Start | `12,000` kimg |
 | Maximum | `30,000` kimg |
 | New checkpoint kimg | `13K, 14K, ..., 30K` |
@@ -84,21 +104,40 @@ training config and its hash must be committed and reviewed before the smoke.
 | Precision | Float32 (`use_fp16=false`) |
 | Augmentation | `xflip=false`; no added augmentation |
 
+Initialization is split deliberately: the training network and optimizer load
+from `training-state-012000.pt`, while EMA loads from the separately frozen
+`network-snapshot-012000.pkl`. The 12,000-kimg starting exposure is reconstructed
+from the verified parent artifact identity. Stage B uses a stateful sampler and
+a zero-worker DataLoader so sampler position can be serialized without an
+unrecoverable worker-prefetch queue.
+
+Every new Stage B state serializes the training network, optimizer, EMA,
+explicit progress counters, NumPy RNG state, Torch CPU RNG state, all available
+Torch CUDA RNG states, sampler state, and DataLoader-generator state. The state
+also records `warm_start=true`, seed `1`, parent hashes, and unavailable RNG
+sources explicitly rather than implying they were preserved from Stage A.
+
 The continuation runs through 30K before eligibility is evaluated. There is
 no adaptive early stopping based on intermediate memorization measurements.
 
 ## Resume Smoke Gate
 
-Before full continuation, a Slurm-only smoke must copy the frozen resume state
-to an isolated temporary lineage, restore model/optimizer/EMA/RNG state, run
-at most 1 additional kimg, and verify:
+Before full continuation, a Slurm-only smoke must initialize the new lineage
+from the two frozen parent artifacts, run from 12K to exactly 13K, and verify:
 
 - exact resume-state and source/config hashes;
-- resumed progress starts at 12K rather than from initialization;
+- network and optimizer load from the parent training state;
+- EMA loads from the separate parent snapshot;
+- seed-1 RNG initialization is reproducible;
+- progress starts at 12K and reaches exactly 13K;
 - finite loss and gradients;
 - unconditional architecture identity;
+- readable 13K snapshot and extended training state;
+- extended state contains EMA, counters, and every accessible RNG state;
 - no Stage A path is modified;
-- no candidate Stage B checkpoint or scientific result is retained.
+- all output is confined to the immutable Stage B lineage;
+- no evaluation, full Stage B continuation, E008 swap, or confirmatory seed is
+  used.
 
 Any mismatch stops the workflow before full training.
 
@@ -195,4 +234,3 @@ scaling predicts about 20.8 additional GPU-hours for 18K kimg. Freeze one L40S
 task with a maximum 30-hour walltime. Budget approximately 18 GB for the
 temporary state trajectory and 5 GB for persistent new snapshots plus the
 final state. No checkpoint may be pruned before inventory and evaluation.
-
