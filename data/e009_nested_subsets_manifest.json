@@ -1,0 +1,89 @@
+{
+  "anchor": {
+    "count": 1000,
+    "path": "/cluster/pixstor/zwggh-lab/xinyu/projects/spectral-diffusion-playground/data/e005_cifar10_subset_1k_indices.txt",
+    "text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29"
+  },
+  "construction": {
+    "class_balanced": true,
+    "class_seed_rule": "expansion_seed + class_id",
+    "expansion_seed": 9,
+    "method": "retain complete E005 1K anchor; shuffle each class-specific complement once; take deterministic prefixes to exact class targets; sort final indices",
+    "nested": true
+  },
+  "experiment_id": "E009",
+  "label_sources": {
+    "data_batch_1": "54636561a3ce25bd3e19253c6b0d8538147b0ae398331ac4a2d86c6d987368cd",
+    "data_batch_2": "766b2cef9fbc745cf056b3152224f7cf77163b330ea9a15f9392beb8b89bc5a8",
+    "data_batch_3": "0f00d98ebfb30b3ec0ad19f9756dc2630b89003e10525f5e148445e82aa6a1f9",
+    "data_batch_4": "3f7bb240661948b8f4d53e36ec720d8306f5668bd0071dcb4e6c947f78e9682b",
+    "data_batch_5": "d91802434d8376bbaeeadf58a737e3a1b12ac839077e931237e0dcd43adcb154"
+  },
+  "schema_version": 1,
+  "source_archive": {
+    "path": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"
+  },
+  "subsets": {
+    "10000": {
+      "class_distribution": {
+        "airplane": 1000,
+        "automobile": 1000,
+        "bird": 1000,
+        "cat": 1000,
+        "deer": 1000,
+        "dog": 1000,
+        "frog": 1000,
+        "horse": 1000,
+        "ship": 1000,
+        "truck": 1000
+      },
+      "index_manifest": "e009_cifar10_subset_10k_indices.txt",
+      "index_manifest_sha256": "6e16d015d518b499775f6389c4e72f0fd14dd12d18efb7fd3d26b865264a220d",
+      "indices_little_endian_int64_sha256": "db3ea573af4e41d3e542325f58021a9582e103bfa852a99554ae2c84850380f4",
+      "subset_archive": "/home/xggh8/data/zw-lab/e009_stage_a_subsets/e009_cifar10_subset_10k.zip",
+      "subset_archive_sha256": "f128bfbbb213769f4f087b8c6e46380f29d861152e470e98b985de52f2db4439",
+      "subset_archive_size_bytes": 24159614
+    },
+    "2000": {
+      "class_distribution": {
+        "airplane": 200,
+        "automobile": 200,
+        "bird": 200,
+        "cat": 200,
+        "deer": 200,
+        "dog": 200,
+        "frog": 200,
+        "horse": 200,
+        "ship": 200,
+        "truck": 200
+      },
+      "index_manifest": "e009_cifar10_subset_2k_indices.txt",
+      "index_manifest_sha256": "badb7ccf1fc797f016c6fac18b735c2fee121e95fbb4da1de5d8c23c4dd72a4c",
+      "indices_little_endian_int64_sha256": "8d9bd13a9d2b5c6737b164bf279bf55cc25fd7397f72fc6b21445a46cb56700e",
+      "subset_archive": "/home/xggh8/data/zw-lab/e009_stage_a_subsets/e009_cifar10_subset_2k.zip",
+      "subset_archive_sha256": "98e1196377fcb3abe14a0b0dc99a58c3e047a28b5aa88e55d08660b5745887e2",
+      "subset_archive_size_bytes": 4810049
+    },
+    "5000": {
+      "class_distribution": {
+        "airplane": 500,
+        "automobile": 500,
+        "bird": 500,
+        "cat": 500,
+        "deer": 500,
+        "dog": 500,
+        "frog": 500,
+        "horse": 500,
+        "ship": 500,
+        "truck": 500
+      },
+      "index_manifest": "e009_cifar10_subset_5k_indices.txt",
+      "index_manifest_sha256": "9f41e233172109ef3995a2ec621d880c7bd4fe08257be3b39cea4f820664a5e3",
+      "indices_little_endian_int64_sha256": "712d5afecedfad56edc48030fa8e0cb83e6264942507c74928eebffc60711cc4",
+      "subset_archive": "/home/xggh8/data/zw-lab/e009_stage_a_subsets/e009_cifar10_subset_5k.zip",
+      "subset_archive_sha256": "1e96a4f7a701bd067f71c725bbe83f1dcd65a750b310f206eee878ce2c07355a",
+      "subset_archive_size_bytes": 12058530
+    }
+  }
+}

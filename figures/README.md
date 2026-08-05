@@ -92,6 +92,13 @@ checkpoint-rate, training-duration, and eligible-pair figures from the
 and no eligible EDM-50K checkpoint. These figures cannot contain swap effects;
 E008 remains unexecuted.
 
+## E009 Stage A Baseline Gate
+
+[`experiment_09_stage_a/`](experiment_09_stage_a/) contains the combined and
+per-role memorization-rate trajectories for all 39 Stage A checkpoints. The
+eligibility band is frozen at `13..115 / 128`. Only the 2K 12K-kimg endpoint
+enters the band; the 5K and 10K trajectories remain at zero throughout.
+
 ## Figure Policy
 
 Keep filenames stable, use one experiment subdirectory for scientific result

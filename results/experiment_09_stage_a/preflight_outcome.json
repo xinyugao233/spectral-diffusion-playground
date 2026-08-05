@@ -1,0 +1,12 @@
+{
+  "e008_executed": false,
+  "eligible_counts": {
+    "edm_10k": 0,
+    "edm_2k": 1,
+    "edm_5k": 0
+  },
+  "experiment_id": "experiment_09_stage_a_baseline",
+  "outcome": "PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED",
+  "stage_b_started": false,
+  "swap_conditions_generated": false
+}

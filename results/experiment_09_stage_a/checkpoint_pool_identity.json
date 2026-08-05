@@ -1,0 +1,9 @@
+{
+  "experiment_id": "experiment_09_stage_a_baseline",
+  "inventory_job_id": "15720448",
+  "inventory_sha256": "0cf77c6bb3087ebc45f42eb10861516e43e38a9f72f35e24cd78b3d297ef67ad",
+  "manifest_sha256": "c2aa09841509c826a3288ca99a9838b2a07a001885c681a081c736b35bd12548",
+  "repository_commit": "b7dd105a0620f061b187e3f1f1e850c808450f0b",
+  "schema_version": 1,
+  "training_commit": "d19c470bc4b547e2bad5488b30892be2814c7b12"
+}

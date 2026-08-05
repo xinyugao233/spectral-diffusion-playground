@@ -92,9 +92,29 @@ eligibility interval, and deterministic pair-selection rule. Its
 `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints passed, but all 21 EDM-50K
 checkpoints were `0/128`. This gate did not execute E008.
 
-The [E009 design proposal](experiment_09_intermediate_dataset_training_design.md)
-records the next model-development direction: intermediate CIFAR-10 subset
-sizes and a newly frozen baseline pilot. No training has started.
+The [frozen E009 Stage A protocol](experiment_09_intermediate_dataset_training_design.md)
+uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
+checkpoint cadence, new pilot seeds, and prospective stopping/pair-selection
+rules. The Stage A training array completed at 12K kimg for all three roles.
+Inventory job `15720448` then froze and accepted all 39 expected persistent
+checkpoints. No checkpoint pilot, eligible larger-data checkpoint, or
+model-pair selection result exists yet.
+
+The dated [E009 evaluation execution amendment](experiment_09_stage_a_evaluation_execution.md)
+records the post-training inventory, smoke, and baseline-only pilot gates
+without changing the frozen scientific settings.
+
+The [validated Stage A results](experiment_09_stage_a_results.md) report all
+4,992 no-swap records. Only the 2K 12K-kimg checkpoint was eligible; no 5K or
+10K checkpoint qualified, so the frozen outcome is
+`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`. Stage B and E008 remain unexecuted.
+
+## Pipeline Audit
+
+[The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)
+checks the four E004B curves, independent low/high target selection, the E005
+distinction, proposed E008 controls, whole-denoiser intervention semantics, and
+the baseline-pair gate. It changes no scientific artifacts.
 
 ## Reading Order
 
