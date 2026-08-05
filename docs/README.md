@@ -95,9 +95,10 @@ checkpoints were `0/128`. This gate did not execute E008.
 The [frozen E009 Stage A protocol](experiment_09_intermediate_dataset_training_design.md)
 uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
 checkpoint cadence, new pilot seeds, and prospective stopping/pair-selection
-rules. At protocol freeze no E009 training or pilot result existed. As of
-2026-08-04, the frozen Stage A training array is running; no checkpoint pilot,
-eligible larger-data checkpoint, or model-pair selection result exists.
+rules. The Stage A training array completed at 12K kimg for all three roles.
+Inventory job `15720448` then froze and accepted all 39 expected persistent
+checkpoints. No checkpoint pilot, eligible larger-data checkpoint, or
+model-pair selection result exists yet.
 
 The dated [E009 evaluation execution amendment](experiment_09_stage_a_evaluation_execution.md)
 records the post-training inventory, smoke, and baseline-only pilot gates

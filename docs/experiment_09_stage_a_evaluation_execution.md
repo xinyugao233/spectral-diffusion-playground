@@ -47,6 +47,24 @@ The manifest cannot contain its own SHA-256 without a self-referential hash.
 Therefore `checkpoint_pool_identity.json` is the authoritative sidecar that
 records the final manifest SHA-256 and inventory SHA-256.
 
+## Frozen Inventory Result
+
+Inventory job `15720448` completed `0:0` at repository commit
+`b7dd105a0620f061b187e3f1f1e850c808450f0b`. All 39 expected checkpoints
+were accepted: 13 each for 2K, 5K, and 10K at exact `0..12K` cadence. Every
+checkpoint was readable, contained the unconditional EMA network, shared one
+architecture identity, and resolved to persistent storage. No checkpoint was
+rejected or silently substituted.
+
+- Inventory SHA-256:
+  `0cf77c6bb3087ebc45f42eb10861516e43e38a9f72f35e24cd78b3d297ef67ad`
+- Manifest SHA-256:
+  `c2aa09841509c826a3288ca99a9838b2a07a001885c681a081c736b35bd12548`
+- Compact artifacts: [`results/experiment_09_stage_a/`](../results/experiment_09_stage_a/)
+
+The pool is frozen before inference. Smoke and the full pilot remain
+unexecuted at this inventory milestone.
+
 ## Scientific Invariants
 
 - Pilot seeds are exactly `20000..20127`.

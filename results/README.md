@@ -100,6 +100,14 @@ eligible, but every one of the 21 EDM-50K checkpoints was `0/128`.
 Confirmatory seeds `0..255` remain reserved and no E008 swap output exists.
 See the [results document](../docs/experiment_08_checkpoint_preflight_results.md).
 
+## E009 Stage A Baseline Gate
+
+[`experiment_09_stage_a/`](experiment_09_stage_a/) contains the frozen
+39-checkpoint inventory, checkpoint-pool manifest, and non-self-referential
+identity sidecar. Inventory job `15720448` accepted the complete 2K, 5K, and
+10K `0..12K` trajectories with no rejected checkpoints. The baseline smoke
+and 4,992-record pilot were not run at this inventory milestone.
+
 ## Artifact Policy
 
 Commit an output only when it is small, deterministic, reviewable, and needed
