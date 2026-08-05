@@ -95,7 +95,16 @@ checkpoints were `0/128`. This gate did not execute E008.
 The [frozen E009 Stage A protocol](experiment_09_intermediate_dataset_training_design.md)
 uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
 checkpoint cadence, new pilot seeds, and prospective stopping/pair-selection
-rules. No E009 training or pilot result exists at protocol freeze.
+rules. At protocol freeze no E009 training or pilot result existed. As of
+2026-08-04, the frozen Stage A training array is running; no checkpoint pilot,
+eligible larger-data checkpoint, or model-pair selection result exists.
+
+## Pipeline Audit
+
+[The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)
+checks the four E004B curves, independent low/high target selection, the E005
+distinction, proposed E008 controls, whole-denoiser intervention semantics, and
+the baseline-pair gate. It changes no scientific artifacts.
 
 ## Reading Order
 
