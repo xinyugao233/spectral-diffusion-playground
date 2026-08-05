@@ -9,6 +9,14 @@ the ordered E004-E008 roles, full-space and band-specific geometry targets,
 the distinction between selection and spectral interpretation, and the
 current intervention blockers.
 
+## E009 Stage B Warm-Start Smoke
+
+The [smoke validation](experiment_09_stage_b/smoke_validation.json),
+[initialization record](experiment_09_stage_b/warm_start_initialization.json),
+and [run manifest](experiment_09_stage_b/run_manifest.json) document the
+successful 12K-to-13K warm-start gate. Large model artifacts remain external
+under `/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg`.
+
 ## E004: Operational Frequency Cutoff
 
 Files stored directly under `results/`:

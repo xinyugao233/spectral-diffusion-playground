@@ -1,14 +1,16 @@
 {
   "schema_version": 2,
   "experiment_id": "E009_STAGE_B",
-  "status": "protocol_frozen_training_not_started",
+  "status": "resume_smoke_passed_full_continuation_not_started",
   "supersedes": "unexecuted configs/e009_stage_a_protocol.json stage_b_if_triggered placeholder",
   "scientific_scope": {
     "resume_existing_5k_only": true,
     "new_training_from_scratch_allowed": false,
     "e008_swaps_allowed": false,
     "confirmatory_inference_allowed": false,
-    "stage_b_training_started": false
+    "stage_b_training_started": true,
+    "stage_b_resume_smoke_passed": true,
+    "full_stage_b_continuation_started": false
   },
   "resume_anchor": {
     "stage_a_root": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg",

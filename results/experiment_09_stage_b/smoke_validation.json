@@ -1,0 +1,50 @@
+{
+  "ema_state_elements": 55732771,
+  "exact_stage_a_continuation": false,
+  "final_kimg": 13000,
+  "finite_loss": true,
+  "job_id": 15722770,
+  "job_state": "COMPLETED",
+  "job_exit_code": "0:0",
+  "job_elapsed": "01:13:39",
+  "config_sha256": "021b4cc979136da93185dbac92f9189deb7e48a634ba382de848b7b0796d09df",
+  "launcher_sha256": "65959bd58230ae26cc92b2dd0532e71e7a626ff5dca3501ce815af6badc64d91",
+  "loss_records": 1,
+  "network_state_elements": 55732771,
+  "no_evaluation_or_swap": true,
+  "repository_commit": "9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd",
+  "seed": 1,
+  "serialized_rng_fields": [
+    "dataloader_generator",
+    "numpy",
+    "sampler",
+    "torch_cpu",
+    "torch_cuda_all",
+    "unavailable"
+  ],
+  "snapshot_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-013000.pkl",
+  "snapshot_sha256": "6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c",
+  "snapshot_size_bytes": 223159938,
+  "stage_a_manifest_sha256": "2ea46ae65a80aaea8485c6c5c4e869cd9e13075e6d509224e3a69e8ebc6cee7b",
+  "stage_a_unchanged": true,
+  "start_kimg": 12000,
+  "state_schema_version": 2,
+  "status": "pass",
+  "training_state_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/training-state-013000.pt",
+  "training_state_sha256": "8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130",
+  "training_state_size_bytes": 892630914,
+  "source_artifact_hashes": {
+    "e009_stage_b_smoke_validation.json": "440bad211f94266e86f115b76374d4096b42a1f84ebddd354bfd70a21370f474",
+    "warm_start_initialization.json": "5771f9f432c74a6712d3b1fa8ed38777fa7b53d20828a082ab8414df7a08fd25",
+    "run_manifest.json": "785cf648a50071242a8f441f0fe0ba0c5c9e07459c122625322cd696568196b3",
+    "stats.jsonl": "792ffb079b0f05fb6626c6b1ded8c287377f1b182284e949724c0144c11eeb83",
+    "stdout": "e6ffb171c561730cc1da191297feb310261cca8271830dba15c467d5073e3a23",
+    "stderr": "08734c8e4384193e708f277695cc4e3b84a5f517468121ccac7a44f5b153872c"
+  },
+  "warnings": [
+    "PyTorch Sampler data_source deprecation warning",
+    "DDP gradient-stride performance warning",
+    "process-group shutdown warnings after successful validation"
+  ],
+  "warm_start": true
+}

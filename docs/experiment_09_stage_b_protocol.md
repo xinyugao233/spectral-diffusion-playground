@@ -1,6 +1,6 @@
 # E009 Stage B: Matched-Exposure 5K Warm-Start Extension
 
-Status: **PROTOCOL FROZEN — TRAINING NOT STARTED**
+Status: **RESUME SMOKE PASSED — FULL CONTINUATION NOT STARTED**
 
 Date frozen: 2026-08-05
 
@@ -140,6 +140,29 @@ from the two frozen parent artifacts, run from 12K to exactly 13K, and verify:
   used.
 
 Any mismatch stops the workflow before full training.
+
+### Smoke Outcome
+
+Slurm job `15722770` completed with exit code `0:0` in `1:13:39`. It reached
+exactly 13K, emitted finite loss, and passed the frozen validator. The 13K
+snapshot and extended training state remain external in the immutable Stage B
+lineage. Their SHA-256 identities are:
+
+```text
+network-snapshot-013000.pkl
+6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c
+
+training-state-013000.pt
+8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130
+```
+
+The recursive Stage A identity remained
+`2ea46ae65a80aaea8485c6c5c4e869cd9e13075e6d509224e3a69e8ebc6cee7b`
+before and after the smoke. No full continuation, baseline evaluation, E008
+swap, or confirmatory inference was submitted. See the
+[smoke result record](../results/experiment_09_stage_b/smoke_validation.json).
+The only stderr messages were nonfatal PyTorch sampler-deprecation,
+DDP-stride-performance, and process-group shutdown warnings.
 
 ## Frozen Baseline Evaluation
 
