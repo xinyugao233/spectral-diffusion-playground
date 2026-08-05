@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 166 passing](https://img.shields.io/badge/tests-166%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 171 passing](https://img.shields.io/badge/tests-171%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -28,7 +28,7 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 | 5 | E006 | Historical spectral/reference swaps | Exploratory; `INCONCLUSIVE` |
 | 6 | E007 | Full-space geometry swap over `8..9` | Proposed; blocked |
 | 7 | E008 | Frequency-geometry swaps | Preflight complete: `BLOCKED_NO_ELIGIBLE_PAIR`; swaps unexecuted |
-| 8 | E009 | Intermediate-dataset model search | Stage A training running; evaluation not started |
+| 8 | E009 | Intermediate-dataset model search | Stage A complete: 2K-only eligibility; Stage B required |
 
 ```mermaid
 flowchart LR
@@ -125,7 +125,7 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 | E006 | What happened in the historical spectral-aligned swaps? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Exploratory; formal outcome `INCONCLUSIVE` | Complete |
 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
 | E008 | Do swaps over the E004B band-specific targets differ from controls? | [Preflight results](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png) | `BLOCKED_NO_ELIGIBLE_PAIR`; no swap result | Preflight complete; swaps blocked and unexecuted |
-| E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Frozen Stage A protocol](docs/experiment_09_intermediate_dataset_training_design.md) | Training in progress; no pilot result | Stage A training running; E008 remains blocked |
+| E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Stage A rates](figures/experiment_09_stage_a/baseline_memorization_rate_by_kimg.png) | Only 2K at 12K kimg is eligible; no 5K/10K candidate | Stage A complete; Stage B required; E008 blocked |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -618,12 +618,10 @@ swap result exists.
 
 ![E008 baseline rates across all 42 checkpoints](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png)
 
-The result does not establish that every 50K-data model is degenerate, but it
-does show that training longer along the available EDM-50K trajectory is not
-the useful next control. The separate intermediate-dataset design in
-[E009](docs/experiment_09_intermediate_dataset_training_design.md) is now
-running its frozen 2K/5K/10K Stage A training array. No E009 checkpoint pilot
-result exists yet, so E008 remains blocked and unexecuted.
+The result does not establish that every 50K-data model is degenerate. E009
+therefore tested matched 2K/5K/10K trajectories. Its completed Stage A pilot
+found one eligible 2K endpoint but no eligible 5K or 10K checkpoint, so the
+required larger-data model still does not exist and E008 remains blocked.
 
 See the [baseline preflight protocol](docs/experiment_08_checkpoint_preflight.md)
 and [results](docs/experiment_08_checkpoint_preflight_results.md), plus the
@@ -637,21 +635,24 @@ and 10K, with matched EDM settings, 12K-kimg budgets, and snapshots every 1K
 kimg. All three runs use training seed `0` and are designed for one parallel
 Slurm array.
 
-The future baseline pilot uses seeds `20000..20127`, never reuses E008 pilot
+The completed Stage A pilot used seeds `20000..20127`, never reused E008 pilot
 seeds `10000..10127`, and keeps confirmatory seeds `0..255` untouched. The
 eligibility interval remains `13..115 / 128`. Pair selection minimizes the
 baseline-rate gap, then prefers the larger new dataset, then uses checkpoint
 hash order. At least a 5K model is required to unblock E008; a 2K-only result
 triggers the separately reviewed Stage B.
 
-See the [frozen E009 protocol](docs/experiment_09_intermediate_dataset_training_design.md)
-and [nested subset manifest](data/e009_nested_subsets_manifest.json). E008
-remains blocked and unexecuted throughout model selection.
+Stage A evaluated all 39 checkpoints with 4,992 no-swap records and zero
+failures. Only the 2K 12K-kimg checkpoint passed (`14/128`); all 5K and 10K
+checkpoints were `0/128`. The frozen outcome is
+`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`: no pair was selected, Stage B was not
+started, and E008 remains blocked and unexecuted.
 
-Operational status as of 2026-08-04: Stage A Slurm array `15673597` is running
-the frozen 2K, 5K, and 10K training jobs. The repository has prepared the
-baseline evaluation, but it has not evaluated these checkpoints or selected a
-cross-role pair.
+![E009 Stage A baseline rates](figures/experiment_09_stage_a/baseline_memorization_rate_by_kimg.png)
+
+See the [frozen protocol](docs/experiment_09_intermediate_dataset_training_design.md),
+[validated results](docs/experiment_09_stage_a_results.md), and
+[nested subset manifest](data/e009_nested_subsets_manifest.json).
 
 ## Mathematical Core
 
@@ -702,7 +703,7 @@ to the full residual energy within the frozen tolerance.
 | E006 | [Protocol](docs/experiment_06_transition_swap_protocol.md) · [Results](docs/experiment_06_transition_window_swap_results.md) | [`results/experiment_06/`](results/experiment_06/) | [`figures/experiment_06/`](figures/experiment_06/) |
 | E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
 | E008 | [Baseline preflight](docs/experiment_08_checkpoint_preflight.md) · [Results](docs/experiment_08_checkpoint_preflight_results.md) · [Blocked swap protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | [`results/experiment_08_preflight/`](results/experiment_08_preflight/) | [`figures/experiment_08_preflight/`](figures/experiment_08_preflight/) |
-| E009 | [Frozen staged protocol](docs/experiment_09_intermediate_dataset_training_design.md) | Stage A training active; no pilot result | Not generated |
+| E009 | [Frozen staged protocol](docs/experiment_09_intermediate_dataset_training_design.md) · [Stage A results](docs/experiment_09_stage_a_results.md) | [`results/experiment_09_stage_a/`](results/experiment_09_stage_a/) | [`figures/experiment_09_stage_a/`](figures/experiment_09_stage_a/) |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.

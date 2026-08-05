@@ -104,6 +104,11 @@ The dated [E009 evaluation execution amendment](experiment_09_stage_a_evaluation
 records the post-training inventory, smoke, and baseline-only pilot gates
 without changing the frozen scientific settings.
 
+The [validated Stage A results](experiment_09_stage_a_results.md) report all
+4,992 no-swap records. Only the 2K 12K-kimg checkpoint was eligible; no 5K or
+10K checkpoint qualified, so the frozen outcome is
+`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`. Stage B and E008 remain unexecuted.
+
 ## Pipeline Audit
 
 [The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)

@@ -65,6 +65,17 @@ rejected or silently substituted.
 The pool is frozen before inference. Smoke and the full pilot remain
 unexecuted at this inventory milestone.
 
+## Completed Evaluation
+
+Smoke job `15720479` passed exact two-run reproducibility over the final 2K,
+5K, and 10K checkpoints with seeds `20000,20001`. Full pilot array `15720492`
+then produced 1,664 rows per role, 4,992 total, with zero failures.
+Summarization job `15720544` validated every checkpoint/seed key and recorded
+`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`: only 2K at 12K kimg was eligible
+(`14/128`), while every 5K and 10K checkpoint was `0/128`. No pair was frozen,
+Stage B was not started, and E008 remained unexecuted. See the
+[results record](experiment_09_stage_a_results.md).
+
 ## Scientific Invariants
 
 - Pilot seeds are exactly `20000..20127`.

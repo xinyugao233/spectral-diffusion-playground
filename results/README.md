@@ -103,10 +103,13 @@ See the [results document](../docs/experiment_08_checkpoint_preflight_results.md
 ## E009 Stage A Baseline Gate
 
 [`experiment_09_stage_a/`](experiment_09_stage_a/) contains the frozen
-39-checkpoint inventory, checkpoint-pool manifest, and non-self-referential
-identity sidecar. Inventory job `15720448` accepted the complete 2K, 5K, and
-10K `0..12K` trajectories with no rejected checkpoints. The baseline smoke
-and 4,992-record pilot were not run at this inventory milestone.
+39-checkpoint inventory, checkpoint-pool manifest, identity sidecar, all 4,992
+per-seed no-swap records, checkpoint summaries, zero-row failure table,
+validation, smoke result, and pair-selection outcome. Inventory job `15720448`
+accepted the complete 2K, 5K, and 10K `0..12K` trajectories. Pilot array
+`15720492` completed with zero failures. Only 2K at 12K kimg was eligible;
+therefore the formal outcome is `PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED` and no
+pair was selected. See the [results document](../docs/experiment_09_stage_a_results.md).
 
 ## Artifact Policy
 
