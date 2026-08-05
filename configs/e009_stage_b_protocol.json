@@ -86,7 +86,18 @@
   },
   "artifact_hashes": {
     "configs/e009_stage_b_edm5k_13000kimg_smoke.yaml": "021b4cc979136da93185dbac92f9189deb7e48a634ba382de848b7b0796d09df",
-    "configs/e009_stage_b_edm5k_30000kimg.yaml": "64edbb118b46e0f4a50e7af7d432aa43a2c7bc7a04d2831f39d0770651125254"
+    "configs/e009_stage_b_edm5k_30000kimg.yaml": "21f321ca58935e60014872fbe1901060aca72d39087c344ab14457c983ce9004"
+  },
+  "continuation_execution": {
+    "validated_parent_implementation": "9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd",
+    "resume_kind": "extended_stage_b_state",
+    "start_kimg": 13000,
+    "stop_kimg": 30000,
+    "parent_state_sha256": "8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130",
+    "parent_snapshot_sha256": "6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c",
+    "expected_new_checkpoint_kimg": [14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000],
+    "state_load_only_preflight_required": true,
+    "existing_13k_artifacts_must_not_be_overwritten": true
   },
   "evaluation": {
     "new_5k_checkpoint_count": 18,

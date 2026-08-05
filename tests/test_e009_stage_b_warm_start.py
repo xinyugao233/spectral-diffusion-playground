@@ -14,9 +14,12 @@ import torch
 from spectral_diffusion_playground.e009_warm_start import (
     STATE_SCHEMA_VERSION,
     StatefulInfiniteSampler,
+    capture_rng_state,
     derive_rng_seeds,
     initialize_rngs,
+    restore_rng_state,
     seeded_rng_digest,
+    state_digest,
     validate_extended_state,
 )
 
@@ -78,6 +81,26 @@ class StageBWarmStartTests(unittest.TestCase):
         self.assertEqual(first_seeds, second_seeds)
         self.assertEqual(first_digest, second_digest)
         self.assertNotEqual(first_seeds["stage_b_seed"], 0)
+
+    def test_serialized_rng_state_restores_exactly(self) -> None:
+        sampler = StatefulInfiniteSampler(list(range(17)), seed=1)
+        generator, _ = initialize_rngs(1, 0, 1)
+        iterator = iter(sampler)
+        for _ in range(23):
+            next(iterator)
+        frozen = capture_rng_state(sampler, generator)
+        frozen_digest = state_digest(frozen)
+
+        np.random.random(5)
+        torch.rand(5)
+        for _ in range(11):
+            next(iterator)
+        generator.seed()
+
+        restore_rng_state(frozen, sampler, generator)
+        self.assertEqual(
+            state_digest(capture_rng_state(sampler, generator)), frozen_digest
+        )
 
     def test_stateful_sampler_matches_reference_and_round_trips(self) -> None:
         dataset = list(range(17))
@@ -173,6 +196,69 @@ class StageBWarmStartTests(unittest.TestCase):
             '"dataloader_generator"',
         ):
             self.assertIn(field, source)
+        self.assertLess(
+            source.index("restore_rng_state(parent_state"),
+            source.index("dataset_iterator = iter(data_loader)"),
+        )
+
+    def test_full_continuation_is_pinned_to_validated_13k_parent(self) -> None:
+        path = REPO_ROOT / "configs/e009_stage_b_edm5k_30000kimg.yaml"
+        config = self.preflight.validate_config(REPO_ROOT, path)
+        warm = config["warm_start"]
+        self.assertEqual(warm["resume_kind"], "extended_stage_b_state")
+        self.assertEqual(warm["start_kimg"], 13000)
+        self.assertEqual(
+            warm["parent_training_state_sha256"],
+            self.preflight.EXPECTED_13K_STATE_SHA256,
+        )
+        self.assertEqual(
+            warm["parent_ema_snapshot_sha256"],
+            self.preflight.EXPECTED_13K_EMA_SHA256,
+        )
+        self.assertEqual(
+            warm["validated_parent_implementation"],
+            self.preflight.VALIDATED_PARENT_IMPLEMENTATION,
+        )
+
+    def test_state_load_preflight_takes_no_optimizer_step(self) -> None:
+        source = (
+            REPO_ROOT / "scripts/e009_stage_b_state_load_preflight.py"
+        ).read_text()
+        self.assertNotIn("optimizer.step(", source)
+        self.assertIn('"optimizer_steps_taken": 0', source)
+        for field in (
+            '"network_restored": True',
+            '"optimizer_restored": True',
+            '"ema_restored": True',
+            '"numpy_rng_restored": True',
+            '"torch_cpu_rng_restored": True',
+            '"torch_cuda_rng_restored": True',
+            '"sampler_rng_restored": True',
+            '"dataloader_generator_restored": True',
+            '"next_output_kimg": 14000',
+        ):
+            self.assertIn(field, source)
+
+    def test_continuation_launcher_preserves_scientific_boundaries(self) -> None:
+        launcher = (REPO_ROOT / "scripts/e009_stage_b_continue.slurm").read_text()
+        self.assertIn("start_kimg=13000", launcher)
+        self.assertIn("stop_kimg=30000", launcher)
+        self.assertIn("expected_new_checkpoints=14000..30000", launcher)
+        self.assertIn("--mode continue", launcher)
+        self.assertIn("evaluation=false", launcher)
+        self.assertIn("e008_swaps=false", launcher)
+        self.assertNotIn("20000..20127", launcher)
+        self.assertNotIn("0..255", launcher)
+
+    def test_preflight_rejects_stale_continuation_metadata(self) -> None:
+        self.assertIn(
+            "stats_stage_b_continuation.jsonl",
+            self.preflight.CONTINUATION_FILES,
+        )
+        self.assertIn(
+            "e009_stage_b_continuation_validation.json",
+            self.preflight.CONTINUATION_FILES,
+        )
 
 
 if __name__ == "__main__":

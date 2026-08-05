@@ -26,10 +26,25 @@ EXPECTED_PARENT_STATE_SHA256 = (
 EXPECTED_PARENT_EMA_SHA256 = (
     "a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58"
 )
+EXPECTED_13K_STATE_SHA256 = (
+    "8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130"
+)
+EXPECTED_13K_EMA_SHA256 = (
+    "6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c"
+)
+VALIDATED_PARENT_IMPLEMENTATION = "9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd"
 EXPECTED_ARCHIVE_SHA256 = (
     "1e96a4f7a701bd067f71c725bbe83f1dcd65a750b310f206eee878ce2c07355a"
 )
 EXPECTED_LINEAGE = "e009_stage_b_edm5k_30000kimg"
+CONTINUATION_FILES = (
+    "config_used_continuation.yaml",
+    "training_options_continuation.json",
+    "run_manifest_continuation.json",
+    "stage_b_resume_initialization.json",
+    "stats_stage_b_continuation.jsonl",
+    "e009_stage_b_continuation_validation.json",
+)
 EXPECTED_STAGE_A_METADATA = {
     "config_used.yaml": "e4a076c301e3e330872a6088774a5c7d688a18b0639831f5e250d759282868d8",
     "training_options.json": (
@@ -253,25 +268,79 @@ def validate_config(repo_root: Path, config_path: Path) -> dict[str, Any]:
     }
     if training != expected_training:
         raise ValueError("Stage B training block changed")
-    if warm != {
-        "enabled": True,
-        "seed": 1,
-        "start_kimg": 12000,
-        "parent_training_state": str(
-            EXPECTED_STAGE_A_ROOT / "training-state-012000.pt"
-        ),
-        "parent_training_state_sha256": EXPECTED_PARENT_STATE_SHA256,
-        "parent_ema_snapshot": str(
-            EXPECTED_STAGE_A_ROOT / "network-snapshot-012000.pkl"
-        ),
-        "parent_ema_snapshot_sha256": EXPECTED_PARENT_EMA_SHA256,
-        "state_schema_version": 2,
-    }:
+    if config_path.name.endswith("13000kimg_smoke.yaml"):
+        expected_warm = {
+            "enabled": True,
+            "seed": 1,
+            "start_kimg": 12000,
+            "parent_training_state": str(
+                EXPECTED_STAGE_A_ROOT / "training-state-012000.pt"
+            ),
+            "parent_training_state_sha256": EXPECTED_PARENT_STATE_SHA256,
+            "parent_ema_snapshot": str(
+                EXPECTED_STAGE_A_ROOT / "network-snapshot-012000.pkl"
+            ),
+            "parent_ema_snapshot_sha256": EXPECTED_PARENT_EMA_SHA256,
+            "state_schema_version": 2,
+        }
+    else:
+        lineage = Path("/home/xggh8/data/zw-lab") / EXPECTED_LINEAGE
+        expected_warm = {
+            "enabled": True,
+            "resume_kind": "extended_stage_b_state",
+            "seed": 1,
+            "start_kimg": 13000,
+            "parent_training_state": str(lineage / "training-state-013000.pt"),
+            "parent_training_state_sha256": EXPECTED_13K_STATE_SHA256,
+            "parent_ema_snapshot": str(lineage / "network-snapshot-013000.pkl"),
+            "parent_ema_snapshot_sha256": EXPECTED_13K_EMA_SHA256,
+            "validated_parent_implementation": VALIDATED_PARENT_IMPLEMENTATION,
+            "state_schema_version": 2,
+        }
+    if warm != expected_warm:
         raise ValueError("Stage B warm-start block changed")
     return config
 
 
-def validate_external(config: dict[str, Any]) -> None:
+def validate_lineage_state(config: dict[str, Any], mode: str) -> None:
+    """Require either an absent smoke lineage or the exact validated 13K parent."""
+    name = config["experiment"]["name"]
+    scratch = Path(config["experiment"]["persistent_scratch_root"]) / name
+    final = Path(config["experiment"]["persistent_data_root"]) / name
+    if mode == "smoke":
+        collisions = [path for path in (scratch, final) if path.exists()]
+        if collisions:
+            raise ValueError(f"Immutable Stage B output collision: {collisions}")
+        return
+    if config["warm_start"].get("resume_kind") != "extended_stage_b_state":
+        raise ValueError("Continuation modes require extended_stage_b_state")
+    required = {
+        "network-snapshot-013000.pkl": EXPECTED_13K_EMA_SHA256,
+        "training-state-013000.pt": EXPECTED_13K_STATE_SHA256,
+    }
+    for root in (scratch, final):
+        if not root.is_dir():
+            raise ValueError(f"Validated Stage B lineage is missing: {root}")
+        for filename, expected in required.items():
+            require_hash(root / filename, expected, f"{root.name}_{filename}")
+        later = [
+            path
+            for pattern in ("network-snapshot-*.pkl", "training-state-*.pt")
+            for path in root.glob(pattern)
+            if int(path.stem.rsplit("-", 1)[1]) > 13000
+        ]
+        if later:
+            raise ValueError(f"Unexpected post-13K artifacts already exist: {later}")
+        stale = [
+            root / filename
+            for filename in CONTINUATION_FILES
+            if (root / filename).exists()
+        ]
+        if stale:
+            raise ValueError(f"Existing continuation metadata collision: {stale}")
+
+
+def validate_external(config: dict[str, Any], mode: str) -> None:
     """Validate source, archive, parent identities, and output isolation."""
     edm_root = Path(config["experiment"]["edm_root"])
     if git_output(edm_root, "rev-parse", "HEAD") != EXPECTED_EDM_COMMIT:
@@ -290,24 +359,17 @@ def validate_external(config: dict[str, Any]) -> None:
     warm = config["warm_start"]
     require_hash(
         Path(warm["parent_training_state"]),
-        EXPECTED_PARENT_STATE_SHA256,
+        warm["parent_training_state_sha256"],
         "parent_training_state",
     )
     require_hash(
         Path(warm["parent_ema_snapshot"]),
-        EXPECTED_PARENT_EMA_SHA256,
+        warm["parent_ema_snapshot_sha256"],
         "parent_ema_snapshot",
     )
     for filename, expected in EXPECTED_STAGE_A_METADATA.items():
         require_hash(EXPECTED_STAGE_A_ROOT / filename, expected, f"stage_a_{filename}")
-    name = config["experiment"]["name"]
-    output_paths = [
-        Path(config["experiment"]["persistent_scratch_root"]) / name,
-        Path(config["experiment"]["persistent_data_root"]) / name,
-    ]
-    collisions = [path for path in output_paths if path.exists()]
-    if collisions:
-        raise ValueError(f"Immutable Stage B output collision: {collisions}")
+    validate_lineage_state(config, mode)
 
 
 def parse_args() -> argparse.Namespace:
@@ -317,6 +379,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-repo-commit", required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--stage-a-manifest-output", type=Path)
+    parser.add_argument(
+        "--mode", choices=("smoke", "state-load", "continue"), default="smoke"
+    )
     parser.add_argument("--config-only", action="store_true")
     return parser.parse_args()
 
@@ -329,7 +394,7 @@ def main() -> None:
     config = validate_config(repo_root, args.config)
     print(f"config_sha256={sha256_file(args.config)}")
     if not args.config_only:
-        validate_external(config)
+        validate_external(config, args.mode)
         if args.stage_a_manifest_output is None:
             raise ValueError("Full preflight requires --stage-a-manifest-output")
         manifest = directory_manifest(EXPECTED_STAGE_A_ROOT)

@@ -164,6 +164,12 @@ swap, or confirmatory inference was submitted. See the
 The only stderr messages were nonfatal PyTorch sampler-deprecation,
 DDP-stride-performance, and process-group shutdown warnings.
 
+The full continuation is configured to restore the validated schema-v2 13K
+state rather than restart from Stage A. Its parent hashes are the snapshot and
+state listed above, its validated parent implementation is commit `9e5782f`,
+and its first permitted new output is 14K. A separate exact execution commit
+and state-load-only preflight are required before submission.
+
 ## Frozen Baseline Evaluation
 
 After training, freeze and hash exactly these evaluation candidates before

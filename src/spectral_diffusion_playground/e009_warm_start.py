@@ -212,6 +212,30 @@ def capture_rng_state(
     }
 
 
+def restore_rng_state(
+    state: Mapping[str, Any],
+    sampler: StatefulInfiniteSampler,
+    generator: torch.Generator,
+) -> None:
+    """Restore every serialized Stage B RNG source and verify exact equality."""
+    np.random.set_state(state["numpy"])
+    torch.set_rng_state(state["torch_cpu"])
+    cuda_states = list(state["torch_cuda_all"])
+    if cuda_states:
+        if not torch.cuda.is_available():
+            raise ValueError("Serialized CUDA RNG state requires CUDA")
+        if len(cuda_states) != torch.cuda.device_count():
+            raise ValueError("Serialized CUDA RNG device count changed")
+        torch.cuda.set_rng_state_all(cuda_states)
+    elif torch.cuda.is_available():
+        raise ValueError("CUDA is available but serialized CUDA RNG state is empty")
+    sampler.load_state_dict(state["sampler"])
+    generator.set_state(state["dataloader_generator"])
+    restored = capture_rng_state(sampler, generator)
+    if state_digest(restored) != state_digest(state):
+        raise RuntimeError("Restored Stage B RNG state differs from serialized state")
+
+
 def validate_extended_state(state: Mapping[str, Any]) -> None:
     """Require all fields needed for an exact continuation within Stage B."""
     required = {
@@ -252,6 +276,8 @@ def warm_start_training_loop(
     parent_training_state_sha256: str,
     parent_ema_snapshot: Path,
     parent_ema_snapshot_sha256: str,
+    resume_kind: str,
+    execution_commit: str,
     start_kimg: int,
     seed: int,
     batch_size: int,
@@ -312,14 +338,12 @@ def warm_start_training_loop(
     if workers != 0:
         raise ValueError("Stage B requires num_workers=0 for exact sampler state")
     loader_options.pop("prefetch_factor", None)
-    dataset_iterator = iter(
-        torch.utils.data.DataLoader(
-            dataset=dataset_obj,
-            sampler=sampler,
-            batch_size=batch_gpu,
-            generator=loader_generator,
-            **loader_options,
-        )
+    data_loader = torch.utils.data.DataLoader(
+        dataset=dataset_obj,
+        sampler=sampler,
+        batch_size=batch_gpu,
+        generator=loader_generator,
+        **loader_options,
     )
 
     dist.print0("Constructing network...")
@@ -342,44 +366,75 @@ def warm_start_training_loop(
     ddp = torch.nn.parallel.DistributedDataParallel(net, device_ids=[device])
     ema = copy.deepcopy(net).eval().requires_grad_(False)
 
-    dist.print0(f'Loading parent network/optimizer from "{parent_training_state}"...')
+    dist.print0(f'Loading parent state from "{parent_training_state}"...')
     parent_state = torch.load(
         parent_training_state, map_location=torch.device("cpu"), weights_only=False
     )
-    if set(parent_state) != {"net", "optimizer_state"}:
-        raise ValueError("Parent training state has an unexpected schema")
-    misc.copy_params_and_buffers(
-        src_module=parent_state["net"], dst_module=net, require_all=True
-    )
-    optimizer.load_state_dict(parent_state["optimizer_state"])
-    network_source_digest = state_digest(parent_state["net"])
-    optimizer_source_digest = state_digest(parent_state["optimizer_state"])
-    if state_digest(net) != network_source_digest:
-        raise RuntimeError("Loaded training network differs from parent state")
-    if state_digest(optimizer.state_dict()) != optimizer_source_digest:
-        raise RuntimeError("Loaded optimizer differs from parent state")
-    del parent_state
-
-    dist.print0(f'Loading parent EMA from "{parent_ema_snapshot}"...')
     with parent_ema_snapshot.open("rb") as handle:
         snapshot = pickle.load(handle)
     if not isinstance(snapshot, dict) or "ema" not in snapshot:
         raise ValueError("Parent snapshot does not contain EMA")
+    if resume_kind == "stage_a_warm_start":
+        if set(parent_state) != {"net", "optimizer_state"}:
+            raise ValueError("Parent Stage A state has an unexpected schema")
+        parent_ema = snapshot["ema"]
+        lineage_tick = 0
+        initialization_filename = "warm_start_initialization.json"
+        stats_filename = "stats.jsonl"
+        exact_stage_b_resume = False
+    elif resume_kind == "extended_stage_b_state":
+        validate_extended_state(parent_state)
+        progress = parent_state["progress"]
+        if int(progress["cur_kimg"]) != start_kimg:
+            raise ValueError("Extended-state progress does not match start_kimg")
+        if int(progress["cur_nimg"]) != start_kimg * 1000:
+            raise ValueError("Extended-state image counter is inconsistent")
+        if int(parent_state["warm_start"]["seed"]) != seed:
+            raise ValueError("Extended-state seed does not match Stage B seed")
+        if state_digest(parent_state["ema"]) != state_digest(snapshot["ema"]):
+            raise ValueError("Extended-state EMA differs from parent snapshot")
+        parent_ema = parent_state["ema"]
+        lineage_tick = int(progress["lineage_tick"])
+        restore_rng_state(parent_state["rng_state"], sampler, loader_generator)
+        first_rng_digest = state_digest(parent_state["rng_state"])
+        initialization_filename = "stage_b_resume_initialization.json"
+        stats_filename = "stats_stage_b_continuation.jsonl"
+        exact_stage_b_resume = True
+    else:
+        raise ValueError(f"Unsupported Stage B resume kind: {resume_kind}")
+
+    # DataLoader iterator construction consumes its generator. Construct it only
+    # after restoring the serialized generator and sampler state.
+    dataset_iterator = iter(data_loader)
+
     misc.copy_params_and_buffers(
-        src_module=snapshot["ema"], dst_module=ema, require_all=True
+        src_module=parent_state["net"], dst_module=net, require_all=True
     )
-    ema_source_digest = state_digest(snapshot["ema"])
+    optimizer.load_state_dict(parent_state["optimizer_state"])
+    misc.copy_params_and_buffers(
+        src_module=parent_ema, dst_module=ema, require_all=True
+    )
+    network_source_digest = state_digest(parent_state["net"])
+    optimizer_source_digest = state_digest(parent_state["optimizer_state"])
+    ema_source_digest = state_digest(parent_ema)
+    if state_digest(net) != network_source_digest:
+        raise RuntimeError("Loaded training network differs from parent state")
+    if state_digest(optimizer.state_dict()) != optimizer_source_digest:
+        raise RuntimeError("Loaded optimizer differs from parent state")
     if state_digest(ema) != ema_source_digest:
-        raise RuntimeError("Loaded EMA differs from parent snapshot")
-    del snapshot
+        raise RuntimeError("Loaded EMA differs from parent state")
 
     initialization = {
         "warm_start": True,
         "exact_stage_a_continuation": False,
+        "exact_stage_b_resume": exact_stage_b_resume,
+        "validated_parent_implementation": ("9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd"),
+        "execution_commit": execution_commit,
+        "resume_kind": resume_kind,
         "seed": seed,
         "derived_seeds": derived_seeds,
         "seed_derivation_reproducible": True,
-        "seeded_rng_state_digest": first_rng_digest,
+        "restored_rng_state_digest": first_rng_digest,
         "start_kimg": start_kimg,
         "parent_training_state": str(parent_training_state.resolve()),
         "parent_training_state_sha256": parent_training_state_sha256,
@@ -392,16 +447,16 @@ def warm_start_training_loop(
         "ema_loaded_exactly": True,
         "ema_state_digest": ema_source_digest,
     }
+    del parent_state, parent_ema, snapshot
     run_path = Path(run_dir)
     run_path.mkdir(parents=True, exist_ok=True)
-    (run_path / "warm_start_initialization.json").write_text(
+    (run_path / initialization_filename).write_text(
         json.dumps(initialization, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
     dist.print0(f"Warm-start training from {start_kimg} to {total_kimg} kimg...")
     cur_nimg = start_kimg * 1000
-    lineage_tick = 0
     tick_start_nimg = cur_nimg
     tick_start_time = time.time()
     maintenance_time = tick_start_time - start_time
@@ -521,7 +576,7 @@ def warm_start_training_loop(
         training_stats.default_collector.update()
         if rank == 0:
             if stats_jsonl is None:
-                stats_jsonl = (run_path / "stats.jsonl").open("a", encoding="utf-8")
+                stats_jsonl = (run_path / stats_filename).open("a", encoding="utf-8")
             stats_jsonl.write(
                 json.dumps(
                     {

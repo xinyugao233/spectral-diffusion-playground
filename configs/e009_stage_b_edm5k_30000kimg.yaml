@@ -38,10 +38,12 @@ training:
 
 warm_start:
   enabled: true
+  resume_kind: extended_stage_b_state
   seed: 1
-  start_kimg: 12000
-  parent_training_state: /home/xggh8/data/zw-lab/e009_edm5k_12000kimg/training-state-012000.pt
-  parent_training_state_sha256: 1073e68c9f45123b53811a12a56a565f296a5ab846212d22e5027bbd81d685f5
-  parent_ema_snapshot: /home/xggh8/data/zw-lab/e009_edm5k_12000kimg/network-snapshot-012000.pkl
-  parent_ema_snapshot_sha256: a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58
+  start_kimg: 13000
+  parent_training_state: /home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/training-state-013000.pt
+  parent_training_state_sha256: 8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130
+  parent_ema_snapshot: /home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-013000.pkl
+  parent_ema_snapshot_sha256: 6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c
+  validated_parent_implementation: 9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd
   state_schema_version: 2
