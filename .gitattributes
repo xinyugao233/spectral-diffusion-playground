@@ -1,2 +1,3 @@
 # Preserve validated external experiment tables byte-for-byte.
 results/experiment_08_preflight/*.csv -text -whitespace
+results/experiment_09_stage_a/*.csv -text -whitespace
