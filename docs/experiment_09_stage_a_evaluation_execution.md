@@ -97,3 +97,11 @@ storage. Scratch usage was approximately 11 GB per run and persistent usage
 approximately 3.4 GB per run. Available storage was sufficient, no checkpoint
 was pruned, and no scientific setting changed. The original protocol text is
 preserved; this amendment records the observed deviation.
+
+## Operational Inventory Failure
+
+Inventory job `15720430` failed before checkpoint inspection or inference.
+The path guard compared the canonical `/mnt/pixstor/data/...` resolution of a
+candidate against the unresolved `/home/xggh8/data/...` alias. The correction
+canonicalizes both paths and adds a symlink-alias regression test. The final
+inventory output was not created, and no scientific setting changed.

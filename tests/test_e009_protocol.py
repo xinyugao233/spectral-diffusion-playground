@@ -257,6 +257,24 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertNotIn('add_argument("--donor', source)
         self.assertNotIn('add_argument("--swap', source)
 
+    def test_persistent_root_guard_accepts_resolved_alias(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            persistent = root / "persistent"
+            persistent.mkdir()
+            alias = root / "alias"
+            alias.symlink_to(persistent, target_is_directory=True)
+            candidate = alias / "e009_edm2k_12000kimg"
+            candidate.mkdir()
+            self.assertTrue(
+                self.evaluation.is_under_persistent_root(candidate, persistent)
+            )
+            self.assertFalse(
+                self.evaluation.is_under_persistent_root(root / "outside", persistent)
+            )
+
     def test_smoke_pool_selects_only_final_checkpoint_per_role(self) -> None:
         import tempfile
 

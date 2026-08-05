@@ -32,6 +32,15 @@ TRAINING_CONFIG_BY_ROLE = {
     "edm_5k": "configs/e009_edm5k_12000kimg.yaml",
     "edm_10k": "configs/e009_edm10k_12000kimg.yaml",
 }
+PERSISTENT_DATA_ROOT = Path("/home/xggh8/data/zw-lab")
+
+
+def is_under_persistent_root(
+    candidate: Path,
+    persistent_root: Path = PERSISTENT_DATA_ROOT,
+) -> bool:
+    """Return whether a candidate resolves beneath the approved data root."""
+    return candidate.resolve().is_relative_to(persistent_root.resolve())
 
 
 def load_e008_entrypoint():
@@ -107,12 +116,11 @@ def freeze_inventory(engine, config: Mapping[str, Any], output_dir: Path) -> Non
     )
     if staging_dir.exists():
         raise RuntimeError(f"E009 inventory staging directory exists: {staging_dir}")
-    staging_dir.mkdir(parents=True)
     rows: list[dict[str, object]] = []
     expected_kimg = config["expected_training_kimg"]
     for role, root_string in config["candidate_roots"].items():
         root = Path(root_string).resolve()
-        if not str(root).startswith("/home/xggh8/data/zw-lab/"):
+        if not is_under_persistent_root(root):
             raise RuntimeError(f"Candidate root is not persistent storage: {root}")
         accepted, malformed = core.discover_checkpoint_paths(root)
         observed_kimg = [core.parse_training_kimg(path.name) for path in accepted]
@@ -157,6 +165,7 @@ def freeze_inventory(engine, config: Mapping[str, Any], output_dir: Path) -> Non
                 )
             rows.append(row)
     rows.sort(key=lambda row: (str(row["model_role"]), int(row["training_kimg"])))
+    staging_dir.mkdir(parents=True)
     inventory_path = staging_dir / engine.INVENTORY_FILENAME
     engine.write_csv(inventory_path, rows, engine.inventory_header())
     accepted = [row for row in rows if row["inventory_status"] == "accepted"]
