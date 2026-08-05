@@ -109,6 +109,11 @@ The [validated Stage A results](experiment_09_stage_a_results.md) report all
 10K checkpoint qualified, so the frozen outcome is
 `PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`. Stage B and E008 remain unexecuted.
 
+The [frozen Stage B protocol](experiment_09_stage_b_protocol.md) specifies a
+single matched-exposure continuation of the existing 5K state from 12K to
+30K kimg. It supersedes the earlier unexecuted broad Stage B placeholder.
+Training, evaluation, Stage B pair selection, and E008 remain unexecuted.
+
 ## Pipeline Audit
 
 [The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)

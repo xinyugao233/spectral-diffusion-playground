@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E009_STAGE_B",
+  "status": "protocol_frozen_training_not_started",
+  "supersedes": "unexecuted configs/e009_stage_a_protocol.json stage_b_if_triggered placeholder",
+  "scientific_scope": {
+    "resume_existing_5k_only": true,
+    "new_training_from_scratch_allowed": false,
+    "e008_swaps_allowed": false,
+    "confirmatory_inference_allowed": false,
+    "stage_b_training_started": false
+  },
+  "resume_anchor": {
+    "stage_a_root": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg",
+    "training_state": "training-state-012000.pt",
+    "training_state_bytes": 669419091,
+    "training_state_sha256": "1073e68c9f45123b53811a12a56a565f296a5ab846212d22e5027bbd81d685f5",
+    "ema_snapshot_sha256": "a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58",
+    "stage_a_config_sha256": "e4a076c301e3e330872a6088774a5c7d688a18b0639831f5e250d759282868d8",
+    "training_options_sha256": "ca39f38ebb94ee78e2a65ac1f2065efe22c5aa915af3581a2c8e469a649a652f",
+    "training_commit": "d19c470bc4b547e2bad5488b30892be2814c7b12",
+    "stage_a_immutable": true
+  },
+  "training": {
+    "new_lineage_name": "e009_stage_b_edm5k_30000kimg",
+    "dataset_size": 5000,
+    "dataset_archive_sha256": "1e96a4f7a701bd067f71c725bbe83f1dcd65a750b310f206eee878ce2c07355a",
+    "seed": 0,
+    "start_kimg": 12000,
+    "stop_kimg": 30000,
+    "new_checkpoint_kimg": [13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000],
+    "checkpoint_cadence_kimg": 1000,
+    "adaptive_metric_stopping_allowed": false,
+    "architecture": "ddpmpp",
+    "model_channels": 128,
+    "channel_mult": [2, 2, 2],
+    "unconditional": true,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "global_batch": 64,
+    "per_gpu_batch": 64,
+    "ema_halflife_kimg": 500,
+    "dropout": 0.13,
+    "use_fp16": false,
+    "xflip": false,
+    "sigma_data": 0.5,
+    "p_mean": -1.2,
+    "p_std": 1.2
+  },
+  "evaluation": {
+    "new_5k_checkpoint_count": 18,
+    "edm_1k_checkpoint_count": 6,
+    "edm_1k_candidates": [
+      {"training_kimg": 2000, "checkpoint_sha256": "3ed209dd1b79e56a4e95d81d21400bdbc2c73e95c7a9d76d49aba0c859ff2258"},
+      {"training_kimg": 4000, "checkpoint_sha256": "ec341bbc9cf1e60f0bb768e03eb2812ca75a4407c430571813b98618a9a2bc02"},
+      {"training_kimg": 6000, "checkpoint_sha256": "89bead0217ff5f41f79a7ccd7607a4d97152b82fee36febce35eafc0745ad807"},
+      {"training_kimg": 8000, "checkpoint_sha256": "fc4c9972915e4609e67804aa693569980c8884bc5f754e049d3b72346cbccbae"},
+      {"training_kimg": 10000, "checkpoint_sha256": "20a28ef6f66087f8fcec676dca2d86ff81e859e17ae7507adeb9d49a24d31c0e"},
+      {"training_kimg": 12000, "checkpoint_sha256": "e5a7debafcd19191d6557f645216bfcb2e7589922396fd08130e76e3f5388b0a"}
+    ],
+    "seeds": {"start": 20000, "stop_inclusive": 20127, "count": 128},
+    "excluded_seed_ranges": [[0, 255], [10000, 10127]],
+    "expected_record_count": 3072,
+    "sampler": "18-call pure-Euler, zero churn, no swap",
+    "nearest_neighbor": "CPU direct-difference float64 with stable reference-position tie break",
+    "criterion": "d1NN < d2NN / 3",
+    "eligible_count_interval_inclusive": [13, 115],
+    "both_pair_endpoints_must_be_same_seed_eligible": true
+  },
+  "pair_selection": {
+    "primary": "minimum absolute baseline memorization-rate difference",
+    "tie_break": "lexicographic (new_5k_checkpoint_sha256, edm_1k_checkpoint_sha256)"
+  },
+  "stopping": {
+    "eligible_pair": "freeze pair and complete E009; require separate E008 execution review",
+    "no_eligible_5k_through_30000": "stop without extension; require new training-intervention protocol",
+    "eligible_5k_but_no_same_seed_eligible_1k": "stop without pair; require separate matching review",
+    "automatic_extension_allowed": false
+  },
+  "compute": {
+    "training_gpu": "L40S:1",
+    "training_walltime": "1-06:00:00",
+    "estimated_additional_gpu_hours": 20.8,
+    "temporary_storage_budget_gb": 18,
+    "persistent_storage_budget_gb": 5
+  }
+}
