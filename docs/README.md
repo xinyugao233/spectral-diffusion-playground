@@ -99,6 +99,10 @@ rules. At protocol freeze no E009 training or pilot result existed. As of
 2026-08-04, the frozen Stage A training array is running; no checkpoint pilot,
 eligible larger-data checkpoint, or model-pair selection result exists.
 
+The dated [E009 evaluation execution amendment](experiment_09_stage_a_evaluation_execution.md)
+records the post-training inventory, smoke, and baseline-only pilot gates
+without changing the frozen scientific settings.
+
 ## Pipeline Audit
 
 [The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)

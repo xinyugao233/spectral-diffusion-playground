@@ -41,6 +41,20 @@ def load_smoke_validator():
     return module
 
 
+def load_evaluation():
+    """Load the E009 baseline evaluator from its tracked entry point."""
+    path = REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
+    experiments_root = str(path.parent)
+    if experiments_root not in sys.path:
+        sys.path.insert(0, experiments_root)
+    spec = importlib.util.spec_from_file_location("e009_eval", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Could not load E009 evaluator")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class E009ProtocolTests(unittest.TestCase):
     """Protect inputs, training parity, seeds, budgets, and stop rules."""
 
@@ -48,6 +62,7 @@ class E009ProtocolTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.preflight = load_preflight()
         cls.smoke_validator = load_smoke_validator()
+        cls.evaluation = load_evaluation()
         cls.protocol = json.loads(
             (REPO_ROOT / "configs/e009_stage_a_protocol.json").read_text()
         )
@@ -206,15 +221,104 @@ class E009ProtocolTests(unittest.TestCase):
         self.assertIn("pilot_seeds=20000..20127", array)
         self.assertIn("swap_execution_available=false", array)
 
+    def test_evaluation_smoke_is_three_role_exact_rerun(self) -> None:
+        smoke = (REPO_ROOT / "scripts/e009_stage_a_smoke.slurm").read_text()
+        self.assertEqual(self.evaluation.SMOKE_SEEDS, (20000, 20001))
+        self.assertEqual(self.evaluation.SMOKE_KIMG, 12000)
+        self.assertIn(
+            "smoke_checkpoints=edm_2k:12000,edm_5k:12000,edm_10k:12000", smoke
+        )
+        self.assertIn("smoke_seeds=20000,20001", smoke)
+        self.assertIn("swap_execution_available=false", smoke)
+        self.assertIn("checkpoint_pool_identity.json", smoke)
+
+    def test_evaluation_outcomes_match_frozen_decision_tree(self) -> None:
+        source = (
+            REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
+        ).read_text()
+        self.assertIn("ELIGIBLE_LARGER_DATA_PAIR_FROZEN", source)
+        self.assertIn("PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED", source)
+        self.assertIn("BLOCKED_NO_ELIGIBLE_STAGE_A_CHECKPOINT", source)
+        self.assertIn('expected_record_count": 4_992', source)
+
+    def test_inventory_manifest_records_execution_contract(self) -> None:
+        source = (
+            REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
+        ).read_text()
+        for required in (
+            "inventory_job_id",
+            "training_commit",
+            "nearest_neighbor_evaluator",
+            "no_swap_boundary",
+            "checkpoint_pool_identity.json",
+        ):
+            self.assertIn(required, source)
+        self.assertIn("/home/xggh8/data/zw-lab/", source)
+        self.assertNotIn('add_argument("--donor', source)
+        self.assertNotIn('add_argument("--swap', source)
+
+    def test_smoke_pool_selects_only_final_checkpoint_per_role(self) -> None:
+        import tempfile
+
+        engine = self.evaluation.load_e008_entrypoint()
+        self.evaluation.configure_engine(
+            engine,
+            self.evaluation.load_config(),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            destination = root / "smoke"
+            source.mkdir()
+            rows = []
+            for role in self.evaluation.ROLES:
+                for kimg in range(0, 12001, 1000):
+                    row = {field: "" for field in engine.inventory_header()}
+                    row.update(
+                        {
+                            "model_role": role,
+                            "checkpoint_path": f"/{role}/{kimg}.pkl",
+                            "checkpoint_filename": f"network-snapshot-{kimg:06d}.pkl",
+                            "checkpoint_sha256": f"{role}-{kimg}",
+                            "training_kimg": kimg,
+                            "inventory_status": "accepted",
+                        }
+                    )
+                    rows.append(row)
+            inventory = source / engine.INVENTORY_FILENAME
+            engine.write_csv(inventory, rows, engine.inventory_header())
+            engine.dump_json(
+                source / engine.POOL_MANIFEST_FILENAME,
+                {
+                    "pool_frozen_before_pilot": True,
+                    "pilot_started": False,
+                    "scientific_scope": self.evaluation.load_config()[
+                        "scientific_scope"
+                    ],
+                    "config_sha256": self.evaluation.core.sha256_file(
+                        self.evaluation.CONFIG_PATH
+                    ),
+                    "pilot_seeds": list(self.evaluation.PILOT_SEEDS),
+                    "inventory": {
+                        "sha256": self.evaluation.core.sha256_file(inventory),
+                        "records": rows,
+                    },
+                },
+            )
+            self.evaluation.prepare_smoke_pool(engine, source, destination)
+            selected = engine.read_csv_rows(destination / engine.INVENTORY_FILENAME)
+            self.assertEqual(len(selected), 3)
+            self.assertEqual(
+                {int(row["training_kimg"]) for row in selected},
+                {12000},
+            )
+            manifest = json.loads(
+                (destination / engine.POOL_MANIFEST_FILENAME).read_text()
+            )
+            self.assertEqual(manifest["pilot_seeds"], [20000, 20001])
+
     def test_stage_a_pair_rule_prefers_larger_dataset_on_rate_tie(self) -> None:
-        path = REPO_ROOT / "experiments/09_stage_a_baseline_evaluation.py"
-        experiments_root = str(path.parent)
-        if experiments_root not in sys.path:
-            sys.path.insert(0, experiments_root)
-        spec = importlib.util.spec_from_file_location("e009_eval", path)
-        assert spec is not None and spec.loader is not None
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        module = self.evaluation
         new_rows = [
             {
                 "model_role": "edm_5k",
