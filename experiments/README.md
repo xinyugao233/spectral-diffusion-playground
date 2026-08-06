@@ -17,8 +17,9 @@ write explicit outputs.
 | `06_transition_window_swaps.py` | Historical spectral-window swaps | Complete; exploratory outcome `INCONCLUSIVE` |
 | E007 protocol only | Geometry-aligned whole-denoiser swaps | Proposed; blocked by known baseline degeneracy |
 | `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Complete; `BLOCKED_NO_ELIGIBLE_PAIR` |
-| E008 swap protocol | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
-| E009 protocol only | Staged intermediate-dataset model search | Stage A frozen; training pending smoke |
+| E008 swap protocol | Frequency-geometry whole-denoiser swaps | `RETIRED_UNEXECUTED`; historical `BLOCKED_NO_ELIGIBLE_PAIR` |
+| E009 protocols and evaluators | Intermediate-dataset model search | Complete; no eligible >=5K checkpoint through Stage B |
+| `10_directional_memorization_transfer.py` | Directional whole-denoiser swaps over E004B-derived intervals | Complete; `HIGH_DERIVED_SUPPRESSION_SUPPORTED` |
 
 ## Local Foundations
 
@@ -52,6 +53,7 @@ verifying every hash and output-path collision gate:
 ```text
 scripts/e005_eval_spectral_residuals.slurm
 scripts/e006_eval_transition_swaps.slurm
+scripts/e010_directional_transfer.slurm
 ```
 
 Exact commands and identities are in the
@@ -63,11 +65,16 @@ is frozen, but the historical E006 model pair is blocked by the known EDM-50K
 `0/256` baseline. A baseline-only nondegenerate-model preflight is required by
 [`docs/experiment_07_geometry_aligned_swap_protocol.md`](../docs/experiment_07_geometry_aligned_swap_protocol.md).
 
-E008 swaps remain protocol-only. The baseline preflight is complete, but it
+E008 swaps remain protocol-only and are now retired. The baseline preflight
 found no eligible EDM-50K checkpoint among the 21 available snapshots. It
-proposes whole-denoiser swaps over the E004B low target `8..8` and high target
-`9..10`; no E008 swap or confirmatory computation has begun. See
+preregistered whole-denoiser swaps over the E004B low target `8..8` and high
+target `9..10`; no E008 swap or confirmatory computation occurred. See
 [`docs/experiment_08_frequency_geometry_swap_protocol.md`](../docs/experiment_08_frequency_geometry_swap_protocol.md).
+
+E010 is a distinct asymmetric-baseline directional intervention. Its
+[protocol](../docs/experiment_10_directional_memorization_transfer_protocol.md)
+and [analysis plan](../docs/experiment_10_directional_analysis_plan.md) are
+frozen before inference. It does not satisfy E008's baseline-matching gate.
 
 The separate [checkpoint preflight](../docs/experiment_08_checkpoint_preflight.md)
 evaluates no-swap pilot baselines only. Its interface cannot accept a donor
@@ -79,7 +86,8 @@ The canonical order is documented in
 [`docs/canonical_experiment_pipeline.md`](../docs/canonical_experiment_pipeline.md).
 E004A selects the full-space target `8..9`; E004B independently selects
 band-specific geometry targets; E005 provides residual-energy interpretation;
-E006 is historical exploratory evidence; E007 and E008 remain proposed.
+E006 is historical exploratory evidence; E007 remains proposed and E008 is
+retired unexecuted.
 
 ## Output Discipline
 

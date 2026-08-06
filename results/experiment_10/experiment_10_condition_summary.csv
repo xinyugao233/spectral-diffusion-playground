@@ -1,0 +1,15 @@
+condition_id,direction,band,role,swap_indices,memorized_count,sample_count,memorization_rate
+A0,suppression,baseline,baseline,[],215,256,0.83984375
+A1,suppression,low,before,[7],205,256,0.80078125
+A2,suppression,low,target,[8],188,256,0.734375
+A3,suppression,low,after,[9],182,256,0.7109375
+A4,suppression,high,before,"[7,8]",167,256,0.65234375
+A5,suppression,high,target,"[9,10]",141,256,0.55078125
+A6,suppression,high,after,"[11,12]",170,256,0.6640625
+B0,induction,baseline,baseline,[],0,256,0
+B1,induction,low,before,[7],0,256,0
+B2,induction,low,target,[8],0,256,0
+B3,induction,low,after,[9],0,256,0
+B4,induction,high,before,"[7,8]",1,256,0.00390625
+B5,induction,high,target,"[9,10]",1,256,0.00390625
+B6,induction,high,after,"[11,12]",1,256,0.00390625

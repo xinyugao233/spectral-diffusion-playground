@@ -2,3 +2,4 @@
 results/experiment_08_preflight/*.csv -text -whitespace
 results/experiment_09_stage_a/*.csv -text -whitespace
 results/experiment_09_stage_b/*.csv -text -whitespace
+results/experiment_10/*.csv -text -whitespace

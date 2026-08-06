@@ -1,0 +1,31 @@
+{
+  "bootstrap_resamples": 100000,
+  "bootstrap_seed": 0,
+  "condition_counts": {
+    "A0": 256,
+    "A1": 256,
+    "A2": 256,
+    "A3": 256,
+    "A4": 256,
+    "A5": 256,
+    "A6": 256,
+    "B0": 256,
+    "B1": 256,
+    "B2": 256,
+    "B3": 256,
+    "B4": 256,
+    "B5": 256,
+    "B6": 256
+  },
+  "e008_status": "BLOCKED_UNEXECUTED",
+  "expected_records": 3584,
+  "failure_count": 0,
+  "finite_nearest_neighbor_records": true,
+  "observed_records": 3584,
+  "seed_range": [
+    40000,
+    40255
+  ],
+  "status": "pass",
+  "unique_keys": 3584
+}

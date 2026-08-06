@@ -1,0 +1,13 @@
+condition_id,direction,band,role,memorized_to_non_memorized,non_memorized_to_memorized,memorized_to_memorized,non_memorized_to_non_memorized
+A1,suppression,low,before,19,9,196,32
+A2,suppression,low,target,28,1,187,40
+A3,suppression,low,after,33,0,182,41
+A4,suppression,high,before,55,7,160,34
+A5,suppression,high,target,74,0,141,41
+A6,suppression,high,after,45,0,170,41
+B1,induction,low,before,0,0,0,256
+B2,induction,low,target,0,0,0,256
+B3,induction,low,after,0,0,0,256
+B4,induction,high,before,0,1,0,255
+B5,induction,high,target,0,1,0,255
+B6,induction,high,after,0,1,0,255

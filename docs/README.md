@@ -78,19 +78,21 @@ preregistered geometry-aligned swap is executed with a nondegenerate model
 pair. E004A selects the candidate region; E005 interprets its spectral
 location; historical E006 does not substitute for that final test.
 
-## Proposed E008
+## Retired E008
 
 [E008](experiment_08_frequency_geometry_swap_protocol.md) freezes only the
 design for whole-denoiser swaps over the E004B low target `8..8` and high
-target `9..10`. It is `PROPOSED — NOT EXECUTED`; the primary bidirectional
-design is blocked by the same known historical EDM-50K `0/256` baseline.
+target `9..10`. It is now `RETIRED_UNEXECUTED`; its primary bidirectional
+design never passed the model-pair gate.
 
 The [baseline-only checkpoint preflight](experiment_08_checkpoint_preflight.md)
 froze the existing-snapshot inventory, disjoint pilot seeds, strict
 eligibility interval, and deterministic pair-selection rule. Its
 [validated results](experiment_08_checkpoint_preflight_results.md) are
 `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints passed, but all 21 EDM-50K
-checkpoints were `0/128`. This gate did not execute E008.
+checkpoints were `0/128`. This gate did not execute E008. The
+[retirement decision](experiment_08_retirement_decision.md) records that no
+further E008 training or execution is planned.
 
 The [frozen E009 Stage A protocol](experiment_09_intermediate_dataset_training_design.md)
 uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
@@ -115,6 +117,19 @@ single matched-exposure warm-start extension of the existing 5K state from
 report 3,072 no-swap records with zero failures. Every 5K checkpoint scored
 `0/128`, so the formal outcome is `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` and
 E008 remains unexecuted.
+
+## E010: Directional Memorization Transfer
+
+1. [Frozen protocol](experiment_10_directional_memorization_transfer_protocol.md)
+2. [Frozen analysis plan](experiment_10_directional_analysis_plan.md)
+
+E010 is a separate asymmetric-baseline experiment using existing checkpoints.
+It tests whole-denoiser suppression and induction over the E004B-derived low
+target `{8}` and high target `{9,10}` plus neighboring controls. It does not
+revise or execute E008, and it does not claim frequency-component or
+dataset-size causality. The
+[validated results](experiment_10_directional_memorization_transfer_results.md)
+support only high-derived suppression under the frozen criterion.
 
 ## Pipeline Audit
 

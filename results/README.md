@@ -118,7 +118,10 @@ and blocked pair-selection outcome.
 The formal result is `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints were
 eligible, but every one of the 21 EDM-50K checkpoints was `0/128`.
 Confirmatory seeds `0..255` remain reserved and no E008 swap output exists.
-See the [results document](../docs/experiment_08_checkpoint_preflight_results.md).
+E008 is now `RETIRED_UNEXECUTED`; the preserved historical outcome is
+`BLOCKED_NO_ELIGIBLE_PAIR`. See the
+[results document](../docs/experiment_08_checkpoint_preflight_results.md) and
+[retirement decision](../docs/experiment_08_retirement_decision.md).
 
 ## E009 Stage A Baseline Gate
 
@@ -130,6 +133,18 @@ accepted the complete 2K, 5K, and 10K `0..12K` trajectories. Pilot array
 `15720492` completed with zero failures. Only 2K at 12K kimg was eligible;
 therefore the formal outcome is `PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED` and no
 pair was selected. See the [results document](../docs/experiment_09_stage_a_results.md).
+
+## E010 Directional Memorization Transfer
+
+[`experiment_10/`](experiment_10/) contains the 14-condition summary, paired
+transition counts, four preregistered directional contrasts, formal outcome,
+zero-row failure table, validation, and compact provenance manifest. The sole
+supported label is `HIGH_DERIVED_SUPPRESSION_SUPPORTED`.
+
+The 3,584-row per-sample table and generated samples remain external at
+`/home/xggh8/data/zw-lab/e010_directional_memorization_transfer`. E010 uses
+asymmetric baselines and does not execute or revise E008. See the
+[E010 results document](../docs/experiment_10_directional_memorization_transfer_results.md).
 
 ## Artifact Policy
 

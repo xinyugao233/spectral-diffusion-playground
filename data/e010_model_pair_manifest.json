@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E010",
+  "selection_source_commit": "2dcb00deb141f080d50b1b45296c9c6e0bf665f4",
+  "execution_commit_contract": "E010_REPO_COMMIT environment variable; exact clean checkout required",
+  "selection_rule": "highest E008 memorized count among eligible EDM-1K checkpoints, tie by SHA-256",
+  "baseline_matched": false,
+  "memorizing_model": {
+    "model_id": "edm_1k_012000",
+    "canonical_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-012000.pkl",
+    "pixstor_path": "/mnt/pixstor/data/xggh8/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-012000.pkl",
+    "sha256": "e5a7debafcd19191d6557f645216bfcb2e7589922396fd08130e76e3f5388b0a",
+    "size_bytes": 223159918,
+    "training_kimg": 12000,
+    "training_subset_size": 1000,
+    "historical_baseline": {
+      "experiment": "E008",
+      "seeds": "10000..10127",
+      "memorized_count": 113,
+      "sample_count": 128,
+      "rate": 0.8828125,
+      "eligible_interval": [13, 115]
+    }
+  },
+  "generalizing_model": {
+    "model_id": "edm_50k_040000",
+    "canonical_path": "/home/xggh8/data/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+    "pixstor_path": "/mnt/pixstor/data/xggh8/zw-lab/e005_edm50k_matched_40000kimg/network-snapshot-040000.pkl",
+    "sha256": "a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b",
+    "size_bytes": 223159918,
+    "training_kimg": 40000,
+    "training_subset_size": 50000,
+    "historical_baselines": [
+      {"experiment": "E006", "seeds": "0..255", "memorized_count": 0, "sample_count": 256},
+      {"experiment": "E008", "seeds": "10000..10127", "memorized_count": 0, "sample_count": 128}
+    ]
+  },
+  "compatibility": {
+    "architecture": "unconditional EDM preconditioned network",
+    "image_resolution": 32,
+    "image_channels": 3,
+    "label_dim": 0,
+    "class_labels": null,
+    "ema_present": true,
+    "sampler_interface": "network(x, sigma, class_labels=None)",
+    "compatible": true
+  },
+  "scientific_scope": {
+    "asymmetric_baselines_accepted": true,
+    "dataset_size_causality_claimed": false,
+    "true_generalizing_probability_claimed_zero": false,
+    "e008_status": "BLOCKED_UNEXECUTED"
+  }
+}

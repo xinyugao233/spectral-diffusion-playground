@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E010",
+  "geometry_source": "E004B frequency-restricted lower-confidence-bound targets at r=4",
+  "whole_denoiser_swap": true,
+  "frequency_component_swap": false,
+  "conditions": [
+    {"condition_id":"A0","direction":"suppression","band":"baseline","role":"baseline","recipient":"edm_1k_012000","donor":null,"swap_indices":[]},
+    {"condition_id":"A1","direction":"suppression","band":"low","role":"before","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[7]},
+    {"condition_id":"A2","direction":"suppression","band":"low","role":"target","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[8]},
+    {"condition_id":"A3","direction":"suppression","band":"low","role":"after","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[9]},
+    {"condition_id":"A4","direction":"suppression","band":"high","role":"before","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[7,8]},
+    {"condition_id":"A5","direction":"suppression","band":"high","role":"target","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[9,10]},
+    {"condition_id":"A6","direction":"suppression","band":"high","role":"after","recipient":"edm_1k_012000","donor":"edm_50k_040000","swap_indices":[11,12]},
+    {"condition_id":"B0","direction":"induction","band":"baseline","role":"baseline","recipient":"edm_50k_040000","donor":null,"swap_indices":[]},
+    {"condition_id":"B1","direction":"induction","band":"low","role":"before","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[7]},
+    {"condition_id":"B2","direction":"induction","band":"low","role":"target","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[8]},
+    {"condition_id":"B3","direction":"induction","band":"low","role":"after","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[9]},
+    {"condition_id":"B4","direction":"induction","band":"high","role":"before","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[7,8]},
+    {"condition_id":"B5","direction":"induction","band":"high","role":"target","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[9,10]},
+    {"condition_id":"B6","direction":"induction","band":"high","role":"after","recipient":"edm_50k_040000","donor":"edm_1k_012000","swap_indices":[11,12]}
+  ]
+}
