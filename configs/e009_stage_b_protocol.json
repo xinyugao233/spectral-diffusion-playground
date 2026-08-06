@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "experiment_id": "E009_STAGE_B",
-  "status": "full_continuation_complete_baseline_evaluation_pending",
+  "status": "blocked_no_eligible_5k_through_30k",
   "supersedes": "unexecuted configs/e009_stage_a_protocol.json stage_b_if_triggered placeholder",
   "scientific_scope": {
     "resume_existing_5k_only": true,
@@ -12,7 +12,8 @@
     "stage_b_resume_smoke_passed": true,
     "full_stage_b_continuation_started": true,
     "full_stage_b_continuation_completed": true,
-    "baseline_evaluation_started": false
+    "baseline_evaluation_started": true,
+    "baseline_evaluation_completed": true
   },
   "resume_anchor": {
     "stage_a_root": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg",
@@ -137,7 +138,23 @@
     "inventory_must_precede_smoke": true,
     "smoke_must_pass_before_full_pilot": true,
     "expected_record_count": 3072,
-    "e008_swaps_allowed": false
+    "e008_swaps_allowed": false,
+    "execution_commit": "c0bb034a7209f4179a5222c2479c10bfe21f5740",
+    "inventory_job_id": "15826168",
+    "smoke_job_id": "15826331",
+    "pilot_array_job_id": "15826662",
+    "summary_job_id": "15828317",
+    "inventory_sha256": "b7b26c720c2f0e0fe1b89c2851b0f6c0ba48674e067632827da5dd6140849348",
+    "pool_manifest_sha256": "d64a8fc6b461f7ad0cea6e87e8fedce717e443dcec9f16b2c315c4f3beb51b44",
+    "observed_record_count": 3072,
+    "failed_record_count": 0,
+    "eligible_edm_1k_count": 5,
+    "eligible_edm_5k_count": 0,
+    "selected_pair": null,
+    "outcome": "BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K",
+    "validation_status": "pass",
+    "automatic_extension_started": false,
+    "e008_executed": false
   },
   "pair_selection": {
     "primary": "minimum absolute baseline memorization-rate difference",

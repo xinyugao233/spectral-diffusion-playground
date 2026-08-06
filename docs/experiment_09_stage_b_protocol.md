@@ -1,6 +1,6 @@
 # E009 Stage B: Matched-Exposure 5K Warm-Start Extension
 
-Status: **FULL CONTINUATION COMPLETE — BASELINE EVALUATION PENDING**
+Status: **COMPLETED — `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`**
 
 Date frozen: 2026-08-05
 
@@ -274,3 +274,31 @@ scaling predicts about 20.8 additional GPU-hours for 18K kimg. Freeze one L40S
 task with a maximum 30-hour walltime. Budget approximately 18 GB for the
 temporary state trajectory and 5 GB for persistent new snapshots plus the
 final state. No checkpoint may be pruned before inventory and evaluation.
+
+## Baseline Evaluation Outcome
+
+The frozen baseline-only workflow completed without failures:
+
+| Stage | Slurm job | Result |
+| --- | --- | --- |
+| Inventory | `15826168` | 24/24 checkpoints accepted |
+| Smoke | `15826331` | Exact deterministic rerun passed |
+| Full pilot | `15826662` | 3,072/3,072 records, zero failures |
+| Summary | `15828317` | Validation passed |
+
+Execution used commit `c0bb034a7209f4179a5222c2479c10bfe21f5740`,
+inventory SHA-256
+`b7b26c720c2f0e0fe1b89c2851b0f6c0ba48674e067632827da5dd6140849348`,
+and pool-manifest SHA-256
+`d64a8fc6b461f7ad0cea6e87e8fedce717e443dcec9f16b2c315c4f3beb51b44`.
+
+Five of the six same-seed EDM-1K checkpoints were eligible. Every 5K
+warm-start extension checkpoint from 13K through 30K scored `0/128`, so no
+larger-data endpoint entered the frozen interval and no pair was selected.
+The formal outcome is `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`.
+
+This is a negative result for this specific warm-start lineage and evaluator,
+not evidence that every possible 5K training design must remain degenerate.
+The preregistered stop rule applies: no automatic extension was launched,
+confirmatory seeds `0..255` remain untouched, and E008 remains blocked and
+unexecuted. See the [validated result record](experiment_09_stage_b_results.md).

@@ -115,19 +115,28 @@ class E009StageBBaselineTests(unittest.TestCase):
         self.assertIn('"automatic_extension_started": False', source)
         self.assertIn('"e008_executed": False', source)
 
-    def test_protocol_records_completed_training_without_evaluation(self) -> None:
+    def test_protocol_records_completed_training_and_evaluation(self) -> None:
         protocol = json.loads(
             (REPO_ROOT / "configs/e009_stage_b_protocol.json").read_text()
         )
         scope = protocol["scientific_scope"]
         self.assertTrue(scope["full_stage_b_continuation_completed"])
-        self.assertFalse(scope["baseline_evaluation_started"])
+        self.assertTrue(scope["baseline_evaluation_started"])
+        self.assertTrue(scope["baseline_evaluation_completed"])
         execution = protocol["continuation_execution"]
         self.assertEqual(
             execution["execution_commit"], "a109a86c540dbd57be4d1f4110e47607e937bc65"
         )
         self.assertEqual(execution["slurm_job_id"], "15723871")
         self.assertEqual(execution["validation_status"], "pass")
+        evaluation = protocol["evaluation_execution"]
+        self.assertEqual(evaluation["observed_record_count"], 3072)
+        self.assertEqual(evaluation["failed_record_count"], 0)
+        self.assertEqual(evaluation["eligible_edm_5k_count"], 0)
+        self.assertIsNone(evaluation["selected_pair"])
+        self.assertEqual(evaluation["outcome"], "BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K")
+        self.assertFalse(evaluation["automatic_extension_started"])
+        self.assertFalse(evaluation["e008_executed"])
 
 
 if __name__ == "__main__":

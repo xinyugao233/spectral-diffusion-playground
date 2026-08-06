@@ -99,6 +99,13 @@ per-role memorization-rate trajectories for all 39 Stage A checkpoints. The
 eligibility band is frozen at `13..115 / 128`. Only the 2K 12K-kimg endpoint
 enters the band; the 5K and 10K trajectories remain at zero throughout.
 
+## E009 Stage B Baseline Gate
+
+[`experiment_09_stage_b/stage_b_baseline_memorization_rates.png`](experiment_09_stage_b/stage_b_baseline_memorization_rates.png)
+shows the same-seed EDM-1K candidates and all 18 warm-start 5K checkpoints.
+Every 5K rate is `0/128`; the figure is a baseline eligibility diagnostic and
+contains no swap result.
+
 ## Figure Policy
 
 Keep filenames stable, use one experiment subdirectory for scientific result
