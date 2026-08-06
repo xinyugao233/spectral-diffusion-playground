@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "experiment_id": "E009_STAGE_B",
-  "status": "resume_smoke_passed_full_continuation_not_started",
+  "status": "full_continuation_complete_baseline_evaluation_pending",
   "supersedes": "unexecuted configs/e009_stage_a_protocol.json stage_b_if_triggered placeholder",
   "scientific_scope": {
     "resume_existing_5k_only": true,
@@ -10,7 +10,9 @@
     "confirmatory_inference_allowed": false,
     "stage_b_training_started": true,
     "stage_b_resume_smoke_passed": true,
-    "full_stage_b_continuation_started": false
+    "full_stage_b_continuation_started": true,
+    "full_stage_b_continuation_completed": true,
+    "baseline_evaluation_started": false
   },
   "resume_anchor": {
     "stage_a_root": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg",
@@ -97,7 +99,15 @@
     "parent_snapshot_sha256": "6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c",
     "expected_new_checkpoint_kimg": [14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000],
     "state_load_only_preflight_required": true,
-    "existing_13k_artifacts_must_not_be_overwritten": true
+    "existing_13k_artifacts_must_not_be_overwritten": true,
+    "execution_commit": "a109a86c540dbd57be4d1f4110e47607e937bc65",
+    "slurm_job_id": "15723871",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "20:40:20",
+    "final_snapshot_sha256": "66406526e9024c7280b903cdb1731ae35ed252da87aa1b9932cc9a2d43d446e2",
+    "final_training_state_sha256": "74779b6f443ab7ef720195e66e29b2c3d36fc8edb13c0f555f08c7a4cd15f98a",
+    "validation_status": "pass"
   },
   "evaluation": {
     "new_5k_checkpoint_count": 18,
@@ -118,6 +128,16 @@
     "criterion": "d1NN < d2NN / 3",
     "eligible_count_interval_inclusive": [13, 115],
     "both_pair_endpoints_must_be_same_seed_eligible": true
+  },
+  "evaluation_execution": {
+    "config": "configs/e009_stage_b_evaluation.json",
+    "config_sha256": "4a8dcbf46af72b87ca21113795cfa42991cf6bd5053213ed65789046ba56becf",
+    "remote_branch": "e009-stage-b-protocol",
+    "output_dir": "/home/xggh8/data/zw-lab/e009_stage_b_baseline",
+    "inventory_must_precede_smoke": true,
+    "smoke_must_pass_before_full_pilot": true,
+    "expected_record_count": 3072,
+    "e008_swaps_allowed": false
   },
   "pair_selection": {
     "primary": "minimum absolute baseline memorization-rate difference",

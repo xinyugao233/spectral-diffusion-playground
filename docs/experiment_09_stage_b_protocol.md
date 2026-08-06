@@ -1,6 +1,6 @@
 # E009 Stage B: Matched-Exposure 5K Warm-Start Extension
 
-Status: **RESUME SMOKE PASSED — FULL CONTINUATION NOT STARTED**
+Status: **FULL CONTINUATION COMPLETE — BASELINE EVALUATION PENDING**
 
 Date frozen: 2026-08-05
 
@@ -169,6 +169,17 @@ state rather than restart from Stage A. Its parent hashes are the snapshot and
 state listed above, its validated parent implementation is commit `9e5782f`,
 and its first permitted new output is 14K. A separate exact execution commit
 and state-load-only preflight are required before submission.
+
+### Full Continuation Outcome
+
+Slurm job `15723871` completed with exit code `0:0` in `20:40:20` and
+reached exactly 30K. The validator accepted all snapshots from 13K through
+30K, 17 finite continuation-loss records, the unchanged 13K parents, and the
+unchanged Stage A manifest. The final snapshot SHA-256 is
+`66406526e9024c7280b903cdb1731ae35ed252da87aa1b9932cc9a2d43d446e2`;
+the final training-state SHA-256 is
+`74779b6f443ab7ef720195e66e29b2c3d36fc8edb13c0f555f08c7a4cd15f98a`.
+No baseline evaluation or E008 swap was run by the training job.
 
 ## Frozen Baseline Evaluation
 
