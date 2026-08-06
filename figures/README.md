@@ -91,6 +91,8 @@ checkpoint-rate, training-duration, and eligible-pair figures from the
 5,376-record baseline-only pilot. They show six eligible EDM-1K checkpoints
 and no eligible EDM-50K checkpoint. These figures cannot contain swap effects;
 E008 remains unexecuted.
+It is now retired; these figures remain historical evidence for
+`BLOCKED_NO_ELIGIBLE_PAIR`, not swap results.
 
 ## E009 Stage A Baseline Gate
 

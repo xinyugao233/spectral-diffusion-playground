@@ -130,10 +130,10 @@ E007 can run.
 
 **Source:** proposed E008.
 
-E008 proposes separate whole-denoiser interventions over E004B low target
+E008 preregistered separate whole-denoiser interventions over E004B low target
 `8..8` and high target `9..10`, with immediately adjacent width-matched
-controls. It is not a Fourier coefficient swap. E008 is **PROPOSED — NOT
-EXECUTED**.
+controls. It is not a Fourier coefficient swap. E008 is
+**RETIRED_UNEXECUTED**.
 
 The separately frozen E008 checkpoint preflight evaluated only full no-swap
 trajectories on pilot seeds `10000..10127`. It inventoried the existing
@@ -160,8 +160,8 @@ but all 21 EDM-50K checkpoints produced `0/128`. No E008 condition was run.
 E009 tested whether intermediate data sizes could provide the eligible
 baseline-matched larger-data endpoint required by E008. Stage A found only an
 eligible 2K endpoint; Stage B extended the 5K lineage through 30K kimg, where
-all 18 checkpoints remained `0/128`. E008 therefore remains blocked and
-unexecuted.
+all 18 checkpoints remained `0/128`. E008 was therefore retired unexecuted;
+no further E008 model search or swap execution is planned.
 
 ## Stage 9: E010 Directional Asymmetric-Baseline Test
 
@@ -169,7 +169,8 @@ E010 asks a different question and explicitly accepts asymmetric baselines.
 It swaps whole denoisers bidirectionally over E004B low target `{8}`, high
 target `{9,10}`, and neighboring controls. The frozen result supports only
 high-derived suppression; induction and low-derived suppression fail their
-criteria. E010 does not unblock, replace, or execute E008.
+criteria. E010 addresses a separate asymmetric-baseline directional question;
+it does not replace or count as execution of retired E008.
 
 ## Non-Substitution Rules
 

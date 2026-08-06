@@ -151,5 +151,5 @@ and size 46,513,415 bytes. Neither is committed.
   strict pixel-space nearest-neighbor criterion.
 - The model pair differs in data size and training trajectory; dataset-size
   causality is not identified.
-- E008 remains blocked and unexecuted; E010 does not satisfy its matched-pair
-  gate.
+- At E010 execution time E008 remained blocked and unexecuted. It is now
+  retired unexecuted; E010 does not satisfy or revise its matched-pair gate.

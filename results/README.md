@@ -118,7 +118,10 @@ and blocked pair-selection outcome.
 The formal result is `BLOCKED_NO_ELIGIBLE_PAIR`: six EDM-1K checkpoints were
 eligible, but every one of the 21 EDM-50K checkpoints was `0/128`.
 Confirmatory seeds `0..255` remain reserved and no E008 swap output exists.
-See the [results document](../docs/experiment_08_checkpoint_preflight_results.md).
+E008 is now `RETIRED_UNEXECUTED`; the preserved historical outcome is
+`BLOCKED_NO_ELIGIBLE_PAIR`. See the
+[results document](../docs/experiment_08_checkpoint_preflight_results.md) and
+[retirement decision](../docs/experiment_08_retirement_decision.md).
 
 ## E009 Stage A Baseline Gate
 
