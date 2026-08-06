@@ -1,0 +1,29 @@
+{
+  "checks": {
+    "all_rows_successful_and_finite": true,
+    "checkpoint_seed_keys_exact": true,
+    "confirmatory_seeds_untouched": true,
+    "rerun_rows_exact": true,
+    "row_count_is_4": true,
+    "swap_fields_absent": true
+  },
+  "experiment_id": "experiment_09_stage_b_baseline",
+  "repository_commit": "c0bb034a7209f4179a5222c2479c10bfe21f5740",
+  "schema_version": 1,
+  "seeds": [
+    20000,
+    20001
+  ],
+  "slurm_job_id": "15826331",
+  "source_pool_identity": {
+    "experiment_id": "experiment_09_stage_b_baseline",
+    "inventory_job_id": "15826168",
+    "inventory_sha256": "b7b26c720c2f0e0fe1b89c2851b0f6c0ba48674e067632827da5dd6140849348",
+    "manifest_sha256": "d64a8fc6b461f7ad0cea6e87e8fedce717e443dcec9f16b2c315c4f3beb51b44",
+    "remote_branch": "e009-stage-b-protocol",
+    "remote_branch_commit": "c0bb034a7209f4179a5222c2479c10bfe21f5740",
+    "repository_commit": "c0bb034a7209f4179a5222c2479c10bfe21f5740",
+    "schema_version": 1
+  },
+  "status": "pass"
+}

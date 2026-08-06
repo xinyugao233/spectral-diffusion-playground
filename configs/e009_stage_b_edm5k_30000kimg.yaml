@@ -1,0 +1,49 @@
+experiment:
+  name: e009_stage_b_edm5k_30000kimg
+  seed: 1
+  edm_root: /home/xggh8/edm
+  persistent_scratch_root: /cluster/pixstor/zwggh-lab/xinyu/e009_training_scratch
+  persistent_data_root: /home/xggh8/data/zw-lab
+  run_dir_root: scratch
+  stage_mode: full
+  warm_start: true
+
+dataset:
+  path: /home/xggh8/data/zw-lab/e009_stage_a_subsets/e009_cifar10_subset_5k.zip
+  resolution: 32
+  use_labels: false
+  cache: true
+  subset_size: 5000
+  subset_seed: 0
+
+training:
+  arch: ddpmpp
+  batch_size: 64
+  batch_gpu: 64
+  duration_kimg: 30000
+  tick_kimg: 1000
+  snapshot_ticks: 1
+  state_dump_ticks: 1
+  lr: 0.001
+  ema_halflife_kimg: 500
+  dropout: 0.13
+  use_fp16: false
+  xflip: false
+  workers: 0
+  model_channels: 128
+  channel_mult: [2, 2, 2]
+  sigma_data: 0.5
+  p_mean: -1.2
+  p_std: 1.2
+
+warm_start:
+  enabled: true
+  resume_kind: extended_stage_b_state
+  seed: 1
+  start_kimg: 13000
+  parent_training_state: /home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/training-state-013000.pt
+  parent_training_state_sha256: 8bb1aabceee959ce2478a108b27ad6b34313cf8329cba2b048c9446077a7a130
+  parent_ema_snapshot: /home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-013000.pkl
+  parent_ema_snapshot_sha256: 6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c
+  validated_parent_implementation: 9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd
+  state_schema_version: 2

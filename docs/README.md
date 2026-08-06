@@ -97,8 +97,7 @@ uses nested class-balanced 2K/5K/10K subsets, matched 12K-kimg EDM runs, 1K
 checkpoint cadence, new pilot seeds, and prospective stopping/pair-selection
 rules. The Stage A training array completed at 12K kimg for all three roles.
 Inventory job `15720448` then froze and accepted all 39 expected persistent
-checkpoints. No checkpoint pilot, eligible larger-data checkpoint, or
-model-pair selection result exists yet.
+checkpoints. The subsequent baseline-only pilot is documented below.
 
 The dated [E009 evaluation execution amendment](experiment_09_stage_a_evaluation_execution.md)
 records the post-training inventory, smoke, and baseline-only pilot gates
@@ -107,7 +106,15 @@ without changing the frozen scientific settings.
 The [validated Stage A results](experiment_09_stage_a_results.md) report all
 4,992 no-swap records. Only the 2K 12K-kimg checkpoint was eligible; no 5K or
 10K checkpoint qualified, so the frozen outcome is
-`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`. Stage B and E008 remain unexecuted.
+`PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED`. This triggered the separately frozen
+Stage B warm-start extension; E008 remained unexecuted.
+
+The [frozen Stage B protocol](experiment_09_stage_b_protocol.md) specifies a
+single matched-exposure warm-start extension of the existing 5K state from
+12K to 30K kimg. The [validated Stage B results](experiment_09_stage_b_results.md)
+report 3,072 no-swap records with zero failures. Every 5K checkpoint scored
+`0/128`, so the formal outcome is `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` and
+E008 remains unexecuted.
 
 ## Pipeline Audit
 

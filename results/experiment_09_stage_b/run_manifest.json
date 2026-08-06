@@ -1,0 +1,21 @@
+{
+  "duration_kimg": 13000,
+  "exact_stage_a_continuation": false,
+  "job_id": 15722770,
+  "name": "e009_stage_b_edm5k_30000kimg",
+  "parent_ema_snapshot_sha256": "a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58",
+  "parent_training_state_sha256": "1073e68c9f45123b53811a12a56a565f296a5ab846212d22e5027bbd81d685f5",
+  "repository_commit": "9e5782f09a3e024c298dc5ce8da1c0f44c9b4fbd",
+  "result": {
+    "final_kimg": 13000,
+    "last_loss_mean": 0.07918821275234222,
+    "lineage_ticks": 1,
+    "start_kimg": 12000
+  },
+  "sigma_count": 0,
+  "stage_b_seed": 1,
+  "start_kimg": 12000,
+  "state_schema_version": 2,
+  "subset_size": 5000,
+  "warm_start": true
+}

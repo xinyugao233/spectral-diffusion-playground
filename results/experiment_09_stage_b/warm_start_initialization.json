@@ -1,0 +1,25 @@
+{
+  "derived_seeds": {
+    "dataloader_generator_seed": 1,
+    "numpy_seed": 1,
+    "sampler_seed": 1,
+    "stage_b_seed": 1,
+    "torch_seed": 1791095845
+  },
+  "ema_loaded_exactly": true,
+  "ema_state_digest": "9cb72d9ced27fd3dc3915737d719b6a16343fd919f18615c41e6fd8f6a019aad",
+  "exact_stage_a_continuation": false,
+  "network_loaded_exactly": true,
+  "network_state_digest": "7fd97406ae7a249b2bf529f364d4796634a954effc0144002f01ffa0a7b8ed47",
+  "optimizer_loaded_exactly": true,
+  "optimizer_state_digest": "28596f9fe3a0f254d54f5eddaa7128b554fc8b33c6f6e129e476b8882680d342",
+  "parent_ema_snapshot": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg/network-snapshot-012000.pkl",
+  "parent_ema_snapshot_sha256": "a77c19588f9a4f877de961102c16901ee07bbd87e0e4ace6164f92f40c406d58",
+  "parent_training_state": "/home/xggh8/data/zw-lab/e009_edm5k_12000kimg/training-state-012000.pt",
+  "parent_training_state_sha256": "1073e68c9f45123b53811a12a56a565f296a5ab846212d22e5027bbd81d685f5",
+  "seed": 1,
+  "seed_derivation_reproducible": true,
+  "seeded_rng_state_digest": "2b299cba664ade6212ef3ba68ca2a1148d6001005c895ab7618803d9bc47d7a4",
+  "start_kimg": 12000,
+  "warm_start": true
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "experiment_id": "experiment_09_stage_b_baseline",
+  "scientific_scope": {
+    "baseline_only": true,
+    "donor_models_allowed": false,
+    "swap_windows_allowed": false,
+    "e008_executed": false,
+    "automatic_training_extension_allowed": false
+  },
+  "remote_branch": "e009-stage-b-protocol",
+  "candidates": {
+    "edm_5k": [
+      {"training_kimg": 13000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-013000.pkl", "checkpoint_sha256": "6d181c0102e93cfe1c43005675e7c76e01fae18afd402337a35ebc8b2128371c"},
+      {"training_kimg": 14000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-014000.pkl", "checkpoint_sha256": "7a6c9f8916232554e62e7791caa513201610d38366c0d73e2e4e84f850eeca33"},
+      {"training_kimg": 15000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-015000.pkl", "checkpoint_sha256": "d7e4482459106c2fe4d46103847225cd63b9c749206a2a7f1ee803a9ac85b858"},
+      {"training_kimg": 16000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-016000.pkl", "checkpoint_sha256": "5942ebb047a02967a91c491008b5ec9fc079f89445b8d8b248cebda437c3e0d5"},
+      {"training_kimg": 17000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-017000.pkl", "checkpoint_sha256": "4f131812d9ef6ab06b0364930cb5fda95629364e1332cd142c8e840083581e70"},
+      {"training_kimg": 18000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-018000.pkl", "checkpoint_sha256": "66ef3e1dbb797aceb11fe61053b73c63e12d691682a830ba4f0f61ea8db4288f"},
+      {"training_kimg": 19000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-019000.pkl", "checkpoint_sha256": "147be4a88b57ae4eddfde578630ddf6e3c6ec89e8a3132cd9af0a9c34675989b"},
+      {"training_kimg": 20000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-020000.pkl", "checkpoint_sha256": "9f9baed1a1ec0f87058f9b37bf5fe33799c1c04cea5b015c267be356a4a4d6db"},
+      {"training_kimg": 21000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-021000.pkl", "checkpoint_sha256": "6f0b3dd9d724f492b5209caf61910bcdc3d43b3e55048e0a17daaa0896f2552e"},
+      {"training_kimg": 22000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-022000.pkl", "checkpoint_sha256": "02bbb0eb6567537be434155f49e05c5c7c6f7e1bf8d9c297261201430cf791c5"},
+      {"training_kimg": 23000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-023000.pkl", "checkpoint_sha256": "1008a661c6596a64186685e0992bc21f584a7b422a8256cf86a7150a0bec74fe"},
+      {"training_kimg": 24000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-024000.pkl", "checkpoint_sha256": "388fb9959592642df120dadf9836c3fdaf1df6841e3a03f4833ef9d89b701d43"},
+      {"training_kimg": 25000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-025000.pkl", "checkpoint_sha256": "cd3da048eb4793f9b7661bbba690d954854f6e636634512ad92db31c7e2a7740"},
+      {"training_kimg": 26000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-026000.pkl", "checkpoint_sha256": "25699320513f972dcbbc3ddd4ed6558ba67690f9dbe741e774f0ee0410387de9"},
+      {"training_kimg": 27000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-027000.pkl", "checkpoint_sha256": "557055b1d3501771560d5164b937466df74dbc958177832ba1fb698a85d97b5f"},
+      {"training_kimg": 28000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-028000.pkl", "checkpoint_sha256": "38ba5ecb803f6b7f6286397e014c7a6a110690be40bc3c9c215e62534a8cf7b9"},
+      {"training_kimg": 29000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-029000.pkl", "checkpoint_sha256": "c6b73732d9410dc283bf2b5f2ddbf5c2b0283fd3294a7c732a2799cbe2b376e4"},
+      {"training_kimg": 30000, "checkpoint_path": "/home/xggh8/data/zw-lab/e009_stage_b_edm5k_30000kimg/network-snapshot-030000.pkl", "checkpoint_sha256": "66406526e9024c7280b903cdb1731ae35ed252da87aa1b9932cc9a2d43d446e2"}
+    ],
+    "edm_1k": [
+      {"training_kimg": 2000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-002000.pkl", "checkpoint_sha256": "3ed209dd1b79e56a4e95d81d21400bdbc2c73e95c7a9d76d49aba0c859ff2258"},
+      {"training_kimg": 4000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-004000.pkl", "checkpoint_sha256": "ec341bbc9cf1e60f0bb768e03eb2812ca75a4407c430571813b98618a9a2bc02"},
+      {"training_kimg": 6000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-006000.pkl", "checkpoint_sha256": "89bead0217ff5f41f79a7ccd7607a4d97152b82fee36febce35eafc0745ad807"},
+      {"training_kimg": 8000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-008000.pkl", "checkpoint_sha256": "fc4c9972915e4609e67804aa693569980c8884bc5f754e049d3b72346cbccbae"},
+      {"training_kimg": 10000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-010000.pkl", "checkpoint_sha256": "20a28ef6f66087f8fcec676dca2d86ff81e859e17ae7507adeb9d49a24d31c0e"},
+      {"training_kimg": 12000, "checkpoint_path": "/home/xggh8/data/zw-lab/exp_004_standard_edm_n1000_40000kimg_20260415/network-snapshot-012000.pkl", "checkpoint_sha256": "e5a7debafcd19191d6557f645216bfcb2e7589922396fd08130e76e3f5388b0a"}
+    ]
+  },
+  "pilot_seeds": {"start": 20000, "stop_inclusive": 20127, "count": 128},
+  "future_confirmatory_seeds": {"start": 0, "stop_inclusive": 255, "count": 256, "used": false},
+  "eligibility": {"count_interval_inclusive": [13, 115], "confidence_interval": "two-sided Clopper-Pearson 95% descriptive only"},
+  "pair_selection": {"primary": "minimum absolute baseline memorization-rate difference", "tie_break": "lexicographic (edm_5k_checkpoint_sha256, edm_1k_checkpoint_sha256)"},
+  "sampler": {"algorithm": "pure_euler", "num_denoiser_calls": 18, "sigma_max": 80.0, "sigma_min": 0.002, "rho": 7.0, "terminal_sigma": 0.0, "churn": 0.0, "heun_correction": false, "class_labels": null, "canonical_per_seed_inference": true},
+  "memorization": {"criterion": "d1nn < d2nn / 3", "tensor_domain": "unclamped_unquantized_nchw_float64_minus1_to1_after_inference", "flattening": "channel_major_C_order", "distance": "exact_euclidean_pixel_space", "reference_subset": "data/e005_cifar10_subset_1k_indices.txt", "reference_subset_text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29", "reference_subset_int64_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8"},
+  "dataset": {"archive": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip", "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa"},
+  "execution": {"edm_root": "/home/xggh8/edm", "output_dir": "/home/xggh8/data/zw-lab/e009_stage_b_baseline", "batch_size": 16, "nn_batch_size": 64, "expected_checkpoint_count": 24, "expected_record_count": 3072}
+}
