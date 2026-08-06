@@ -155,6 +155,22 @@ but all 21 EDM-50K checkpoints produced `0/128`. No E008 condition was run.
 | E007 pre-control | `6..7` | `8.4009..5.3152` | Width matched | Control |
 | E007 post-control | `10..11` | `1.0882..0.5853` | Width matched | Control |
 
+## Stage 8: E009 Model-Pair Search
+
+E009 tested whether intermediate data sizes could provide the eligible
+baseline-matched larger-data endpoint required by E008. Stage A found only an
+eligible 2K endpoint; Stage B extended the 5K lineage through 30K kimg, where
+all 18 checkpoints remained `0/128`. E008 therefore remains blocked and
+unexecuted.
+
+## Stage 9: E010 Directional Asymmetric-Baseline Test
+
+E010 asks a different question and explicitly accepts asymmetric baselines.
+It swaps whole denoisers bidirectionally over E004B low target `{8}`, high
+target `{9,10}`, and neighboring controls. The frozen result supports only
+high-derived suppression; induction and low-derived suppression fail their
+criteria. E010 does not unblock, replace, or execute E008.
+
 ## Non-Substitution Rules
 
 - `r` defines E005 Fourier projections; it does not define `C_sigma` or
@@ -166,3 +182,5 @@ but all 21 EDM-50K checkpoints produced `0/128`. No E008 condition was run.
   model-pair preflight passes.
 - E008 cannot be described as executed, and its temporal whole-denoiser swaps
   cannot be called Fourier coefficient swaps.
+- E010 cannot be described as baseline matched, as a frequency-component
+  intervention, or as identifying dataset-size causality.

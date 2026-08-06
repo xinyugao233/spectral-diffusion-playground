@@ -19,7 +19,7 @@ write explicit outputs.
 | `08_checkpoint_baseline_preflight.py` | No-swap checkpoint eligibility preflight | Complete; `BLOCKED_NO_ELIGIBLE_PAIR` |
 | E008 swap protocol | Frequency-geometry whole-denoiser swaps | Proposed; blocked and unexecuted |
 | E009 protocols and evaluators | Intermediate-dataset model search | Complete; no eligible >=5K checkpoint through Stage B |
-| `10_directional_memorization_transfer.py` | Directional whole-denoiser swaps over E004B-derived intervals | Frozen and locally validated; inference pending |
+| `10_directional_memorization_transfer.py` | Directional whole-denoiser swaps over E004B-derived intervals | Complete; `HIGH_DERIVED_SUPPRESSION_SUPPORTED` |
 
 ## Local Foundations
 

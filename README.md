@@ -1,7 +1,7 @@
 # Spectral Diffusion Playground
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests: 190 passing](https://img.shields.io/badge/tests-190%20passing-2ea44f)](#installation-and-reproduction)
+[![Tests: 206 passing](https://img.shields.io/badge/tests-206%20passing-2ea44f)](#installation-and-reproduction)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
@@ -12,7 +12,7 @@ The central question is: **how do low- and high-frequency residual transitions
 relate to the medium-noise region independently motivated by Gaussian-shell
 coverage and posterior-weight concentration?**
 
-Experiments E001-E003 build the Fourier foundation. E004-E008 form a
+Experiments E001-E003 build the Fourier foundation. E004-E010 form a
 paper-derived clean-room pipeline grounded in
 [*Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in
 Diffusion Models*](https://arxiv.org/abs/2602.17846).
@@ -29,6 +29,7 @@ Diffusion Models*](https://arxiv.org/abs/2602.17846).
 | 6 | E007 | Full-space geometry swap over `8..9` | Proposed; blocked |
 | 7 | E008 | Frequency-geometry swaps | Preflight complete: `BLOCKED_NO_ELIGIBLE_PAIR`; swaps unexecuted |
 | 8 | E009 | Intermediate-dataset model search | Stage B complete: `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` |
+| 9 | E010 | Directional asymmetric-baseline swaps | `HIGH_DERIVED_SUPPRESSION_SUPPORTED` |
 
 ```mermaid
 flowchart LR
@@ -126,6 +127,7 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
 | E008 | Do swaps over the E004B band-specific targets differ from controls? | [Preflight results](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png) | `BLOCKED_NO_ELIGIBLE_PAIR`; no swap result | Preflight complete; swaps blocked and unexecuted |
 | E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Stage B rates](figures/experiment_09_stage_b/stage_b_baseline_memorization_rates.png) | All 18 warm-start 5K checkpoints at 13K..30K scored `0/128` | Complete; `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`; E008 blocked |
+| E010 | Can memorization be suppressed or induced by directional whole-denoiser swaps? | [Directional contrasts](figures/experiment_10/target_control_contrasts.png) | High-derived suppression passed; low suppression and induction did not | Complete |
 
 ## E001: Understanding Images In Fourier Space
 
@@ -708,6 +710,31 @@ The channelwise 2D FFT uses `norm="ortho"`; the high-frequency mask is the exact
 complement of the centered low-frequency mask. The resulting band energies sum
 to the full residual energy within the frozen tolerance.
 
+## E010: Directional Memorization Transfer
+
+**Question.** Can an existing generalizing denoiser suppress memorization in a
+memorizing trajectory, or an existing memorizing denoiser induce it in a
+generalizing trajectory, when the whole denoiser is swapped over E004B-derived
+intervals?
+
+E010 uses asymmetric no-swap baselines by design. The memorizing EDM-1K
+baseline is `215/256`; no memorized samples were observed for the EDM-50K
+baseline under the 256 frozen E010 seeds. The high-derived suppression target
+`{9,10}` passed the preregistered target-versus-control test: contrast
+`0.1074`, paired 95% bootstrap CI `[0.0684, 0.1484]`. Low-derived suppression
+and both induction tests did not pass.
+
+![E010 target-versus-control contrasts](figures/experiment_10/target_control_contrasts.png)
+
+This result concerns whole-denoiser intervention timing. It does not show that
+a high-frequency component causes memorization, and it does not isolate
+training-data size as the cause. E008 remains blocked and unexecuted.
+
+Read the
+[frozen protocol](docs/experiment_10_directional_memorization_transfer_protocol.md),
+[analysis plan](docs/experiment_10_directional_analysis_plan.md), and
+[validated result record](docs/experiment_10_directional_memorization_transfer_results.md).
+
 ## Documentation And Results
 
 | Experiment | Protocol and result narrative | Compact results | Figures |
@@ -720,6 +747,7 @@ to the full residual energy within the frozen tolerance.
 | E007 | [Blocked proposed protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | Blocked; not executed | Not generated |
 | E008 | [Baseline preflight](docs/experiment_08_checkpoint_preflight.md) · [Results](docs/experiment_08_checkpoint_preflight_results.md) · [Blocked swap protocol](docs/experiment_08_frequency_geometry_swap_protocol.md) | [`results/experiment_08_preflight/`](results/experiment_08_preflight/) | [`figures/experiment_08_preflight/`](figures/experiment_08_preflight/) |
 | E009 | [Stage A protocol](docs/experiment_09_intermediate_dataset_training_design.md) · [Stage A results](docs/experiment_09_stage_a_results.md) · [Stage B protocol](docs/experiment_09_stage_b_protocol.md) · [Stage B results](docs/experiment_09_stage_b_results.md) | [`results/experiment_09_stage_a/`](results/experiment_09_stage_a/) · [`results/experiment_09_stage_b/`](results/experiment_09_stage_b/) | [`figures/experiment_09_stage_a/`](figures/experiment_09_stage_a/) · [`figures/experiment_09_stage_b/`](figures/experiment_09_stage_b/) |
+| E010 | [Protocol](docs/experiment_10_directional_memorization_transfer_protocol.md) · [Analysis](docs/experiment_10_directional_analysis_plan.md) · [Results](docs/experiment_10_directional_memorization_transfer_results.md) | [`results/experiment_10/`](results/experiment_10/) | [`figures/experiment_10/`](figures/experiment_10/) |
 
 See the [documentation index](docs/README.md), [results index](results/README.md),
 and [figures index](figures/README.md) for the complete navigation map.
@@ -812,6 +840,9 @@ spectral-diffusion-playground/
 - E006 uses 256 seeds and a strict pixel-space criterion. Its degenerate
   EDM-50K baseline triggers the frozen safeguard and prevents a directional
   conclusion.
+- E010 uses intentionally asymmetric baselines. Its EDM-50K floor limits
+  induction sensitivity, and its whole-denoiser swaps do not identify an
+  isolated frequency-component or dataset-size effect.
 - E004A-E006 are paper-derived clean-room experiments, not exact reproductions
   of the paper's unavailable executed code.
 

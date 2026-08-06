@@ -1,0 +1,56 @@
+{
+  "asymmetric_baselines": true,
+  "baseline_matched": false,
+  "causal_scope": "whole-denoiser swaps over frequency-derived intervals",
+  "e008_status": "BLOCKED_UNEXECUTED",
+  "experiment_id": "E010",
+  "formal_outcomes": [
+    "HIGH_DERIVED_SUPPRESSION_SUPPORTED"
+  ],
+  "primary_tests": [
+    {
+      "after_effect": 0.12890625,
+      "band": "low",
+      "before_effect": 0.0390625,
+      "contrast": 0.021484375,
+      "contrast_ci95_high": 0.044921875,
+      "contrast_ci95_low": -0.001953125,
+      "criterion_pass": false,
+      "direction": "suppression",
+      "target_effect": 0.10546875
+    },
+    {
+      "after_effect": 0.17578125,
+      "band": "high",
+      "before_effect": 0.1875,
+      "contrast": 0.107421875,
+      "contrast_ci95_high": 0.1484375,
+      "contrast_ci95_low": 0.068359375,
+      "criterion_pass": true,
+      "direction": "suppression",
+      "target_effect": 0.2890625
+    },
+    {
+      "after_effect": 0.0,
+      "band": "low",
+      "before_effect": 0.0,
+      "contrast": 0.0,
+      "contrast_ci95_high": 0.0,
+      "contrast_ci95_low": 0.0,
+      "criterion_pass": false,
+      "direction": "induction",
+      "target_effect": 0.0
+    },
+    {
+      "after_effect": 0.00390625,
+      "band": "high",
+      "before_effect": 0.00390625,
+      "contrast": 0.0,
+      "contrast_ci95_high": 0.0,
+      "contrast_ci95_low": 0.0,
+      "criterion_pass": false,
+      "direction": "induction",
+      "target_effect": 0.00390625
+    }
+  ]
+}

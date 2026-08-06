@@ -1,0 +1,1 @@
+experiment_id,condition_id,direction,band,role,recipient_checkpoint_sha256,donor_checkpoint_sha256,swap_indices,sample_seed,generated_sample_hash,d1nn,d2nn,d1nn_over_d2nn,d1nn_reference_index,d2nn_reference_index,memorized,sampler,status,error

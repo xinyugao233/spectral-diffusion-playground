@@ -106,6 +106,14 @@ shows the same-seed EDM-1K candidates and all 18 warm-start 5K checkpoints.
 Every 5K rate is `0/128`; the figure is a baseline eligibility diagnostic and
 contains no swap result.
 
+## E010 Directional Memorization Transfer
+
+[`experiment_10/`](experiment_10/) contains the frozen geometry targets and
+condition map, suppression and induction rates, paired transition counts,
+target-versus-control confidence intervals, timeline mapping, and
+representative generated/nearest-reference pairs. These are whole-denoiser
+swap results over frequency-derived intervals, not frequency-component swaps.
+
 ## Figure Policy
 
 Keep filenames stable, use one experiment subdirectory for scientific result

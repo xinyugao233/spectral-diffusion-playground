@@ -125,7 +125,9 @@ E010 is a separate asymmetric-baseline experiment using existing checkpoints.
 It tests whole-denoiser suppression and induction over the E004B-derived low
 target `{8}` and high target `{9,10}` plus neighboring controls. It does not
 revise or execute E008, and it does not claim frequency-component or
-dataset-size causality. Results do not yet exist.
+dataset-size causality. The
+[validated results](experiment_10_directional_memorization_transfer_results.md)
+support only high-derived suppression under the frozen criterion.
 
 ## Pipeline Audit
 

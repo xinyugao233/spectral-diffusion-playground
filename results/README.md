@@ -131,6 +131,18 @@ accepted the complete 2K, 5K, and 10K `0..12K` trajectories. Pilot array
 therefore the formal outcome is `PROVISIONAL_2K_ONLY_STAGE_B_REQUIRED` and no
 pair was selected. See the [results document](../docs/experiment_09_stage_a_results.md).
 
+## E010 Directional Memorization Transfer
+
+[`experiment_10/`](experiment_10/) contains the 14-condition summary, paired
+transition counts, four preregistered directional contrasts, formal outcome,
+zero-row failure table, validation, and compact provenance manifest. The sole
+supported label is `HIGH_DERIVED_SUPPRESSION_SUPPORTED`.
+
+The 3,584-row per-sample table and generated samples remain external at
+`/home/xggh8/data/zw-lab/e010_directional_memorization_transfer`. E010 uses
+asymmetric baselines and does not execute or revise E008. See the
+[E010 results document](../docs/experiment_10_directional_memorization_transfer_results.md).
+
 ## Artifact Policy
 
 Commit an output only when it is small, deterministic, reviewable, and needed
