@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E010",
+  "seed_start": 40000,
+  "seed_end": 40255,
+  "seed_count": 256,
+  "selection": "inclusive consecutive integer range frozen before inference",
+  "shared_across_conditions": true,
+  "expected_condition_count": 14,
+  "expected_record_count": 3584,
+  "excluded_prior_ranges": [
+    [0,255],
+    [10000,10127],
+    [20000,20127],
+    [30000,30127]
+  ],
+  "additional_confirmatory_stage": false
+}

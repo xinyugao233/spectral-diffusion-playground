@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "experiment_id": "E010",
+  "run_id": "e010_directional_memorization_transfer",
+  "execution_commit_contract": "E010_REPO_COMMIT",
+  "inputs": {
+    "model_pair_manifest": "data/e010_model_pair_manifest.json",
+    "model_pair_manifest_sha256": "92746b642eeeb4c57d0bba21e5c6090e719e50390526b696f7549a1ac6979116",
+    "condition_manifest": "data/e010_condition_manifest.json",
+    "condition_manifest_sha256": "aa8c9c5467fca91d36d6b56c33ef2ffe308c4d45a5093acc87034e1b6d6b5290",
+    "seed_manifest": "data/e010_seed_manifest.json",
+    "seed_manifest_sha256": "0295595bd0ba7fc649ee2728d9703618b4ba28f1626e53bc419fe39e256736e2",
+    "geometry_target": "results/experiment_04b/band_target_summary.json",
+    "geometry_target_sha256": "52b4910b0e377ed05686c6345b77b50a043689d54d7dcb30cb143b99e138c7ac"
+  },
+  "reference": {
+    "archive": "/home/xggh8/datasets/edm/cifar10-32x32-train50k.zip",
+    "archive_sha256": "795cdc1444465ae4e19e25a0615d05ba0a0e83caa5db6b1b811deaf4c7910dfa",
+    "subset_indices": "data/e005_cifar10_subset_1k_indices.txt",
+    "subset_text_sha256": "33bb509c48144464a48d3b945cc44c14f880a1e6c6470c283dc0ed65e22b1f29",
+    "subset_int64_le_sha256": "f97076ea6db59a96dc81a59d1b573bc8aaecdb8efa1e93c0d79928bfbf8a43f8",
+    "normalization": "uint8 / 127.5 - 1.0"
+  },
+  "sampler": {
+    "algorithm": "pure_euler",
+    "num_denoiser_calls": 18,
+    "churn": 0.0,
+    "heun_correction": false,
+    "class_labels": null,
+    "clamp": false,
+    "quantize": false
+  },
+  "nearest_neighbor": {
+    "device": "cpu",
+    "dtype": "float64",
+    "distance": "direct_squared_differences_then_euclidean_sqrt",
+    "tie_break": "distance_then_reference_position",
+    "criterion": "d1nn < d2nn / 3"
+  },
+  "analysis": {
+    "bootstrap_resamples": 100000,
+    "bootstrap_seed": 0,
+    "confidence_level": 0.95,
+    "resampling_unit": "latent_seed"
+  },
+  "execution": {
+    "edm_root": "/home/xggh8/edm",
+    "full_output_dir": "/home/xggh8/data/zw-lab/e010_directional_memorization_transfer",
+    "device": "cuda",
+    "expected_records": 3584
+  }
+}

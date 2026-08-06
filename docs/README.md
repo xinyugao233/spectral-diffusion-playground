@@ -116,6 +116,17 @@ report 3,072 no-swap records with zero failures. Every 5K checkpoint scored
 `0/128`, so the formal outcome is `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` and
 E008 remains unexecuted.
 
+## E010: Directional Memorization Transfer
+
+1. [Frozen protocol](experiment_10_directional_memorization_transfer_protocol.md)
+2. [Frozen analysis plan](experiment_10_directional_analysis_plan.md)
+
+E010 is a separate asymmetric-baseline experiment using existing checkpoints.
+It tests whole-denoiser suppression and induction over the E004B-derived low
+target `{8}` and high target `{9,10}` plus neighboring controls. It does not
+revise or execute E008, and it does not claim frequency-component or
+dataset-size causality. Results do not yet exist.
+
 ## Pipeline Audit
 
 [The frequency-resolved pipeline audit](frequency_resolved_pipeline_audit.md)
