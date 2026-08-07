@@ -8,14 +8,50 @@
 A research portfolio of frequency-resolved experiments for understanding
 denoising and memorization in diffusion models.
 
-The central question is: **how do low- and high-frequency residual transitions
-relate to the medium-noise region independently motivated by Gaussian-shell
-coverage and posterior-weight concentration?**
+The central question is: **can frequency-resolved geometry identify trajectory
+intervals where a whole-denoiser intervention selectively changes
+memorization?**
 
 Experiments E001-E003 build the Fourier foundation. E004-E010 form a
 paper-derived clean-room pipeline grounded in
 [*Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in
 Diffusion Models*](https://arxiv.org/abs/2602.17846).
+
+## Headline Result: Directional Suppression At The High-Derived Interval
+
+> Swapping the whole denoiser from a generalizing model into a memorizing
+> trajectory during the high-frequency-geometry-derived interval `{9,10}`
+> suppressed memorization more strongly than either neighboring width-matched
+> control.
+
+E004B first identified separate low- and high-frequency-derived trajectory
+intervals from four frozen geometry curves: coverage and maximum posterior
+weight in each complementary Fourier subspace.
+
+![Four frequency-restricted geometry curves and frozen E010 intervals](figures/experiment_10/geometry_targets.png)
+
+E010 then tested bidirectional whole-denoiser swaps over those targets and
+their preregistered controls. For suppression, the high-derived target effect
+was `0.289063`, versus `0.187500` and `0.175781` for its controls. The paired
+target-minus-mean-controls contrast was `0.107422`, with bootstrap 95% CI
+`[0.068359, 0.148438]`.
+
+![E010 target-versus-control contrasts](figures/experiment_10/target_control_contrasts.png)
+
+The sole supported preregistered label is
+**`HIGH_DERIVED_SUPPRESSION_SUPPORTED`**. Low-derived suppression did not pass:
+its confidence interval crossed zero and its after control exceeded its
+target. Induction remained floor-limited because no memorized samples were
+observed for the EDM-50K no-swap baseline under the 256 frozen E010 seeds.
+
+**Scope.** This is evidence about the timing of a whole-denoiser intervention
+for one asymmetric model pair. It does not show that high-frequency components
+themselves cause memorization, establish that dataset size caused the result,
+or show that a memorizing denoiser cannot induce memorization more generally.
+
+Read the [protocol](docs/experiment_10_directional_memorization_transfer_protocol.md),
+[analysis plan](docs/experiment_10_directional_analysis_plan.md), and
+[validated result record](docs/experiment_10_directional_memorization_transfer_results.md).
 
 ## Canonical Experimental Pipeline
 
@@ -38,7 +74,8 @@ flowchart LR
     C --> D[Freeze full-space geometry target]
     D --> E[Project geometry into frozen frequency bands]
     E --> F[Interpret with low/high residual curves]
-    F --> G[Propose whole-denoiser interventions]
+    F --> G[Preregister intervention targets and controls]
+    G --> H[Test directional whole-denoiser swaps]
 ```
 
 E004A computes the paper's original full-space coverage and posterior-weight
@@ -60,6 +97,7 @@ E004: freeze r
   -> select separate low/high geometry targets
   -> E005: compare with low/high residual dynamics
   -> E008: preregister frequency-targeted swaps; retire unexecuted after pair search
+  -> E010: test the directional question with a separate asymmetric pair
 ```
 
 See the [canonical pipeline specification](docs/canonical_experiment_pipeline.md)
@@ -90,8 +128,10 @@ noise, followed by the high-frequency residual at lower noise.
 coverage and posterior-weight curves select indices `8..9` as the
 geometry-derived candidate region at `q_C=q_W=0.8`. These points lie inside
 the E005 low-frequency spectral transition and precede the high-frequency
-transition. A final whole-denoiser swap over indices `8..9` is specified in
-E007 but is blocked until a nondegenerate model pair is preregistered.
+transition. E007 records the original proposed full-space follow-up over
+indices `8..9`; it remains blocked and unexecuted. E010 later tested the
+distinct directional question using the independently selected band-derived
+targets.
 
 E006 is the historical exploratory spectral-window intervention. Its formal
 outcome is **`INCONCLUSIVE`** because the EDM-50K no-swap baseline is
@@ -101,13 +141,14 @@ degenerate. E006 did not test the later E004A-selected target `8..9`.
 
 ## Start Here
 
+- **Read the executed result first:** [E010 directional suppression](#headline-result-directional-suppression-at-the-high-derived-interval).
 - **Freeze the spectral measurement first:** [E004 cutoff](#e004-selecting-an-operational-cifar-10-cutoff).
 - **Select the candidate interval geometrically:** [coverage and posterior concentration](#original-paper-geometry-coverage-and-posterior-concentration).
 - **Inspect geometry inside each Fourier band:** [E004B frequency-restricted geometry](#e004b-frequency-restricted-gaussian-shell-geometry).
 - **See the spectral extension:** [E005 residual curves and transition windows](#e005-low--and-high-frequency-residual-transitions).
 - **Review the historical intervention:** [E006 spectral-window swaps](#e006-historical-spectral-window-swaps).
-- **See the required final test and blocker:** [proposed E007](#e007-final-geometry-aligned-whole-denoiser-swap).
-- **See the completed model-pair gate:** [E008 preflight](#e008-proposed-frequency-geometry-whole-denoiser-swaps).
+- **Review the historical full-space proposal:** [blocked E007](#e007-historical-proposed-full-space-geometry-test).
+- **Review retired negative evidence:** [E008 preflight and retirement](#retired-protocols-and-negative-evidence).
 - **Audit the evidence:** [E005 result record](docs/experiment_05_spectral_residual_results.md)
   and [E006 result record](docs/experiment_06_transition_window_swap_results.md).
 - **Reproduce the foundations locally:** [installation and commands](#installation-and-reproduction).
@@ -554,8 +595,8 @@ causal memorization interpretation for any sigma interval.
 
 The low-frequency spectral transition produced the strongest descriptive E006
 swap effect, but E006 remained formally `INCONCLUSIVE` and did not identify a
-memorization danger zone. It therefore does not complete the final
-geometry-aligned intervention in the canonical pipeline.
+memorization danger zone. It does not execute the later historical E007
+full-space proposal.
 
 E006 swaps the **whole denoiser** during windows aligned with the E005
 frequency-band transitions. It does not intervene on `C_sigma`, `W_sigma`, or
@@ -568,63 +609,46 @@ See the [region-definition audit](docs/danger_zone_definition_audit.md),
 [proposed E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md)
 for the exact historical distinctions.
 
-## E007: Final Geometry-Aligned Whole-Denoiser Swap
+## E007: Historical Proposed Full-Space Geometry Test
 
 E004A identifies the candidate geometric region. E005 describes its spectral
-location. E007 is the required intervention that directly tests whether this
-geometry-selected interval is unusually influential for memorization.
+location. E007 records the original proposed intervention for testing whether
+this full-space geometry-selected interval is unusually influential for
+memorization. It is preserved for provenance, not presented as a remaining
+obligation after E010.
 
 The frozen target is `8..9`, with width-matched controls `6..7` and `10..11`.
 The question is whether swapping the whole denoiser exactly over the
 independently geometry-defined high-high interval changes final memorization
 more than those equally wide neighboring intervals.
 
-E007 remains **PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY**. The final
+E007 remains **PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY**. Its
 geometry-aligned swap target is frozen at indices `8..9`, but the historical
 model pair cannot be used for an informative bidirectional test because the
-EDM-50K baseline is already `0/256`. A nondegenerate model pair must be
-selected through the preregistered baseline-only preflight before E007 can run.
-No E007 swap has been executed.
+EDM-50K baseline is already `0/256`. Its frozen protocol would require a
+preregistered nondegenerate pair. No E007 swap has been executed, and no E007
+execution is currently planned.
 
 See the [blocked E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md).
 
-## E008: Retired Frequency-Geometry Whole-Denoiser Swaps
+## Retired Protocols And Negative Evidence
 
-E008 is the unexecuted band-specific intervention implied by E004B. It would
-swap the **whole denoiser** over low target `8..8` and high target `9..10`,
-each compared with immediately adjacent width-matched controls. It does not
-swap Fourier coefficients or isolated frequency outputs.
+### E008: Frequency-Geometry Whole-Denoiser Swaps
 
-| Frequency-derived condition | Pre-control | Candidate target | Post-control |
-| --- | --- | --- | --- |
-| Low-frequency geometry | `7..7` | `8..8` | `9..9` |
-| High-frequency geometry | `7..8` | `9..10` | `11..12` |
-
-```mermaid
-flowchart LR
-    LP["Low pre-control 7"] --> LT["Low-derived target 8"] --> LQ["Low post-control 9"]
-    HP["High pre-control 7..8"] --> HT["High-derived target 9..10"] --> HQ["High post-control 11..12"]
-```
-
-This diagram is a **planned intervention**, not an executed result. Each row is
-an independent whole-denoiser temporal swap comparison; the low and high
-targets are never merged, intersected, averaged, or treated as Fourier-output
-swaps.
-
-The primary bidirectional design is **RETIRED_UNEXECUTED**. Its
-preregistered baseline-only checkpoint preflight is complete. Six EDM-1K
-intermediate checkpoints passed the frozen `13..115` out of `128` eligibility
-rule, but all 21 EDM-50K checkpoints were `0/128`. The formal preflight outcome
-is **`BLOCKED_NO_ELIGIBLE_PAIR`**. No E008 swap, confirmatory inference, or
-swap result exists.
+E008 is **`RETIRED_UNEXECUTED`**. Its preregistered baseline-only preflight
+found six eligible EDM-1K checkpoints, but all 21 EDM-50K checkpoints scored
+`0/128`; the preserved historical outcome is
+**`BLOCKED_NO_ELIGIBLE_PAIR`**. No E008 swap, confirmatory inference, or swap
+result exists, and no further E008 training or execution is planned.
 
 ![E008 baseline rates across all 42 checkpoints](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png)
 
-The result does not establish that every 50K-data model is degenerate. E009
-therefore tested matched 2K/5K/10K trajectories. Its completed Stage A pilot
-found one eligible 2K endpoint but no eligible 5K or 10K checkpoint, so the
-required larger-data model still does not exist. E008 was therefore retired
-without execution; no further E008 training or swap run is planned.
+This negative result does not establish that every larger-data model is
+degenerate. E009 tested additional 2K/5K/10K trajectories and a 5K warm-start
+extension through 30K kimg, but still found no eligible model satisfying
+E008's frozen larger-data role. E010 subsequently addressed the directional
+question under a separate asymmetric-baseline protocol; it does not count as
+E008 execution.
 
 See the [baseline preflight protocol](docs/experiment_08_checkpoint_preflight.md)
 and [results](docs/experiment_08_checkpoint_preflight_results.md), the
@@ -712,31 +736,6 @@ The channelwise 2D FFT uses `norm="ortho"`; the high-frequency mask is the exact
 complement of the centered low-frequency mask. The resulting band energies sum
 to the full residual energy within the frozen tolerance.
 
-## E010: Directional Memorization Transfer
-
-**Question.** Can an existing generalizing denoiser suppress memorization in a
-memorizing trajectory, or an existing memorizing denoiser induce it in a
-generalizing trajectory, when the whole denoiser is swapped over E004B-derived
-intervals?
-
-E010 uses asymmetric no-swap baselines by design. The memorizing EDM-1K
-baseline is `215/256`; no memorized samples were observed for the EDM-50K
-baseline under the 256 frozen E010 seeds. The high-derived suppression target
-`{9,10}` passed the preregistered target-versus-control test: contrast
-`0.1074`, paired 95% bootstrap CI `[0.0684, 0.1484]`. Low-derived suppression
-and both induction tests did not pass.
-
-![E010 target-versus-control contrasts](figures/experiment_10/target_control_contrasts.png)
-
-This result concerns whole-denoiser intervention timing. It does not show that
-a high-frequency component causes memorization, and it does not isolate
-training-data size as the cause. E008 remains unexecuted and is now retired.
-
-Read the
-[frozen protocol](docs/experiment_10_directional_memorization_transfer_protocol.md),
-[analysis plan](docs/experiment_10_directional_analysis_plan.md), and
-[validated result record](docs/experiment_10_directional_memorization_transfer_results.md).
-
 ## Documentation And Results
 
 | Experiment | Protocol and result narrative | Compact results | Figures |
@@ -767,11 +766,11 @@ pip install -e .
 python -m unittest discover tests
 ```
 
-E004, E004A, and E004B require an existing CIFAR-10 root. E005 and E006
+E004, E004A, and E004B require an existing CIFAR-10 root. E005, E006, and E010
 require the frozen external archive, matched EDM checkpoints, and recorded
 Hellbender environment. Exact hashes, configurations, paths, and Slurm commands
-are recorded in the E005/E006 protocol and result documents. No experiment
-downloads data or checkpoints implicitly.
+are recorded in their protocol and result documents. No experiment downloads
+data or checkpoints implicitly.
 
 ## Reproducibility And Provenance
 
@@ -786,12 +785,22 @@ Scientific choices were frozen before evaluation. Key commits are:
 | E006 protocol | `068c7e3a745fb51b1d2416524b7e29f70b0b5f08` |
 | E006 executed implementation | `ae0febb9b983c50c5946d61423fda72358887523` |
 | E006 results | `df06e4fe3d9350988a5882b8d17db45c8ef6645f` |
+| E010 protocol and implementation | `cb6c17208dab9ef8af80135ea6ead40cd2a439fc` |
+| E010 results | `6461316e6599c3c085ca8e189f541c68d4e7736a` |
+| E010 merge | `30ad164f846d72721e58c2599e3bcd6aee43c957` |
 
-Frozen checkpoint hashes:
+Historical E005/E006 checkpoint pair:
 
 ```text
 EDM-1K:  8e53dd93177c0144d38508c5634ae9ffbce303b6c8209af65085d376ce9026a1
 EDM-50K: a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b
+```
+
+Frozen E010 checkpoint pair:
+
+```text
+Memorizing EDM-1K 12K:                  e5a7debafcd19191d6557f645216bfcb2e7589922396fd08130e76e3f5388b0a
+Empirically generalizing EDM-50K 40K:  a355ea67605dea3e2e663e94eb23416ffeb7679757088a68dc6228c03da5a92b
 ```
 
 Only compact summaries, manifests, validation records, and final figures are
@@ -801,6 +810,7 @@ reviewable and practical to clone:
 ```text
 E005: /home/xggh8/data/zw-lab/e005_spectral_residual_curves
 E006: /home/xggh8/data/zw-lab/e006_transition_window_swaps
+E010: /home/xggh8/data/zw-lab/e010_directional_memorization_transfer
 ```
 
 ## Repository Layout
@@ -811,7 +821,7 @@ spectral-diffusion-playground/
 ├── configs/      # frozen geometry and model-experiment configurations
 ├── data/         # small versioned manifests, never downloaded datasets
 ├── docs/         # protocols, provenance records, and result narratives
-├── experiments/  # independently executable E001-E006, E004A, and E004B entry points
+├── experiments/  # executable experiment entry points and evaluators
 ├── figures/      # curated, reviewable figures
 ├── results/      # compact machine-readable outputs
 ├── scripts/      # guarded preflight and Slurm launchers

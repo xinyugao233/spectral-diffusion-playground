@@ -229,7 +229,9 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         self.assertEqual(final_stage["pre_control"], [6, 7])
         self.assertEqual(final_stage["post_control"], [10, 11])
         self.assertEqual(final_stage["status"], "blocked")
-        self.assertIn("## E007: Final Geometry-Aligned", self.readme)
+        self.assertIn(
+            "## E007: Historical Proposed Full-Space Geometry Test", self.readme
+        )
         self.assertNotIn("E007 has been executed", self.readme)
 
     def test_readme_preserves_inconclusive_historical_account(self) -> None:
