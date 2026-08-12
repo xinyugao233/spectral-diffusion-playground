@@ -180,7 +180,9 @@ target effect - mean(control effects):                 10.74%
 paired bootstrap 95% CI:                      [6.84%, 14.84%]
 ```
 
-![Low- and high-derived whole-denoiser swap conditions, sigma values, and memorization rates](figures/experiment_10/low_high_directional_swap_table.png)
+![Frequency-derived candidate sigma levels and whole-denoiser swap results](figures/experiment_10/low_high_directional_swap_table.png)
+
+[PDF version](figures/experiment_10/low_high_directional_swap_table.pdf)
 
 ![Suppression-direction memorization rates](figures/experiment_10/suppression_rates.png)
 
@@ -239,8 +241,8 @@ model pair.
 
 - [Main E010 result and full validation](docs/experiment_10_directional_memorization_transfer_results.md)
 - [Frequency-resolved geometry](#e004b-when-do-low-and-high-geometry-become-distinctive)
-- [E005 supporting residual interpretation](#supporting-view-coarse-to-fine-residual-dynamics-e005)
-- [Full experiment and provenance map](#canonical-experimental-pipeline-and-experiment-map)
+- [Supporting and historical experiments](#supporting-and-historical-experiments)
+- [Full documentation and results](#documentation-and-results)
 
 ## E001: From Pixels To Frequency Space
 
@@ -496,126 +498,22 @@ python experiments/04b_frequency_restricted_geometry.py \
   --cutoffs 3 4 5
 ```
 
-## Supporting View: Coarse-to-Fine Residual Dynamics (E005)
+## Supporting And Historical Experiments
 
-E005 provides a separate view of how a fixed denoiser's residual error changes
-across the trajectory. It asks, **what type of residual error is the denoiser
-resolving when?** For clean image `X`, Gaussian noise `Z`, and denoiser
-`m_sigma`, it projects
+The main result can be understood through the E001-E004 Fourier foundations,
+the E004B frequency-resolved geometry, and the E010 intervention. E005-E009
+are retained for scientific provenance but are not prerequisites for that
+story.
 
-```text
-e_sigma = m_sigma(X + sigma Z) - X
+- **E005** provides an optional coarse-to-fine residual-dynamics diagnostic.
+- **E006** was formally `INCONCLUSIVE` and did not identify a
+  memorization danger zone.
+- **E007-E009** document blocked, retired, or negative paths that motivated the
+  final directional E010 design.
 
-E_low(sigma)  = ||P_low,r e_sigma||_2^2
-E_high(sigma) = ||P_high,r e_sigma||_2^2
-```
-
-into exact complementary Fourier bands. Float64 spectral calculations follow
-float32 inference, and `E_full = E_low + E_high` is verified numerically.
-These curves measure remaining denoising error, not memorization or image
-quality.
-
-![EDM-1K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
-
-The frozen 20%-to-80% rule extracts these descriptive windows at `r = 4`:
-
-| Band | Transition indices | Sigma window | Adjacent-cutoff stable |
-| --- | --- | --- | --- |
-| Low-frequency residual | `5..11` | `12.9101..0.585348` | `true` |
-| High-frequency residual | `11..14` | `0.585348..0.0599473` | `true` |
-
-![Low- and high-frequency transition windows extracted with the frozen 20%-to-80% rule](figures/experiment_05/experiment_05_transition_windows.png)
-
-The low residual transition occurs first at higher noise, followed by the high
-residual transition at lower noise. This is a fixed-denoiser coarse-to-fine
-description, not a training-time learning result.
-
-The three experiments answer different questions:
-
-- **E005:** What type of residual error is being resolved when?
-- **E004B:** At what trajectory times is low/high data geometry jointly
-  high-coverage and high-concentration?
-- **E010:** Does intervention at those geometry-selected times affect
-  memorization?
-
-> **These E005 windows do not define the E010 intervention targets. E010 uses
-> the E004B targets `{8}` and `{9,10}`, not the E005 windows `5..11` and
-> `11..14`.**
-
-The shared-axis comparison remains useful only as supporting interpretation:
-
-![Paper geometry and spectral transitions on a shared sigma axis](figures/experiment_05/geometry_and_spectral_transitions.png)
-
-See the [frozen E005 protocol](docs/experiment_05_spectral_residual_protocol.md)
-and [validated results](docs/experiment_05_spectral_residual_results.md) for
-the complete transition-extraction rule and failure policy.
-
-## Historical Paths, Blocked Designs, And Negative Evidence
-
-E006-E009 preserve useful exploratory results and failed design gates, but
-they are not part of the final E004 → E004B → E010 scientific chain.
-
-### E006: Historical Spectral-Window Swaps
-
-E006 explored whole-denoiser swaps aligned with the E005 residual windows.
-It remains formally `INCONCLUSIVE` because the EDM-50K no-swap baseline was
-`0/256`. Descriptively, the low residual window passed its frozen
-influence test in both directions and the high residual window passed in
-neither, but E006 did not identify a
-memorization danger zone or test the later E004B targets.
-
-See the [validated E006 results](docs/experiment_06_transition_window_swap_results.md)
-and [region-definition audit](docs/danger_zone_definition_audit.md).
-
-### E007: Historical Proposed Full-Space Geometry Test
-
-E007 preserves a proposed full-space target `8..9` with controls `6..7` and
-`10..11`. It is **PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY**, was never
-executed, and is not an active obligation after E010. See the
-[blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md).
-
-### E008: Retired Symmetric-Pair Design
-
-E008 is **`RETIRED_UNEXECUTED`** with historical outcome
-**`BLOCKED_NO_ELIGIBLE_PAIR`**. Six EDM-1K checkpoints were eligible, but all
-21 EDM-50K checkpoints scored `0/128`; no swap or confirmatory inference ran.
-This is negative model-selection evidence, not a failed swap result. See the
-[preflight results](docs/experiment_08_checkpoint_preflight_results.md) and
-[retirement decision](docs/experiment_08_retirement_decision.md).
-
-### E009: Negative Model-Selection Evidence
-
-E009 tested matched 2K/5K/10K trajectories and extended the 5K lineage through
-30K kimg. Stage A found one eligible 2K endpoint (`14/128`) but none at 5K or
-10K; all 18 Stage B 5K checkpoints remained `0/128`. Its frozen outcome is
-**`BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`**. These results apply only to the
-tested lineages.
-
-Rather than weakening the matched-baseline gate post hoc, E010 preregistered a
-separate directional asymmetric-baseline experiment.
-
-## Canonical Experimental Pipeline And Experiment Map
-
-The main scientific chain is E004 → E004B → E010. E005 is supporting spectral
-interpretation; E006-E009 are historical, blocked, retired, or negative
-evidence. Experiment numbers below preserve provenance rather than define the
-reader's conceptual path.
-
-E004A computes the paper's original full-space coverage and posterior-weight
-curves. E004B then evaluates those quantities inside the frozen Fourier split.
-
-| Stage | Experiment | Role | Result | Status |
-| --- | --- | --- | --- | --- |
-| - | E001-E003 | Fourier foundations | Reversible FFT, noise spectra, radial frequency sweep | Complete |
-| 1 | E004 | Freeze the operational split | `r = 4`; sensitivity `r = 3,5` | Complete |
-| 2 | E004A | Reconstruct full-space paper geometry | Clean-room high-high region | Complete |
-| 3 | E004B | Select frequency-derived times | Low `sigma=3.2568`; high `sigma={1.9233,1.0882}` (`{8}` / `{9,10}` in code) | Complete |
-| 4 | E005 | Supporting residual interpretation | Low `5..11`; high `11..14` | Complete |
-| 5 | E006 | Historical spectral-window swaps | Formally `INCONCLUSIVE` | Complete |
-| 6 | E007 | Historical full-space proposal | No result | Proposed; blocked |
-| 7 | E008 | Symmetric-pair protocol | `BLOCKED_NO_ELIGIBLE_PAIR` | `RETIRED_UNEXECUTED` |
-| 8 | E009 | Larger-data model search | `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` | Complete negative evidence |
-| 9 | E010 | Main directional intervention | `HIGH_DERIVED_SUPPRESSION_SUPPORTED` | Complete |
+Their protocols, outcomes, figures, and exact provenance remain available in
+the [documentation and results index](#documentation-and-results) and the
+[documentation directory](docs/README.md).
 
 ## Mathematical Core
 

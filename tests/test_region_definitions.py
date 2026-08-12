@@ -196,22 +196,19 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
             self.canonical_pipeline,
         )
 
-    def test_readme_exposes_canonical_pipeline(self) -> None:
-        self.assertIn("## Canonical Experimental Pipeline", self.readme)
+    def test_readme_exposes_main_story_before_provenance(self) -> None:
         for stage in (
-            "| 1 | E004 |",
-            "| 2 | E004A |",
-            "| 3 | E004B |",
-            "| 4 | E005 |",
-            "| 5 | E006 |",
-            "| 6 | E007 |",
-            "| 7 | E008 |",
+            "-> E004: freeze r = 4",
+            "-> E004B: low/high coverage and posterior geometry",
+            "-> E010: whole-denoiser swaps",
+            "-> high-derived suppression supported",
         ):
             self.assertIn(stage, self.readme)
-        self.assertIn(
-            "E004A computes the paper's original full-space coverage and "
-            "posterior-weight\ncurves.",
-            self.readme,
+        self.assertIn("## Supporting And Historical Experiments", self.readme)
+        self.assertNotIn("## Canonical Experimental Pipeline", self.readme)
+        self.assertLess(
+            self.readme.index("## 4. Main Result"),
+            self.readme.index("## Supporting And Historical Experiments"),
         )
 
     def test_e006_is_historical_not_final(self) -> None:
@@ -220,7 +217,7 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
             historical["role"], "exploratory spectral-aligned intervention"
         )
         self.assertEqual(historical["formal_outcome"], "INCONCLUSIVE")
-        self.assertIn("## E006: Historical Spectral-Window Swaps", self.readme)
+        self.assertIn("**E006** was formally `INCONCLUSIVE`", self.readme)
         self.assertNotIn("E006: Final Geometry-Aligned", self.readme)
 
     def test_e007_is_the_blocked_full_space_stage(self) -> None:
@@ -229,14 +226,13 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
         self.assertEqual(final_stage["pre_control"], [6, 7])
         self.assertEqual(final_stage["post_control"], [10, 11])
         self.assertEqual(final_stage["status"], "blocked")
-        self.assertIn(
-            "## E007: Historical Proposed Full-Space Geometry Test", self.readme
-        )
+        self.assertIn("**E007-E009** document blocked, retired", self.readme)
         self.assertNotIn("E007 has been executed", self.readme)
 
     def test_readme_preserves_inconclusive_historical_account(self) -> None:
         self.assertIn("formally `INCONCLUSIVE`", self.readme)
-        self.assertIn("did not identify a\nmemorization danger zone", self.readme)
+        self.assertIn("did not identify a", self.readme)
+        self.assertIn("memorization danger zone", self.readme)
         self.assertNotIn("causal model-swap intervention", self.readme)
         self.assertIn("q_C=q_W=0.8", self.readme)
 
