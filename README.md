@@ -5,45 +5,65 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b7285)](LICENSE)
 [![Tag: portfolio-v1](https://img.shields.io/badge/tag-portfolio--v1-c2410c)](https://github.com/xinyugao233/spectral-diffusion-playground/tree/portfolio-v1)
 
-A research portfolio asking **when along a diffusion trajectory an intervention
-can change memorization**.
+A research portfolio using frequency-resolved data geometry to ask **when
+along a diffusion trajectory an intervention can change memorization**.
+
+## Research Question
+
+> Can frequency-resolved geometry identify trajectory times where a
+> whole-denoiser intervention selectively changes memorization?
 
 A sampler passes through many denoising steps on its way from noise to an
 image. Memorization need not be equally sensitive at every step. This project
-uses frequency-resolved data geometry to select candidate trajectory times,
-then tests those times with controlled whole-denoiser swaps.
-
-```text
-coarse/fine Fourier decomposition
-        -> frequency-resolved geometry
-        -> separate candidate denoising times
-        -> whole-denoiser intervention
-        -> selective high-derived suppression
-```
+first freezes an operational Fourier decomposition, uses geometry in each
+subspace to choose candidate times, and then tests those times against
+neighboring controls.
 
 The analysis is a paper-derived clean-room extension of
 [*Two Calm Ends and the Wild Middle: A Geometric Picture of Memorization in
 Diffusion Models*](https://arxiv.org/abs/2602.17846). It does not claim exact
 reproduction of the paper's unavailable executed code.
 
-## Two Axes, Two Different Questions
+## The Idea
 
-The project varies two coordinates that should not be conflated:
+1. Freeze a low/high Fourier split at `r = 4`.
+2. Measure coverage and posterior concentration independently in each
+   subspace.
+3. Select a low-derived candidate at `sigma = 3.2568` and a high-derived
+   candidate at the sampled levels `sigma = 1.9233, 1.0882`.
+4. Temporarily replace the whole denoiser while the sampler is at those noise
+   levels.
+5. Compare each target with its preregistered neighboring controls.
 
-- **Fourier radius `r`** defines which spatial frequencies belong to the
-  low-frequency projection. The center of Fourier space contains slowly
-  varying structure; moving outward progressively adds edges, textures, and
-  finer variation.
+```text
+Fourier decomposition
+        -> E004: freeze r = 4
+        -> E004B: low/high coverage and posterior geometry
+        -> low candidate sigma = 3.2568
+        -> high candidate sigma = 1.9233, 1.0882
+        -> E010: whole-denoiser swaps
+        -> high-derived suppression supported
+```
+
+> **Frequency is used as a lens for choosing when along the diffusion
+> trajectory to intervene. The intervention swaps the whole denoiser, not
+> individual Fourier components.**
+
+Two coordinates must remain distinct:
+
+- **Fourier radius `r`** defines which spatial frequencies belong to the low
+  and high subspaces. The center contains slowly varying structure; moving
+  outward progressively adds edges, textures, and finer variation.
 - **Diffusion noise level `sigma` / sampler index** locates a point along the
-  denoising trajectory. After the Fourier split is frozen, the geometry and
-  intervention analyses move along this trajectory.
+  denoising trajectory.
 
-E004 freezes `r = 4` as an operational CIFAR-10 low/high split, with
-sensitivity checks at `r = 3,5`. It is not a universal semantic boundary, and
-low/high frequency should not be read as a complete definition of semantic
-content/detail.
+The radius is frozen first; geometry is then measured as `sigma` changes.
+E004 uses `r = 4`, with sensitivity checks at `r = 3,5`. This is an
+operational CIFAR-10 split, not a universal semantic boundary.
+Fourier radius has no diffusion-time meaning, and `sigma` does not choose which
+Fourier coefficients belong to either band.
 
-## 1. From Images To Coarse And Fine Frequencies
+## 1. From Coarse To Fine Frequencies
 
 The foundation is intentionally simple. E001 shows that the Fourier transform
 reorganizes image variation without discarding it. E002 shows that Gaussian
@@ -59,7 +79,7 @@ The low-pass reconstruction and its exact complementary high-pass residual sum
 back to the original image. These are measurement subspaces, not semantic
 labels.
 
-## 2. Frequency-Resolved Geometry Selects Trajectory Times
+## 2. Geometry Selects Candidate Sigma Locations
 
 The paper's geometry contributes two complementary measurements:
 
@@ -83,35 +103,45 @@ high-frequency geometry:  C_high(sigma), W_high(sigma)
 
 ![Four frequency-restricted geometry curves and frozen targets](figures/experiment_10/geometry_targets.png)
 
-The conservative lower-confidence-bound rule selects different denoising
-times:
+On the frozen 18-point schedule, the conservative rule selects a sampled noise
+level only when the 95% lower confidence bounds for both quantities reach
+`0.8`:
 
 ```text
-low-frequency-derived target:   index {8}
-high-frequency-derived target:  indices {9,10}
+D_b^grid = {sigma_i : LCB(C_b(sigma_i)) >= 0.8
+                       and LCB(W_b(sigma_i)) >= 0.8}
 ```
 
-The two subspaces therefore enter their joint high-coverage,
-high-concentration regimes at different sampled points along the trajectory.
-However, their real projector ranks differ sharply at `r = 4` (`147` versus
-`2925`), so frequency is confounded with dimension, covariance, and power
-structure.
+| Geometry source | Candidate sigma location(s) | Sampler calls |
+| --- | --- | --- |
+| Low-frequency subspace | `3.2568` | `{8}` |
+| High-frequency subspace | `1.9233, 1.0882` | `{9,10}` |
 
-> **Frequency is not the intervention itself. Frequency-resolved geometry is
-> used as a lens for choosing when along the diffusion trajectory to
-> intervene.**
+The low candidate is one point on the sampled grid, not a resolved continuous
+zone. The high candidate contains two sampled sigma values; writing the visual
+span as approximately `1.09-1.92` must not imply that unmeasured values between
+them passed the rule.
+
+These locations were selected from frequency-restricted geometry **before
+looking at the E010 swap outcomes**. The two subspaces enter their joint
+high-coverage, high-concentration regimes at different sampled points along the
+trajectory. However, their real projector ranks differ sharply at `r = 4`
+(`d_low = 147`, `d_high = 2925`), so frequency is confounded with dimension,
+covariance, and power structure.
 
 That bridge motivates the experiment: if the geometry-derived intervals are
 unusually influential, intervention at a target should matter more than
 intervention immediately before or after it.
 
-## 3. Intervening At The Geometry-Derived Times
+## 3. Intervening At Those Sigma Locations
 
-E010 uses a whole-denoiser swap over a frequency-derived trajectory interval:
+E010 uses a whole-denoiser swap at frequency-derived sigma locations:
 
 ```text
 recipient model runs normally
-        -> donor replaces the whole denoiser at the frozen interval
+        -> sigma enters the frozen sampled candidate
+        -> donor replaces the whole denoiser
+        -> donor remains active at every listed sigma value
         -> recipient resumes immediately afterward
         -> final sample is evaluated for memorization
 ```
@@ -124,42 +154,67 @@ The two directional questions are:
   donor induce memorization?
 
 Each target is compared with its preregistered neighboring controls. The
-intervention replaces the entire denoiser only at the listed calls; it never
-replaces isolated Fourier components.
+intervention replaces the entire denoiser only at the listed sigma values; it
+never swaps `sigma`, Fourier coefficients, or isolated Fourier components.
+Sampler-call indices are the exact implementation mapping for those values.
 
 ![Frozen low/high targets and neighboring whole-denoiser swap controls](figures/experiment_10/condition_map.png)
 
-## 4. What We Found
+## 4. Main Result
 
-> **The high-frequency-derived suppression target `{9,10}` reduced
-> memorization more strongly than both neighboring width-matched controls.**
+> **Swapping the whole denoiser at the high-frequency-derived sampled sigma
+> values `1.9233` and `1.0882` suppressed memorization more strongly than both
+> neighboring width-matched controls.**
 
 ```text
-high-derived suppression target:  0.289063
-neighboring controls:              0.187500, 0.175781
-target - mean(controls):           0.107422
-paired bootstrap 95% CI:          [0.068359, 0.148438]
+memorizing no-swap baseline:               215/256 = 83.98%
+generalizing no-swap baseline:               0/256 observed memorized samples
+
+high target final memorization rate:       141/256 = 55.08%
+neighboring final memorization rates:      167/256 = 65.23%
+                                          170/256 = 66.41%
+
+high target suppression effect:                       28.91%
+neighboring suppression effects:            18.75%, 17.58%
+target effect - mean(control effects):                 10.74%
+paired bootstrap 95% CI:                      [6.84%, 14.84%]
 ```
+
+![Low- and high-derived whole-denoiser swap conditions, sigma values, and memorization rates](figures/experiment_10/low_high_directional_swap_table.png)
 
 ![Suppression-direction memorization rates](figures/experiment_10/suppression_rates.png)
 
-![Induction-direction memorization rates](figures/experiment_10/induction_rates.png)
-
 ![Target-minus-control contrasts with paired confidence intervals](figures/experiment_10/target_control_contrasts.png)
+
+![Induction-direction memorization rates](figures/experiment_10/induction_rates.png)
 
 **What we found**
 
 1. Low- and high-frequency geometry selected different denoising times.
-2. The frozen targets were low `{8}` and high `{9,10}`.
+2. The frozen low candidate was `sigma=3.2568`; the high candidate was the
+   sampled set `sigma={1.9233,1.0882}`. Their exact implementation calls were
+   `{8}` and `{9,10}`.
 3. Only high-derived suppression passed the preregistered influence criterion:
    **`HIGH_DERIVED_SUPPRESSION_SUPPORTED`**.
 4. Low-derived suppression was not supported. Induction was not supported and
    was floor-limited by the EDM-50K recipient: no memorized samples were
    observed for its `0/256` no-swap baseline under the frozen E010 seeds.
 
-The memorizing no-swap baseline was `215/256`. The strongest evidence is not
-merely a lower target rate; it is that the target effect exceeded both
-neighboring controls and its paired confidence interval excluded zero.
+At the low-derived candidate `sigma = 3.2568`, the final memorization rate was
+`188/256 = 73.44%`; the later neighboring control was lower at
+`182/256 = 71.09%`. The low location therefore was not selectively special
+under the frozen criterion. At the high-derived sampled locations, the final
+rate was `141/256 = 55.08%`, below both controls at `65.23%` and `66.41%`.
+
+The strongest evidence is not merely a lower target rate; it is that the
+suppression effect exceeded both neighboring controls and its paired confidence
+interval excluded zero.
+
+In one sentence: the project freezes an operational Fourier split, measures
+low- and high-subspace coverage and posterior concentration as `sigma` changes,
+uses their joint high-high sampled locations to choose when to swap the whole
+denoiser, and finds selective memorization suppression only at the
+high-derived candidate for the tested model pair.
 
 ### Scope Of The Result
 
@@ -169,51 +224,23 @@ under a whole-denoiser intervention. It does **not** establish:
 - high-frequency-component or fine-detail causality;
 - dataset-size causality;
 - a universal memorization danger zone;
+- a continuous danger interval between sparsely sampled sigma values;
 - a general impossibility of induction; or
 - generalization beyond the tested pair, sampler, seeds, and memorization
   criterion.
 
 Frequency-resolved geometry determines **when** the whole denoiser is swapped;
-frequency is not itself the manipulated model component.
+frequency is not itself the manipulated model component. The strongest
+supported claim is that the high-frequency-geometry-derived sampled set is
+selectively influential for suppression under this intervention and tested
+model pair.
 
-## Canonical Experimental Pipeline: How We Got Here
-
-The experiment numbers record provenance, not the order in which a new reader
-must understand the idea.
-
-E004A computes the paper's original full-space coverage and posterior-weight
-curves. E004B then evaluates those quantities inside the frozen Fourier split.
-
-| Stage | Experiment | Question | Main figure | Result | Status |
-| --- | --- | --- | --- | --- | --- |
-| - | E001 | What does a 2D Fourier transform represent? | [FFT visualization](figures/understanding_images_in_fourier_space_default_fft_reference_rgb.png) | Pixel-to-frequency conversion is reversible | Complete |
-| - | E002 | How does Gaussian noise change spectral content? | [Noise/frequency grid](figures/how_gaussian_noise_changes_frequency_content_default_fft_reference_seed0_grid.png) | Noise raises energy broadly across frequency | Complete |
-| - | E003 | Where does image information appear across frequency radii? | [Decomposition grid](figures/where_image_information_lives_grid.png) | Complementary low/high reconstructions exactly recover the image | Complete |
-| 1 | E004 | Which cutoff is a useful operational CIFAR-10 split? | [Cutoff montage](figures/experiment_04_cutoff_montage_classes_0_1.png) | Reference `r = 4`; sensitivity `r = 3, 5` | Complete |
-| 2 | E004A | What are the paper's original two geometric curves? | [Coverage/concentration curves](figures/experiment_04a/coverage_and_max_posterior_weight.png) | Clean-room three-regime geometry; sampled high-high region at `sigma = 2..5` | Complete |
-| 3 | E004B | How does the same geometry differ across frozen Fourier bands? | [Band comparison](figures/experiment_04b/low_high_geometry_comparison.png) | Low target `{8}`; high target `{9,10}` at `r=4` | Complete |
-| 4 | E005 | When do low/high residual energies transition across noise levels? | [Two residual curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png) | Low-frequency transition precedes high-frequency transition | Complete |
-| 5 | E006 | What happened in the historical spectral-aligned swaps? | [Swap/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png) | Exploratory; formal outcome `INCONCLUSIVE` | Complete |
-| 6 | E007 | Does a swap over the E004A geometry-aligned set alter the criterion? | [Blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md) | No result | Proposed; blocked by known baseline degeneracy |
-| 7 | E008 | Do swaps over the E004B band-specific targets differ from controls? | [Preflight results](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png) | `BLOCKED_NO_ELIGIBLE_PAIR`; no swap result | `RETIRED_UNEXECUTED` |
-| 8 | E009 | Can intermediate dataset sizes yield a nondegenerate larger-data baseline? | [Stage B rates](figures/experiment_09_stage_b/stage_b_baseline_memorization_rates.png) | All 18 warm-start 5K checkpoints at 13K..30K scored `0/128` | Complete; `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` |
-| 9 | E010 | Can memorization be suppressed or induced by directional whole-denoiser swaps? | [Directional contrasts](figures/experiment_10/target_control_contrasts.png) | High-derived suppression passed; low suppression and induction did not | Complete |
-
-The historical path was disciplined rather than linear. E001-E004 built and
-froze the Fourier decomposition; E004A reconstructed the paper's full-space
-geometry; E004B extended it into complementary subspaces; and E005-E006
-provided spectral diagnostics and exploratory swaps. E007-E009 document
-blocked or retired attempts to obtain a symmetric nondegenerate design. That
-protocol was retired rather than weakened after observing the gate failures.
-E010 then preregistered and executed the distinct directional experiment with
-an intentionally asymmetric memorizing/generalizing pair.
-
-## Read Next
+## Start Here
 
 - [Main E010 result and full validation](docs/experiment_10_directional_memorization_transfer_results.md)
 - [Frequency-resolved geometry](#e004b-when-do-low-and-high-geometry-become-distinctive)
-- [Directional swap protocol](docs/experiment_10_directional_memorization_transfer_protocol.md)
-- [Reproduction and provenance](#reproducibility-and-provenance)
+- [E005 supporting residual interpretation](#supporting-view-coarse-to-fine-residual-dynamics-e005)
+- [Full experiment and provenance map](#canonical-experimental-pipeline-and-experiment-map)
 
 ## E001: From Pixels To Frequency Space
 
@@ -420,15 +447,17 @@ E005  = frequency-restricted denoising residual energy
 
 At the primary cutoff `r=4`, the exact real subspace ranks are 147 (low) and
 2,925 (high). Applying the frozen `q_C=q_W=0.8` lower-confidence-bound rule
-selects low-band index `{8}` at `sigma=3.2568215` and high-band indices
-`{9,10}` at `sigma={1.9233398,1.0881706}`. Point-estimate classification
-agrees at the primary cutoff.
+selects the low-band candidate at `sigma=3.2568215` and the high-band candidate
+at sampled values `sigma={1.9233398,1.0881706}`. For exact implementation and
+reproduction, these map to sampler calls `{8}` and `{9,10}`, respectively.
+Point-estimate classification agrees at the primary cutoff.
 
 **Candidate-region interpretation:** at `r=4`, the joint low-band candidate is
-`{8}` and the joint high-band candidate is `{9,10}`. This is a descriptive
-ordering in the operational Fourier decomposition; the large rank difference
-between the two subspaces prevents attributing the difference to frequency
-organization alone.
+the single sampled location `sigma=3.2568`; the joint high-band candidate is
+the two-point set `sigma={1.9233,1.0882}`. These are descriptive sampled-grid
+objects, not interpolated continuous zones. The large rank difference between
+the subspaces prevents attributing their ordering to frequency organization
+alone.
 
 At `r=4`, the low- and high-frequency projectors have substantially different
 ranks, `147` and `2925`. E004B therefore measures the geometry of the actual
@@ -452,10 +481,10 @@ This dependence remains visible and does not revise `r=4`.
 - **Main artifact:** [Band comparison](figures/experiment_04b/low_high_geometry_comparison.png),
   [cutoff sensitivity](figures/experiment_04b/frequency_geometry_cutoff_sensitivity.png),
   and [validated results](docs/experiment_04b_frequency_restricted_geometry_results.md).
-- **Takeaway:** Under the frozen clean-room setup, the low-band geometric
-  target occurs one sampler index earlier at higher noise, while the high-band
-  target occupies the next two lower-noise points. This is descriptive
-  geometry, not causal or memorization evidence.
+- **Takeaway:** Under the frozen clean-room setup, the low-band candidate is
+  `sigma=3.2568`, while the high-band candidate is the next two sampled
+  lower-noise values `sigma={1.9233,1.0882}`. This is descriptive geometry,
+  not causal or memorization evidence.
 
 ```bash
 python experiments/04b_frequency_restricted_geometry.py \
@@ -467,234 +496,126 @@ python experiments/04b_frequency_restricted_geometry.py \
   --cutoffs 3 4 5
 ```
 
-## E005: Residual Dynamics Along The Denoising Trajectory
+## Supporting View: Coarse-to-Fine Residual Dynamics (E005)
 
-**Question.** How does the paper-derived fixed-sigma denoising residual divide
-between complementary frequency bands? E005 projects the residual directly,
-uses float64 spectral calculations after float32 inference, and verifies
-`E_full = E_low + E_high` numerically. This is the central two-curve diagnostic
-for the repository's **spectral extension**, not the paper's original two
-geometric curves.
-
-For a clean image `X`, Gaussian noise `Z`, noise level `sigma`, and fixed
-denoiser `m_sigma`, the residual is
+E005 provides a separate view of how a fixed denoiser's residual error changes
+across the trajectory. It asks, **what type of residual error is the denoiser
+resolving when?** For clean image `X`, Gaussian noise `Z`, and denoiser
+`m_sigma`, it projects
 
 ```text
 e_sigma = m_sigma(X + sigma Z) - X
-```
 
-E005 measures its summed squared magnitude in two exact complementary Fourier
-bands:
-
-```text
 E_low(sigma)  = ||P_low,r e_sigma||_2^2
 E_high(sigma) = ||P_high,r e_sigma||_2^2
 ```
 
-Here, **residual energy** is the summed squared error remaining after denoising,
-projected into either the low- or high-frequency band. The curves are not
-image-quality scores or memorization rates; they measure how much denoising
-error remains in each band at each fixed noise level.
+into exact complementary Fourier bands. Float64 spectral calculations follow
+float32 inference, and `E_full = E_low + E_high` is verified numerically.
+These curves measure remaining denoising error, not memorization or image
+quality.
 
 ![EDM-1K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm1k_low_high_residual_curves.png)
 
-![EDM-50K low- and high-frequency residual-energy curves](figures/experiment_05/experiment_05_edm50k_low_high_residual_curves.png)
-
-### How The Transition Windows Are Extracted
-
-The rule is applied **independently** to each aggregated low- and
-high-frequency residual-energy curve on the frozen 18-point sigma grid. It
-does not use the intersection of the two curves. The grid is traversed from
-large sigma (high noise) to small sigma (low noise), without smoothing or
-interpolation.
-
-For one band, let `E_i` be its aggregated residual energy at grid index `i`.
-The **high-noise endpoint** is the median of indices `0, 1, 2`; the
-**low-noise endpoint** is the median of indices `15, 16, 17`. These endpoints
-convert energy into a normalized recovery quantity:
-
-```text
-E_high-noise = median(E_0, E_1, E_2)
-E_low-noise  = median(E_15, E_16, E_17)
-
-R_i = (E_high-noise - E_i)
-      / (E_high-noise - E_low-noise)
-
-entry = first two consecutive points with R_i >= 0.20
-exit  = first two consecutive points with R_i >= 0.80
-```
-
-Approximately, `R = 0` represents the high-noise residual level and `R = 1`
-the low-noise residual level. Values are not clipped, so endpoint overshoot
-remains visible. The **transition entry** is the first index beginning a pair
-of consecutive values at or above `0.20`. Starting from that entry, the
-**transition exit** is the first index beginning a pair at or above `0.80`.
-The inclusive entry-to-exit interval is the extracted window.
-
-The implementation returns `no_clear_transition` for a nonfinite curve, a
-nonpositive or nonfinite endpoint difference, a missing crossing, an exit
-before entry, a zero-width window, or a later two-point recrossing below either
-threshold. It never widens or manually moves a failed window. At the reference
-cutoff `r = 4`, entry and exit must each be within one grid index of the
-corresponding `r = 3` and `r = 5` boundaries to be marked
-`adjacent_cutoff_stable=true`.
-
-![Low- and high-frequency transition windows extracted with the frozen 20%-to-80% rule](figures/experiment_05/experiment_05_transition_windows.png)
-
-The trajectory proceeds from large sigma to small sigma. At the reference
-cutoff `r = 4`, the frozen EDM-1K test result is:
+The frozen 20%-to-80% rule extracts these descriptive windows at `r = 4`:
 
 | Band | Transition indices | Sigma window | Adjacent-cutoff stable |
 | --- | --- | --- | --- |
 | Low-frequency residual | `5..11` | `12.9101..0.585348` | `true` |
 | High-frequency residual | `11..14` | `0.585348..0.0599473` | `true` |
 
-The low-frequency transition therefore occurs first, at higher sigma; the
-high-frequency transition follows later, at lower sigma. Their shared boundary
-near `sigma = 0.585348` is a descriptive coarse-to-fine handoff under this
-fixed-denoiser measurement. These are fixed-sigma denoising residual
-transitions, not training-time learning transitions.
+![Low- and high-frequency transition windows extracted with the frozen 20%-to-80% rule](figures/experiment_05/experiment_05_transition_windows.png)
 
-```mermaid
-flowchart LR
-    A[Fixed-sigma denoising residual] --> B[Low/high Fourier projection]
-    B --> C[Two residual-energy curves]
-    C --> D[Independent 20%-80% transition extraction]
-    D --> E[Low and high candidate windows]
-    E --> F[Whole-denoiser swap experiment]
-    F --> G[Final memorization criterion]
-```
+The low residual transition occurs first at higher noise, followed by the high
+residual transition at lower noise. This is a fixed-denoiser coarse-to-fine
+description, not a training-time learning result.
 
-- **Purpose:** Turn the structure/detail intuition into exact, complementary
-  residual-energy measurements.
-- **Main artifact:** [Two-curve figures](figures/experiment_05/),
-  [transition-window visualization](figures/experiment_05/experiment_05_transition_windows.png),
-  and [validated results](docs/experiment_05_spectral_residual_results.md).
-- **Takeaway:** Low-frequency residual recovery transitions earlier and
-  high-frequency residual recovery transitions later under this fixed-denoiser
-  setup. This is a descriptive coarse-to-fine residual pattern, not a learning
-  dynamic or memorization result.
+The three experiments answer different questions:
 
-### Distinguishing Geometry, Spectral Transitions, And Literature Context
+- **E005:** What type of residual error is being resolved when?
+- **E004B:** At what trajectory times is low/high data geometry jointly
+  high-coverage and high-concentration?
+- **E010:** Does intervention at those geometry-selected times affect
+  memorization?
 
-The paper's geometric motivation comes from Gaussian-shell coverage and
-posterior-weight concentration. E005's low- and high-frequency residual curves
-provide a separate spectral description of denoising error across the noise
-schedule. Their intersection, the space between them, and their 20%-to-80%
-windows do **not** define a geometric high-high region or an original paper
-boundary.
+> **These E005 windows do not define the E010 intervention targets. E010 uses
+> the E004B targets `{8}` and `{9,10}`, not the E005 windows `5..11` and
+> `11..14`.**
+
+The shared-axis comparison remains useful only as supporting interpretation:
 
 ![Paper geometry and spectral transitions on a shared sigma axis](figures/experiment_05/geometry_and_spectral_transitions.png)
 
-Both panels use the same small-to-large log-scaled sigma orientation. The
-geometry uses a frozen 20-point grid; E005 uses its frozen 18-point EDM grid.
-No interpolation is used for decisions. On the exact shared 18-point schedule,
-the E004A high-high indices `{8,9}` at `q_C=q_W=0.8` lie inside the E005
-low-frequency spectral transition `5..11` and the literature-derived
-paper-reported medium reference `6..13`. They do not overlap the E005
-high-frequency spectral transition `11..14`. This is descriptive set overlap,
-not a statistical or causal result.
+See the [frozen E005 protocol](docs/experiment_05_spectral_residual_protocol.md)
+and [validated results](docs/experiment_05_spectral_residual_results.md) for
+the complete transition-extraction rule and failure policy.
 
-E006 tests trajectory intervals aligned with the **spectral** transitions by
-swapping the whole denoiser between EDM-1K and EDM-50K. It does not directly
-intervene on coverage, posterior weights, or isolated Fourier components. The
-formal E006 outcome remains **`INCONCLUSIVE`** because the EDM-50K no-swap
-baseline was degenerate at `0/256`.
+## Historical Paths, Blocked Designs, And Negative Evidence
 
-Before E004A, E006 used spectral transition windows and a paper-reported
-medium-window reference. These were useful intervention windows, but they were
-not derived from locally reconstructed coverage and posterior-weight curves.
-E004A now supplies that missing geometric baseline. E006 tested
-spectral-aligned windows and a literature-derived paper medium reference. It
-did not preregister a window from locally computed coverage and
-posterior-weight curves, because E004A did not yet exist.
+E006-E009 preserve useful exploratory results and failed design gates, but
+they are not part of the final E004 → E004B → E010 scientific chain.
 
-## E006: Historical Spectral-Window Swaps
+### E006: Historical Spectral-Window Swaps
 
-**Question.** Are the E005 **spectral** transition windows more influential for
-final trajectory-level memorization than width-matched controls? E006 runs
-whole-denoiser swaps in both EDM-1K/EDM-50K directions with the same 256 latent
-seeds and evaluates the strict pixel-space criterion `d1NN < d2NN / 3`.
+E006 explored whole-denoiser swaps aligned with the E005 residual windows.
+It remains formally `INCONCLUSIVE` because the EDM-50K no-swap baseline was
+`0/256`. Descriptively, the low residual window passed its frozen
+influence test in both directions and the high residual window passed in
+neither, but E006 did not identify a
+memorization danger zone or test the later E004B targets.
 
-![E006 transition windows and width-matched controls](figures/experiment_06/experiment_06_transition_vs_controls.png)
+See the [validated E006 results](docs/experiment_06_transition_window_swap_results.md)
+and [region-definition audit](docs/danger_zone_definition_audit.md).
 
-The generated/nearest-neighbor pairs below make the strict pixel-space
-memorization criterion visually concrete. They are examples from the frozen
-evaluation, not a substitute for the aggregate decision rule.
+### E007: Historical Proposed Full-Space Geometry Test
 
-![Representative E006 generated samples and nearest training neighbors](figures/experiment_06/experiment_06_generated_nn_pairs.png)
+E007 preserves a proposed full-space target `8..9` with controls `6..7` and
+`10..11`. It is **PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY**, was never
+executed, and is not an active obligation after E010. See the
+[blocked protocol](docs/experiment_07_geometry_aligned_swap_protocol.md).
 
-- **Purpose:** Explore whether historically frozen E005 spectral windows matter
-  under a controlled whole-denoiser swap intervention.
-- **Main artifact:** [Transition/control chart](figures/experiment_06/experiment_06_transition_vs_controls.png),
-  [memorization-rate chart](figures/experiment_06/experiment_06_memorization_rates.png),
-  [paired-change chart](figures/experiment_06/experiment_06_paired_changes.png),
-  and [validated results](docs/experiment_06_transition_window_swap_results.md).
-- **Takeaway:** The formal outcome is **`INCONCLUSIVE`** because the EDM-50K
-  baseline is degenerate at `0/256`. Descriptively, the E005 low-frequency
-  spectral transition passes the frozen influence criterion in both swap
-  directions; the E005 high-frequency spectral transition passes in neither.
+### E008: Retired Symmetric-Pair Design
 
-The descriptive result does not override the frozen outcome or establish a
-causal memorization interpretation for any sigma interval.
-
-The low-frequency spectral transition produced the strongest descriptive E006
-swap effect, but E006 remained formally `INCONCLUSIVE` and did not identify a
-memorization danger zone. It does not execute the later historical E007
-full-space proposal.
-
-E006 swaps the **whole denoiser** during windows aligned with the E005
-frequency-band transitions. It does not intervene on `C_sigma`, `W_sigma`, or
-only the low- or high-frequency part of a denoiser output. The justified
-descriptive statement is therefore about the trajectory interval, not a
-frequency-specific causal mechanism or validation of the paper's geometry.
-
-See the [region-definition audit](docs/danger_zone_definition_audit.md),
-[machine-readable registry](results/region_definition_registry.json), and
-[proposed E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md)
-for the exact historical distinctions.
-
-## E007: Historical Proposed Full-Space Geometry Test
-
-E007 preserves the original proposed full-space intervention: target `8..9`
-with controls `6..7` and `10..11`. It is **PROPOSED — BLOCKED BY KNOWN
-BASELINE DEGENERACY**, has never been executed, and is not presented as a
-remaining obligation after E010. The design remains available for provenance.
-
-See the [blocked E007 protocol](docs/experiment_07_geometry_aligned_swap_protocol.md).
-
-## Retired Protocols And Negative Evidence
-
-### E008: Frequency-Geometry Whole-Denoiser Swaps
-
-E008 is **`RETIRED_UNEXECUTED`**. Its baseline-only preflight found six
-eligible EDM-1K checkpoints, but all 21 EDM-50K checkpoints scored `0/128`;
-the historical outcome is **`BLOCKED_NO_ELIGIBLE_PAIR`**. No E008 swap or
-confirmatory inference occurred, and no further execution is planned.
-
-![E008 baseline rates across all 42 checkpoints](figures/experiment_08_preflight/pilot_baseline_rate_by_checkpoint.png)
-
-This is negative model-selection evidence, not a failed swap result or proof
-that every larger-data model is degenerate. See the [preflight results](docs/experiment_08_checkpoint_preflight_results.md),
-[frozen protocol](docs/experiment_08_frequency_geometry_swap_protocol.md), and
+E008 is **`RETIRED_UNEXECUTED`** with historical outcome
+**`BLOCKED_NO_ELIGIBLE_PAIR`**. Six EDM-1K checkpoints were eligible, but all
+21 EDM-50K checkpoints scored `0/128`; no swap or confirmatory inference ran.
+This is negative model-selection evidence, not a failed swap result. See the
+[preflight results](docs/experiment_08_checkpoint_preflight_results.md) and
 [retirement decision](docs/experiment_08_retirement_decision.md).
 
-## E009: Negative Model-Selection Evidence
+### E009: Negative Model-Selection Evidence
 
-E009 searched matched 2K/5K/10K trajectories for the nondegenerate larger-data
-partner required by E008. Stage A found one eligible 2K endpoint (`14/128`)
-but none at 5K or 10K. Stage B then extended the 5K lineage through 30K kimg;
-all 18 evaluated checkpoints remained `0/128`.
+E009 tested matched 2K/5K/10K trajectories and extended the 5K lineage through
+30K kimg. Stage A found one eligible 2K endpoint (`14/128`) but none at 5K or
+10K; all 18 Stage B 5K checkpoints remained `0/128`. Its frozen outcome is
+**`BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`**. These results apply only to the
+tested lineages.
 
-The frozen Stage B outcome is **`BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K`**. No
-pair was selected, no automatic extension ran, and E008 remained unexecuted.
-These results apply to the tested lineages rather than every possible
-larger-data model.
+Rather than weakening the matched-baseline gate post hoc, E010 preregistered a
+separate directional asymmetric-baseline experiment.
 
-![E009 Stage B same-seed baseline rates](figures/experiment_09_stage_b/stage_b_baseline_memorization_rates.png)
+## Canonical Experimental Pipeline And Experiment Map
 
-See the [Stage A results](docs/experiment_09_stage_a_results.md), [Stage B
-results](docs/experiment_09_stage_b_results.md), and [compact evidence](results/experiment_09_stage_b/).
+The main scientific chain is E004 → E004B → E010. E005 is supporting spectral
+interpretation; E006-E009 are historical, blocked, retired, or negative
+evidence. Experiment numbers below preserve provenance rather than define the
+reader's conceptual path.
+
+E004A computes the paper's original full-space coverage and posterior-weight
+curves. E004B then evaluates those quantities inside the frozen Fourier split.
+
+| Stage | Experiment | Role | Result | Status |
+| --- | --- | --- | --- | --- |
+| - | E001-E003 | Fourier foundations | Reversible FFT, noise spectra, radial frequency sweep | Complete |
+| 1 | E004 | Freeze the operational split | `r = 4`; sensitivity `r = 3,5` | Complete |
+| 2 | E004A | Reconstruct full-space paper geometry | Clean-room high-high region | Complete |
+| 3 | E004B | Select frequency-derived times | Low `sigma=3.2568`; high `sigma={1.9233,1.0882}` (`{8}` / `{9,10}` in code) | Complete |
+| 4 | E005 | Supporting residual interpretation | Low `5..11`; high `11..14` | Complete |
+| 5 | E006 | Historical spectral-window swaps | Formally `INCONCLUSIVE` | Complete |
+| 6 | E007 | Historical full-space proposal | No result | Proposed; blocked |
+| 7 | E008 | Symmetric-pair protocol | `BLOCKED_NO_ELIGIBLE_PAIR` | `RETIRED_UNEXECUTED` |
+| 8 | E009 | Larger-data model search | `BLOCKED_NO_ELIGIBLE_5K_THROUGH_30K` | Complete negative evidence |
+| 9 | E010 | Main directional intervention | `HIGH_DERIVED_SUPPRESSION_SUPPORTED` | Complete |
 
 ## Mathematical Core
 
@@ -842,6 +763,9 @@ spectral-diffusion-playground/
   reproducibility under that freeze, not robustness across datasets or seeds.
 - E004B's high-band lower-confidence target narrows at `r=5`, so the result is
   not frequency-scale invariant.
+- E004B uses an 18-point sigma grid. Its low candidate is only one sampled
+  point, and its high candidate is two sampled points; denser local evaluation
+  would be required to resolve continuous boundaries.
 - E004B's low/high ranks are `147/2925` at `r=4`; rank, covariance, and power
   differences confound a frequency-only interpretation until matched controls
   are evaluated.
