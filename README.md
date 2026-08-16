@@ -39,21 +39,10 @@ no-swap baseline under the frozen E010 seeds.
 
 ![Target-minus-control contrasts with paired confidence intervals](figures/experiment_10/target_control_contrasts.png)
 
-### Scope Of The Result
-
-E010 establishes a selective timing association for one asymmetric model pair
-under a whole-denoiser intervention. It does **not** establish:
-
-- high-frequency-component or fine-detail causality;
-- dataset-size causality;
-- a universal memorization danger zone;
-- a continuous danger interval between sparsely sampled sigma values;
-- a general impossibility of induction; or
-- generalization beyond the tested pair, sampler, seeds, and memorization
-  criterion.
-
 Frequency-resolved geometry determines **when** the whole denoiser is swapped;
-frequency is not itself the manipulated model component.
+frequency is not itself the manipulated model component. This is a timing
+result for a whole-denoiser intervention, not evidence that high-frequency
+components themselves cause memorization.
 
 ## From Shell Geometry To Intervention
 
@@ -650,6 +639,22 @@ spectral-diffusion-playground/
 ├── src/          # reusable FFT, filtering, evaluation, and plotting code
 └── tests/        # numerical identities, determinism, schemas, and safeguards
 ```
+
+### Scope Of The Result
+
+E010 establishes a selective timing association for one asymmetric model pair
+under a whole-denoiser intervention. It does **not** establish:
+
+- high-frequency-component or fine-detail causality;
+- dataset-size causality;
+- a universal memorization danger zone;
+- a continuous danger interval between sparsely sampled sigma values;
+- a general impossibility of induction; or
+- generalization beyond the tested pair, sampler, seeds, and memorization
+  criterion.
+
+Frequency-resolved geometry determines **when** the whole denoiser is swapped;
+frequency is not itself the manipulated model component.
 
 ## Limitations
 
