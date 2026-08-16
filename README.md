@@ -70,7 +70,7 @@ This analysis is a paper-derived clean-room extension of
 Diffusion Models*](https://arxiv.org/abs/2602.17846) and does not claim exact
 reproduction of the paper's unavailable executed code.
 
-### Resolve The Geometry By Frequency
+### Find Low- And High-Frequency Candidate Regions
 
 We ask whether this candidate regime appears at different points of the
 diffusion trajectory for coarse and fine image structure. The Fourier cutoff

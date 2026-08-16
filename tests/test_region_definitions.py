@@ -204,12 +204,24 @@ class RegionDefinitionRepositoryTests(unittest.TestCase):
             "-> high-derived suppression supported",
         ):
             self.assertIn(stage, self.readme)
-        self.assertIn("## Supporting And Historical Experiments", self.readme)
-        self.assertNotIn("## Canonical Experimental Pipeline", self.readme)
-        self.assertLess(
-            self.readme.index("## 4. Main Result"),
-            self.readme.index("## Supporting And Historical Experiments"),
+
+        hierarchy = (
+            "## Main Result",
+            "## From Shell Geometry To Intervention",
+            "### Why A Candidate Danger Region Should Exist",
+            "### Find Low- And High-Frequency Candidate Regions",
+            "### Test The Predicted Sigma Locations",
+            "## Detailed Research Record",
         )
+        positions = [self.readme.index(heading) for heading in hierarchy]
+        self.assertEqual(positions, sorted(positions))
+
+        for experiment_id in range(1, 11):
+            self.assertIn(f"### E{experiment_id:03d}:", self.readme)
+        self.assertIn("**E006** was formally `INCONCLUSIVE`", self.readme)
+        self.assertIn("`PROPOSED — BLOCKED BY KNOWN BASELINE DEGENERACY`", self.readme)
+        self.assertIn("E008 is `RETIRED_UNEXECUTED`", self.readme)
+        self.assertNotIn("## Canonical Experimental Pipeline", self.readme)
 
     def test_e006_is_historical_not_final(self) -> None:
         historical = self.pipeline["stage_5_historical_swap"]
